@@ -1,0 +1,87 @@
+\section{Implementation}
+
+\begin{frame}[fragile=singleslide]{APS Code Generation}{Generic module extending its type parameter}
+
+{ \small $\to$ \texttt{MAKE\_LATTICE} module \alert{extends its own generic parameter}, How to code generate this APS feature in \alert{Scala}? }
+
+\newlinevspace
+
+\begin{Verbatim}[fontsize=\tiny]
+-- Module (generating module)
+module MAKE_LATTICE[L :: BASIC[]](default : L;
+				  comparef,
+				  compare_equalf : function(_,_:L) : Boolean;
+				  joinf,
+				  meetf : function (_,_:L) : L)
+    :: COMBINABLE[], LATTICE[] extends L
+begin
+end;
+
+-- Module with explicit type instance result (non-generating module)
+module MAX_LATTICE[TO :: ORDERED[]](min_element : TO)
+    MaxLattice := MAKE_LATTICE[TO](min_element,(<),(<=),max,min);
+
+-- Type declaration instance
+type IntegerMaxLattice := MAX_LATTICE[Integer](0);
+\end{Verbatim}
+
+\end{frame}
+
+\begin{frame}[fragile=singleslide]{APS Code Generation}{Desired Scala code generation final result}
+
+
+\begin{Verbatim}[fontsize=\tiny]
+val t_IntegerMaxLattice = new M_MAX_LATTICE[T_Integer]
+        ("IntegerMaxLattice",t_Integer,0)
+    with C_TYPE[T_Integer]
+    with C_PRINTABLE[T_Integer]
+    with C_ORDERED[T_Integer]
+    with C_NUMERIC[T_Integer] {
+        override val v_string = t_Integer.v_string;
+        override val v_zero = t_Integer.v_zero;
+        override val v_one = t_Integer.v_one;
+        override val v_plus = t_Integer.v_plus;
+        override val v_minus = t_Integer.v_minus;
+        override val v_times = t_Integer.v_times;
+        override val v_divide = t_Integer.v_divide;
+        override val v_unary_plus = t_Integer.v_unary_plus;
+        override val v_unary_minus = t_Integer.v_unary_minus;
+        override val v_unary_times = t_Integer.v_unary_times;
+        override val v_unary_divide = t_Integer.v_unary_divide;
+        
+        val v_assert = t_Integer.v_assert;
+        val v_equal = t_Integer.v_equal;
+        val v_node_equivalent = t_Integer.v_node_equivalent;
+  }
+\end{Verbatim}
+
+\end{frame}
+
+\begin{frame}[fragile=singleslide]{APS Code Generation}{Metadata for AST nodes}
+
+Previously:
+
+\begin{itemize}
+    \item Internally, APS \emph{types} are AST nodes. Any replacement of formals with actuals will result in AST creation/modification in semantic analyzer (outside of parser). \alert{Anti-pattern}.
+    \item No way to \emph{calculate} type of \emph{use}.
+\end{itemize}
+
+Now:
+
+\begin{itemize}
+    \item \alert{Canonical Type} map a \emph{use} to its type-declaration statement
+    \item \alert{Canonical Signatures} map a \alert{Canonical Type} to list of modules with type parameter \alert{substituted} (formals replaced with actuals)
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{Canonical Types}{}
+    
+After implementing canonical types and signatures into APS, Scala code generated First and Follow examples \alert{now type checks}!
+
+\newlinevspace
+
+$\to$ Next step is getting new \alert{static scheduler} to work so it can take advantage of improvements in code generation.
+
+\end{frame}

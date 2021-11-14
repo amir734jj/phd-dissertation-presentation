@@ -1,0 +1,151 @@
+\section{Introduction}
+
+\begin{frame}{Importance of Attribute Grammars}{Applications mainly in compiler construction}
+Primary application:
+
+\begin{itemize}
+    \item Type Checking
+    \item Control-Flow Analysis
+    \item Solving problems over AST
+\end{itemize}
+
+\emptyline
+
+Other applications:
+\begin{itemize}
+    \item Natural Language Processing \cite{10.1007/978-3-642-25324-9_25}
+    \item Model-driven engineering \cite{schone2020connecting}
+    \item Testing Services \cite{habibisharif}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Motivation}{Simplest form of attribute grammar}
+Math expression consisting of addition \& multiplication
+
+\[ 1 \times 2 + 3  \]
+
+\newlinevspace
+
+How to represent this as a \alert{CFG} with correct order of operation?
+\end{frame}
+
+
+\begin{frame}[fragile=singleslide]{Motivation}{Binary Expression CFG}
+
+How to represent the \alert{final value} as an attribute grammar?
+
+\begin{multicols}{2}
+\begin{Verbatim}[fontsize=\small]
+E -> E + T
+  val = ?
+
+E -> T
+  val = ?
+
+
+
+
+T -> T * F
+  val = ?
+
+T -> F
+  val = ?
+
+F -> digit
+  val = ?
+\end{Verbatim}
+\end{multicols}
+\end{frame}
+
+
+\begin{frame}[fragile=singleslide]{Motivation}{Pure-S AG}
+
+This is an example of \alert{purely synthesized} attribute grammar
+
+\begin{multicols}{2}
+\begin{Verbatim}[fontsize=\small]
+E -> E + T
+  E0.val = E1.val + T.val
+
+E -> T
+  E.val = T.val
+
+
+
+
+T -> T * F
+  T0.val = T1.val * F.val
+
+T -> F
+  T.val = F.val
+
+F -> digit
+  F.val = digit.lexical_val
+\end{Verbatim}
+\end{multicols}
+
+\end{frame}
+
+
+
+
+\begin{frame}{Motivation}{Derivation tree}
+Arrows represent \alert{direction} of flow of attribute values
+
+\begin{center}
+\scalebox{0.7}{\begin{forest}
+  [
+    E, name=11
+    [E,name=7 [T, name=6 [T,name=3 [F,name=2 [digit, name=1]]  ][*][F, name=5 [digit, name=4]  ]]]
+    [+]
+    [T, name=10 [F, name=9  [digit, name=8 ]]]
+  ]
+  \draw[->,dashed] (1) to[out=north west,in=south west] (2);
+  \draw[->,dashed] (2) to[out=north west,in=south west] (3);
+  \draw[->,dashed] (3) to[out=north west,in=west] (6);
+  \draw[->,dashed] (4) to[out=north east,in=south east] (5);
+  \draw[->,dashed] (5) to[out=north east,in=east] (6);
+  \draw[->,dashed] (6) to[out=north west,in=south west] (7);
+  \draw[->,dashed] (8) to[out=north east,in=south east] (9);
+  \draw[->,dashed] (9) to[out=north east,in=south east] (10);
+  \draw[->,dashed] (7) to[out=north west,in=west] (11);
+  \draw[->,dashed] (10) to[out=north east,in=east] (11);
+\end{forest}}    
+\end{center}
+
+\end{frame}
+
+
+\begin{frame}{Motivation}{Derivation: Sequence of steps to derive the final form}
+
+How to represent $1 + 2 * 3$ as a derivation?
+
+\begin{equation}
+\begin{split}
+E \rightarrow E + T
+  \rightarrow T + T
+  \rightarrow T * F + T
+  \rightarrow F * F + T \\
+  \rightarrow \mathit{digit} * F + T \\
+  \rightarrow \mathit{digit} * \mathit{digit} + T \\
+  \rightarrow \mathit{digit} * \mathit{digit} + F \\
+  \rightarrow \mathit{digit} * \mathit{digit} + \mathit{digit}
+\end{split}
+\end{equation}
+
+\end{frame}
+
+
+
+\begin{frame}{Attribute Grammars}{Extensions to original Knuth paper}
+
+\begin{itemize}
+    \item \alert{Classical Attribute Grammar} Introduced by Knuth in \cite{Knuth68semanticsof}
+    \item \alert{Ordered} Attribute Grammar Introduced by Kastens in \cite{10.1007/BF00288644}
+    \item \alert{Circular} Attribute Grammar Introduced by Farrow in \cite{10.1145/13310.13320}
+    \item \alert{Remote} Attribute Grammar Introduced separately by Boyland in \cite{Boyland05remoteattribute} and Hedin \cite{DBLP:journals/informaticaSI/Hedin00}
+    \item \alert{Circular Remote} Attribute Grammar Introduced by Hedin in \cite{10.1016/j.scico.2005.06.005}
+\end{itemize}
+	
+\end{frame}

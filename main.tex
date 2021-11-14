@@ -1,0 +1,148 @@
+\documentclass{beamer}
+\usepackage{graphicx}
+
+\usetheme{Ilmenau}
+
+\usepackage{float}
+\usepackage{tikz}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{bibentry}
+\usepackage{setspace}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{xcolor}
+\usepackage{mathrsfs}
+\usepackage{soul}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{spverbatim}
+\usepackage{multicol}
+\usepackage{fancyvrb}
+\usepackage[super]{nth}
+\usepackage{listings}
+\usepackage{linegoal}
+\usepackage{calc}
+\usepackage{tikz-qtree}
+\usepackage{forest}
+\graphicspath{ {figures/} }
+
+\usetikzlibrary{positioning,calc,arrows.meta}%arrows is deprecated
+
+\newtheorem{plain}{Remark}
+
+\addtobeamertemplate{navigation symbols}{}{%
+    \usebeamerfont{footline}%
+    \usebeamercolor[fg]{footline}%
+    \hspace{1em}%
+    \insertframenumber/\inserttotalframenumber
+}
+
+\setbeamercolor{footline}{fg=blue}
+\setbeamerfont{footline}{series=\bfseries}
+
+\title{Statically Scheduling Circular Remote Attribute Grammars}
+\newcommand{\enquote}[1]{``#1''}
+
+\newcommand{\emptyline}{\vspace{0.3cm}}
+% A subtitle is optional and this may be deleted
+% \subtitle{Lattice based key-exchange}
+
+\author[Seyedamirhossein Hesamian]{Seyedamirhossein Hesamian \texorpdfstring{\\{\small Advisor: Dr. Boyland}}{}}
+
+
+
+\institute[UW-Milwaukee] % (optional, but mostly needed)
+{
+  Department of Computer Science\\
+  University of Wisconsin Milwaukee
+}
+% - Use the \inst command only if there are several affiliations.
+% - Keep it simple, no one is interested in your street address.
+
+\date{Winter 2021}
+
+\newcommand{\newlinevspace}{\vspace{\baselineskip}}
+
+
+
+% - Either use conference name or its abbreviation.
+% - Not really informative to the audience, more for people (including
+%   yourself) who are reading the slides online
+
+\subject{Theoretical Computer Science}
+% This is only inserted into the PDF information catalog. Can be left
+% out. 
+
+% If you have a file called "university-logo-filename.xxx", where xxx
+% is a graphic format that can be processed by latex or pdflatex,
+% resp., then you can add a logo as follows:
+
+\pgfdeclareimage[height=0.5cm]{university-logo}{university-logo-uwm}
+\logo{\pgfuseimage{university-logo}}
+
+\algdef{SE}[DOWHILE]{Do}{DoWhile}{\algorithmicdo}[1]{\algorithmicwhile\ #1}%
+
+\newcommand{\AlgMultiline}[1]{
+\parbox[t]{\dimexpr\linewidth-\csname ALG@tlm\endcsname+\algorithmicindent}{\raggedright\hangindent\algorithmicindent%
+            #1 }}
+            
+\setbeamertemplate{mini frames}{}
+
+% Let's get started
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Outline}
+\tiny
+  \tableofcontents
+  % You might wish to add the option [pausesections]
+\end{frame}
+
+
+
+\input{sections/section1.tex}
+\input{sections/section2.tex}
+\input{sections/section3.tex}
+\input{sections/section4.tex}
+\input{sections/section5.tex}
+\input{sections/section6.tex}
+
+
+
+\begin{frame}{Acknowledgement}{}
+    {\huge \alert{Thank you!}}
+    
+    \emptyline
+    
+    \emptyline
+    
+    \textbf{Advisor}: Dr. Boyland (\url{boyland@uwm.edu})
+    
+    \emptyline
+    
+    \textbf{Thesis committee members:}
+        \begin{itemize}
+            \item Dr. McLeod (\url{kevinm@uwm.edu})
+            \item Dr. Munson (\url{munson@uwm.edu})
+            \item Dr. Zhao (\url{tzhao@uwm.edu})
+            \item Dr. Xu (\url{gxu4uwm@uwm.edu})
+        \end{itemize}
+    
+\end{frame}
+
+\begin{frame}{Reference}{}
+{\tiny \fontsize{1.5}{4}\selectfont
+\bibliographystyle{alpha}
+\bibliography{references}{}
+}
+\end{frame}
+
+
+
+\end{document}
+
+
