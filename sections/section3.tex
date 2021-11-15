@@ -34,7 +34,7 @@
 \end{definition}
 \end{frame}
 
-\begin{frame}{Notation}{Basic form of semantic rule uses in classical AG}
+\begin{frame}{Notation}{Basic form of semantic rule used in classical AG}
 
 Forms of semantic rules ($v_i$ are either $X.a$ or $l$):
 
@@ -46,7 +46,7 @@ Forms of semantic rules ($v_i$ are either $X.a$ or $l$):
 \newlinevspace 
 
 \begin{block}{Shorthand}
-If $g$ is the \alert{identity function}, then the rule can be written \alert{$v_0 = v_1$} as a shorthand.
+If $g$ is the \alert{identity function}, then the rule can be written \alert{$v_0 = v_1$}
 \end{block}
     
 \end{frame}
@@ -67,7 +67,7 @@ An attribute grammar is \alert{well-defined} if it is \alert{well-formed}, and t
 
 
 
-\begin{frame}{Defined and Used Occurrence Sets}{This will be used later to define \emph{compatibility} with $R(p)$}
+\begin{frame}{Defined and Used Occurrence Sets}{Divide occurrences into two disjoint sets}
 
 In a production $p: X_0 \rightarrow X_1 \dots X_n$
 
@@ -88,6 +88,10 @@ In a production $p: X_0 \rightarrow X_1 \dots X_n$
 \mathit{AO}(p) = \mathit{DO}(p) \cup \mathit{UO}(p)
 \end{gathered} 
 \end{equation}
+
+\newlinevspace
+
+$\to$ This will be used later to define \emph{compatibility} with $R(p)$
 
 \end{frame}
 
@@ -181,7 +185,7 @@ $B \rightarrow b$
 \end{frame}
 
 
-\begin{frame}{Symbols}{Useful symbol for time complexity analysis}
+\begin{frame}{Symbols}{Useful symbols for time complexity analysis}
 
 Set of \alert{all tree nodes} and set of \alert{all attribute instances}
 
@@ -309,7 +313,7 @@ A -> epsilon
 
 
 
-\begin{frame}{Static Evaluation}{Constructed independent of a derivation}
+\begin{frame}{Static Evaluation}{Alternative evaluation method: Constructed independent of a derivation}
 
 \begin{itemize}
     \item What if there was a way to \alert{statically} evaluate attribute grammars?
@@ -324,7 +328,7 @@ A -> epsilon
 
 
 
-\begin{frame}{Visit Sequence Evaluation}{More difficult to implement but very efficient}
+\begin{frame}{Visit Sequence Evaluation}{Static evaluator}
 
 $\to$ \alert{Visit sequence evaluation} is a \alert{type of static evaluation}.
 
@@ -337,6 +341,7 @@ Pros:
     \item \alert{No re-evaluation}
     \item Better space complexity as caching is not used
     \item Time complexity of: $\mathcal{O}(| \hat{R} |)$ (for classical AG)
+    \item \alert{Practical}: can be generated independent of derivation
 \end{itemize}
 
 Cons:
@@ -349,7 +354,7 @@ Cons:
 
 \begin{frame}[fragile=singleslide]{Example}{Visit sequence evaluator}
 
-$\to$ Set of \alert{recursive functions} where each function takes an \alert{instance of non-terminal} (derivation tree node).
+$\to$ Set of \alert{recursive functions} where each function takes an \alert{instance of non-terminal} (derivation tree node)
 
 \begin{multicols}{2}
 \begin{Verbatim}[fontsize=\scriptsize]
@@ -463,11 +468,10 @@ Visit sequence evaluator is a static attribute grammar evaluator that is a \aler
 \end{frame}
 
 
-\begin{frame}{Visit Sequence Evaluator}{Algorithm}
-
+\begin{frame}{Visit Sequence Evaluator}{Recursive function}
 
 \begin{center}
-    \scalebox{0.45}{
+    \scalebox{0.5}{
     \begin{minipage}{1.7\linewidth}
 \begin{algorithm}[H]
 \begin{algorithmic}[1]
@@ -589,7 +593,7 @@ Visit sequence evaluator is a static attribute grammar evaluator that is a \aler
 \end{frame}
 
 
-\begin{frame}{Ordered AG Test}{How to test if visit sequence evaluator exist (efficiently)?}
+\begin{frame}{Ordered AG Test}{Test if visit sequence evaluator exists (efficiently)}
 By definition, there exist a visit sequence for \alert{$l$-ordered} attribute grammars but membership test is \alert{NP-complete} \cite{ENGELFRIET1982283} so its common/practical to use an OAG test which is a greedy algorithm that runs in \alert{polynomial time}.
 
 \[ \mathit{OAG} \subseteq \mathit{l\text{-ordered}} \]
@@ -681,9 +685,15 @@ Cons:
 
 \begin{frame}{Remote Attribute Grammar}{Classical AG + allowing references}
 \begin{definition}
-A remote attribute grammar is a tuple $(G,S,I,L,R,B,F)$ where \alert{$B$ is a set of objects} declared at each production and \alert{$F$ is a set of fields} that each object has.
+A remote attribute grammar is a tuple $(G,S,I,L,R,\alert{B},\alert{F})$ where \alert{$B$ is a set of objects} declared at each production and \alert{$F$ is a set of fields} that each object has.
 \end{definition}
+
+\newlinevspace
+
+In RAG, we can access attribute values that are defined \alert{non-locally} whereas in classical all attributes are defined \alert{locally}.
+
 \end{frame}
+
 
 
 \begin{frame}{Notation}{Basic form of semantic rule uses in remote AG}
@@ -705,11 +715,11 @@ It is valid to have \alert{multiple partial field write} for the same field of a
 
 \newlinevspace
 
-This makes it challenging as schedule for RAG should order instantiated rules such that \alert{read of the object's field} should be done when its \alert{final}. 
+This makes it challenging as schedule for RAG should order instantiated rules such that \alert{read of the object's field} should be done when its value is \alert{final}. 
 
 \end{frame}
 
-\begin{frame}{Remote Attribute Grammar}{$\mathit{DO}$ and $\mathit{UO}$ sets}
+\begin{frame}{Remote Attribute Grammar}{$\mathit{DO}$ and $\mathit{UO}$ sets for RAG}
 In a production $p: X_0 \rightarrow X_1 \dots X_n$
 
 \begin{equation}
@@ -734,7 +744,6 @@ In a production $p: X_0 \rightarrow X_1 \dots X_n$
 
 \begin{frame}[fragile=singleslide]{Example}{A simple remote attribute grammar definition}
 
-
 \begin{multicols}{3}
 \begin{Verbatim}[fontsize=\small]
 S -> A B
@@ -748,14 +757,17 @@ A -> a
     A.r = o.f
 
 B -> b
-    object p
     local l
     l = B.i
-    l.f <- p
+    l.f <- 'b'
+
 \end{Verbatim}
 \end{multicols}
     
 \end{frame}
+
+
+
 
 
 \begin{frame}{Remote Attribute Grammar}{Object reference availability notation}
@@ -795,8 +807,45 @@ Schedule then for a remote attribute grammar is a strict total order ($<$) on th
 \end{frame}
 
 
+\begin{frame}[fragile=singleslide]{Example}{Instantiated remote attribute grammar + schedule + $B$ set calculation}
 
-\begin{frame}{Circular Remote Attribute Grammar}{Definition}
+\begin{multicols}{3}
+\begin{Verbatim}[fontsize=\small]
+n0: S -> A B
+    r0: n2.i = n1.s
+    r1: n0.x = n1.r
+
+
+n1: A -> a
+    object o0
+    r2: n1.s = o0
+    r3: n1.r = o0.f
+    
+n2: B -> b
+    r4: l0 = n2.i
+    r5: l0.f <- 'b'
+
+\end{Verbatim}
+\end{multicols}
+
+\begin{equation}\label{eq:b-set-rag}
+  \begin{gathered}
+B(l_0) \supseteq B(n_2.i) \supseteq B(n_1.s) \supseteq B(o_0) = \{ o_0 \} \\
+B(n_0.x) \supseteq B(n_1.r) = \emptyset
+  \end{gathered}
+\end{equation}
+
+
+\begin{equation}\label{eq:remote-ag-schedule}
+   \Big \{ \hat{r}_2 < \hat{r}_0 < \hat{r}_4 < \hat{r}_5 < \hat{r}_3 < \hat{r}_1 \Big \}
+\end{equation}
+
+
+\end{frame}
+
+
+
+\begin{frame}{Circular Remote Attribute Grammar}{Definition: Circular + Remote AG}
 
 \begin{definition}
 Circular remote attribute grammar is an \alert{extension of remote attribute grammars} and has the same form as remote attribute grammars, except \alert{certain attributes are circular} and \alert{some functions are declared monotone in some arguments}. This monotonicity is declared as $M_{gi} = \texttt{true}$, meaning that function $g$ is monotone in argument $i$.
@@ -804,7 +853,7 @@ Circular remote attribute grammar is an \alert{extension of remote attribute gra
 \end{frame}
 
 
-\begin{frame}{Circular Remote Attribute Grammar}{Circular + Remote AG}
+\begin{frame}{Circular Remote Attribute Grammar}{Applications}
 Obvious Applications for CRAG:
 
 \begin{itemize}
@@ -816,7 +865,7 @@ Obvious Applications for CRAG:
 
 
 \begin{frame}[fragile=singleslide]{Circular Remote Attribute Grammar}{Evaluation strategy}
-Hedin in \cite{10.1016/j.scico.2005.06.005} used fixed-point loops with demand evaluation to evaluate circular remote attribute grammar.
+Hedin in \cite{10.1016/j.scico.2005.06.005} used fixed-point loops with \alert{demand evaluation} to evaluate circular remote attribute grammar.
 
 \begin{Verbatim}[fontsize=\small]
     do {
@@ -832,12 +881,23 @@ But, what about \alert{schedule}? how to formalize validity of schedule for CRAG
 \end{frame}
 
 
-\begin{frame}{Evaluation Terminating}{Monotonicity}
+\begin{frame}{Notation}{Monotone definition}
+
+\begin{definition}
+If $f:X \rightarrow Y$ is a \alert{set function} from a collection of sets $X$ to an ordered set $Y$, then $f$ is said to be monotone if whenever \alert{$A \subseteq B$} as elements of $X$, \alert{$f(A) \leq f(B)$}
+\end{definition}
+
+\end{frame}
+
+
+\begin{frame}{Circular Remote Attribute Grammar}{Evaluation Terminating? Monotonicity}
 $\to$ If we put instantiated rules in a fixed-point loop, How to \alert{ensure evaluation terminates}?
 
 \newlinevspace
 
 Solution: \alert{Monotonicity} of arguments in a classical rule
+
+\newlinevspace
 
 \begin{block}{Remark}
 Partial field write rule as defined in definition of remote attribute grammar \alert{is a monotone operation}.
@@ -845,11 +905,9 @@ Partial field write rule as defined in definition of remote attribute grammar \a
 \end{frame}
 
 
+
 \begin{frame}{Monotone Use}{Validate monotonicity in argument of classical rule}
 
-\begin{definition}
-If $f:X \rightarrow Y$ is a set function from a collection of sets $X$ to an ordered set $Y$, then $f$ is said to be monotone if whenever $A \subseteq B$ as elements of $X$, $f(A) \leq f(B)$. 
-\end{definition}
 
 \begin{definition}
 Given classical attribute grammar rule $v_0 \texttt{=} g(v_1, \dots, v_j, \dots, v_n)$, $M_{g j} = \texttt{true}$ or $\texttt{false}$ indicates whether use of attribute instance at argument $j$ of function $g$ is monotone if it yields \texttt{true}. If it yields \texttt{false} then it is not non-monotone.
@@ -884,7 +942,7 @@ Formally, a total pre-order relation $\lesssim$ satisfies the following properti
 \begin{frame}{Circular Remote Attribute Grammar}{Schedule Definition part \#0}
     
     \begin{definition}
-A schedule then for a circular remote attribute grammar is a \alert{total pre-order} $\lesssim$ on the set of instantiated rules such that the following three conditions are met.
+A schedule then for a circular remote attribute grammar is a \alert{total pre-order} $\lesssim$ on the \alert{set of instantiated rules} such that the following \alert{three conditions} are met.
 \end{definition}
     
 \end{frame}
@@ -956,7 +1014,11 @@ B -> b
     B.s = l.f
 \end{Verbatim}
 \end{multicols}
-    
+
+\newlinevspace
+
+$\to$ Notice the \alert{cycle} involving reading and writing of the same object
+
 \end{frame}
 
 
@@ -998,16 +1060,57 @@ n2: B -> b
 \end{equation}
 
 \begin{equation}
-     \Big \{ \{ r_5 \} < \{ r_0 \} < \{ r_1 \} < \{ r_6 \} < \{ r_4, r_7, r_2 \} < \{ r_3 \}  \Big \}
+     \Big \{ \{ \hat{r}_5 \} < \{ \hat{r}_0 \} < \{ \hat{r}_1 \} < \{ \hat{r}_6 \} < \{ \hat{r}_4, \hat{r}_7, \hat{r}_2 \} < \{ \hat{r}_3 \}  \Big \}
 \end{equation}
 
 \end{frame}
+
+\begin{frame}{Trivial Schedule}{Observation}
+
+Only when \alert{all functions are monotone}. 
+
+$$ \Big\{ \{ r_0, \dots, r_7 \} \Big \}$$
+
+\end{frame}
+
+
+
+\begin{frame}[fragile=singleslide]{Example}{CRAG Example with non-monotone function $h$}
+
+\begin{multicols}{3}
+\begin{Verbatim}[fontsize=\small]
+S -> A B
+    local l
+    l = h(A.r)
+    B.i = h(l)
+    A.i = B.s
+    S.x = h(l.f)
+A -> a
+    object o
+    o.f <- A.i
+    A.r = h(o0)
+
+
+B -> b
+    local l
+    l = h(B.i)
+    B.s = l.f
+\end{Verbatim}
+\end{multicols}
+
+
+\newlinevspace
+
+The trivial schedule \alert{does not work} for this example.
+
+\end{frame}
+
 
 
 \begin{frame}{Circular Remote Attribute Grammar}{Schedule Evaluator}
 
 \begin{center}
-    \scalebox{0.45}{
+    \scalebox{0.5}{
     \begin{minipage}{1.3\linewidth}
 \begin{algorithm}[H]
 \begin{algorithmic}[1]
@@ -1042,7 +1145,7 @@ n2: B -> b
 \begin{frame}{Circular Visit}{Definition}
 
 \begin{definition}\label{def:circular-set-of-occurances}
-A visit $V'$, $V' \in \mathscr{V}(p: X \rightarrow \alpha)$, is called \emph{circular} if the corresponding set in the protocol of non-terminal in the LHS of production is declared circular. Similarly, a set in protocol is circular if all attributes in that set are declared circular. To indicate a set $\pi$ in protocol is circular, $\pi^c$ is used.
+A visit $V'$, $V' \in \mathscr{V}(p: X \rightarrow \alpha)$, is called \emph{circular} \alert{if the corresponding set in the protocol} of non-terminal in the LHS of production is declared circular. Similarly, a set in protocol is circular if all attributes in that set are declared circular. To indicate a set $\pi$ in protocol is circular, $\pi^c$ is used.
 \end{definition}
 
 \end{frame}
@@ -1104,11 +1207,9 @@ B -> b
 
 \end{frame}
 
-\begin{frame}{Fixed-Point Loops}{When fixed-point loop is needed and avoid nesting fixed-point loops}
+\begin{frame}{Fixed-Point Loops}{Case-by-case analysis of when fixed-point loop is needed to avoid nesting fixed-point loops}
 
-\begin{table}
-\centering
-\footnotesize
+{ \small
 \begin{tabular}{|p{0.4\linewidth} | p{0.5\linewidth}|}
 \hline
 % https://tex.stackexchange.com/questions/33486
@@ -1118,7 +1219,6 @@ Circular visit inside of circular visit & No fixed-point loop. Since the parent 
 Non-circular visit in circular visit & No fixed-point loop. Visit has to evaluate only once. \\ \hline
 Non-circular visit in non-circular visit & No fixed-point loop. Visit has to evaluate only once. \\ \hline
 Circular visit in non-circular visit & Needs fixed-point loop. \\ \hline
-\end{tabular}\caption{case-by-case analysis of loop requirement in CRAG visit sequence evaluator}\label{table:case-by-case-fixed-point-loop}
-\end{table}
+\end{tabular} }
 
 \end{frame}
