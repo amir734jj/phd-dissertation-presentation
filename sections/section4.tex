@@ -1,11 +1,28 @@
 \section{Methods}
 
 
+\begin{frame}{Fiber Construction}{Informal Definition: Beyond the scope of this presentation}
+
+\small
+\begin{itemize}
+    \item A construction that expresses the semantics of \emph{remote attribute grammars} in \emph{classical terms}
+    \item Objects implicitly carry separate values for the fields is like a \alert{rope} which can be separated into the individual fibers
+    \item This yields a corrupt attribute grammar with an infinite number of attributes
+    \item \emph{fiber approximation} fixes that (which then may include cycles ...)
+\end{itemize}
+
+\begin{center}
+\includegraphics[scale=0.2]{rope-fiber.png}
+\end{center}
+    
+
+\end{frame}
+
 \begin{frame}{Fiber Cycle Breaking}{Issue with existing static scheduler}
     
 Previously:
 \begin{itemize}
-    \item Created two \texttt{attribute\_decl} \alert{AST nodes} called up and down and the connected all nodes to these to break cycles and preserve only UP followed by DOWN.
+    \item For every non-terminal whose fibered attributes take part in the cycle, created two \texttt{attribute\_decl} \alert{AST nodes} called up and down and the connected all nodes to these to break cycles and preserve only UP followed by DOWN.
 \end{itemize}
 
 Now:
