@@ -26,11 +26,14 @@
 \usepackage{calc}
 \usepackage{tikz-qtree}
 \usepackage{forest}
+\usepackage{caption}
+\captionsetup[figure]{font=small}
 \graphicspath{ {figures/} }
 
 \usetikzlibrary{positioning,calc,arrows.meta}%arrows is deprecated
 
 \newtheorem{plain}{Remark}
+
 
 \addtobeamertemplate{navigation symbols}{}{%
     \usebeamerfont{footline}%
@@ -41,6 +44,7 @@
 
 \setbeamercolor{footline}{fg=blue}
 \setbeamerfont{footline}{series=\bfseries}
+
 
 \title{Statically Scheduling Circular Remote Attribute Grammars}
 \newcommand{\enquote}[1]{``#1''}
@@ -127,10 +131,10 @@
     
     \textbf{Thesis committee members:}
         \begin{itemize}
+            \item Dr. Cheng (\url{ccheng@uwm.edu})
             \item Dr. McLeod (\url{kevinm@uwm.edu})
             \item Dr. Munson (\url{munson@uwm.edu})
             \item Dr. Zhao (\url{tzhao@uwm.edu})
-            \item Dr. Xu (\url{gxu4uwm@uwm.edu})
         \end{itemize}
     
 \end{frame}

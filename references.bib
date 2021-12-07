@@ -77,6 +77,40 @@ pages = {229–256},
 numpages = {28}
 }
 
+@inproceedings{Boyland1998AnalyzingDN,
+  title={Analyzing Direct Non-local Dependencies in Attribute Grammars},
+  author={J. Boyland},
+  booktitle={CC},
+  year={1998}
+}
+
+@book{10.5555/924544,
+  title={Descriptional composition of compiler components},
+  author={Boyland, John Tang},
+  year={1996},
+  publisher={University of California, Berkeley}
+}
+
+@article{10.1145/225540.225544,
+author = {Boyland, John Tang},
+title = {Conditional Attribute Grammars},
+year = {1996},
+issue_date = {Jan. 1996},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {18},
+number = {1},
+issn = {0164-0925},
+url = {https://doi.org/10.1145/225540.225544},
+doi = {10.1145/225540.225544},
+abstract = {Attribute grammars are a useful formalism for the specification of computations on structured terms. The classical definition of attribute grammars, however, has no way of treating conditionals nonstrictly. Consequently, the natural way of expressing many otherwise well-behaved computations involves a circularity. This article presents conditional attribute grammars, and extension of attribute grammars that enables more precise analysis of conditionals. In conditional attribute grammars, attribute equations may have guards. Equations are active only when their guards are satisfied. The standard attribute grammar evaluation classes are definable for conditional attribute grammars, and the corresponding evaluation techniques can be easily adapted. However, determining membership in standard evaluation classes such as 1-SWEEP, OAG, and SNC is NP-hard.},
+journal = {ACM Trans. Program. Lang. Syst.},
+month = jan,
+pages = {73–108},
+numpages = {36},
+keywords = {attribute grammars, static analysis, language processor generators, demand evaluation, nonstrict evaluation, functional dependencies, conditionals}
+}
+
 @article{10.1145/13310.13320,
 author = {Farrow, Rodney},
 title = {Automatic Generation of Fixed-Point-Finding Evaluators for Circular, but Well-Defined, Attribute Grammars},
@@ -128,15 +162,7 @@ numpages = {17},
 keywords = {Grammar flow, Fixed-point evaluation, Demand-driven evaluation, Reference attributes, Live analysis, Circular attribute evaluation, Attribute grammars}
 }
 
-@phdthesis{10.5555/924544,
-author = {Boyland, John Tang and Graham, Susan L.},
-title = {Descriptional Composition of Compiler Components},
-year = {1996},
-isbn = {0591319284},
-publisher = {University of California, Berkeley},
-abstract = {New machine architectures and new programming languages are always appearing, and thus the need for new compilers continues unabated. Even experimental languages and machines need compilers. Compiler writers developing new and/or experimental compilers face competing pressures when designing their large-scale structure. On the one hand, a more modular structure will make it easier to maintain, modify or reuse pieces of the compiler. A more modular compiler is more likely to be correct, and reusable compiler components lead to consistent semantics among the compilers using them. On the other hand, a highly modular structure may lead to inefficiencies in implementation. Suppose one uses an intermediate representation and divides up the compiler into two parts, one which compiles the source to the intermediate representation and another which translates a program in the intermediate representation to the target machine language. Doing so may make the compiler easier to understand, and furthermore, a well-chosen intermediate representation may prove a suitable target for other source languages, or a suitable source for translating to other machines. On the other hand, the need to create and then traverse this intermediate representation may slow a compiler significantly. If the two parts are described in a high-level declarative formalism, descriptional composition can be used to combine the two parts automatically so as to avoid creating and traversing the intermediate structure.This dissertation presents a declarative compiler description language, APS, and a new method for descriptional composition. The language, based on a variant of attribute grammars, contains a number of features that aid compiler writers in factoring descriptions so that each concept can be expressed separately. Both a compiler for Oberon2 and a front-end for APS itself have been written in APS. The back-end of the Oberon2 compiler consists of a translation to a form of the "GCC tree" intermediate representation. Another module gives the translation from this form to source-level C text.A prototype compiler has been developed for APS that supports descriptional composition. The descriptionally composed version of the Oberon2 back-end with the translation to C text is no larger than the sum of the sizes of the modules from which it is composed, yet it runs almost twice as fast. The Oberon2 compiler is the first successful use of descriptional composition for a realistically complex system, and demonstrates the effectiveness of combining the new APS description language and the new algorithm for descriptional composition presented in this dissertation.},
-note = {AAI9722877}
-}
+
 
 @article{DBLP:journals/entcs/HedinM01,
   author    = {G{\"{o}}rel Hedin and

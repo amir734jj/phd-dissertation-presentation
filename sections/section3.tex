@@ -3,218 +3,294 @@
 
 \subsection*{Preliminaries}
 
-\begin{frame}{Context-Free Grammar}{Foundation that attribute grammars built upon}
+\begin{frame}{Context-Free Grammar (CFG)}{Foundation that attribute grammars built upon}
 
-\begin{definition}
-	Formally context-free grammar is a tuple of $G=(T, N, P, Z)$ where
+A grammar consists of:
+\begin{itemize}
+    \item a set of non-terminals, one of which is designated as the start variable
+    \item a set of terminals
+    \item a set of productions
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile=singleslide]{Example}{Grammar for a simple language}
+
+\begin{multicols}{2}
+\begin{Verbatim}[fontsize=\scriptsize]
+program -> block
+
+block -> "begin" decls stmts "end"
+
+decls ->
+
+decls -> decls decl
+
+decl -> id ":" type ";"
+
+type -> "Integer"
+
+type -> "String"
+
+stmts -> 
+
+stmts -> stmts stmt
+
+stmt -> block ";"
+
+stmt -> expr := expr
+
+expr -> INT_CONSTANT
+
+expr -> STRING_CONSTANT
+
+expr -> id
+\end{Verbatim}
+\end{multicols}
+
+
+Source: \cite{Boyland1998AnalyzingDN}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile=singleslide]{Example}{Derivation of this simple language}
+
+\begin{Verbatim}[fontsize=\scriptsize,numbers=left,xleftmargin=5mm]
+begin
+   x : String;
+   y : Integer;
 	
-	\begin{enumerate}
-		\item $T$ is a set of terminal symbols
-		\item $N$ is a set of non-terminal symbols
-		\item $P$ is a set of production rules
-		\item $Z$ is a start non-terminal symbol
-	\end{enumerate}
+   x := z;
+   y := "hello world!";
+end
+\end{Verbatim}
 
-\end{definition}
+\newlinevspace
+
+\begin{itemize}
+    \item Use of undeclared variable
+    \item Type mismatch?
+    \item Unused variable
+\end{itemize}
+
+\newlinevspace
+
+$\to$ How to detect these issues using attribute grammars?
 \end{frame}
 
 
 \begin{frame}{Classical Attribute Grammar}{CFG + Rules}
-\begin{definition}\label{def:ag-definition}
-	A classical attribute grammar is a tuple $A = (G, S, I, L, R)$ where
-
-	\begin{enumerate}
-	    \item $G=(T, N, P, Z)$ is a context-free grammar
-		\item $S$ is a set of \enquote{synthesized attributes} for each non-terminal $X$
-		\item $I$ is a set of \enquote{inherited attributes} for each non-terminal $X$
-		\item $L$ is a set of \enquote{local attributes} for each production $p$ 
-		\item $R$ is a set of semantic rules of the form \alert{$v_0 \texttt{=} g(v_1, \dots, v_k)$} for each production $p$, where $g$ is a function, and $v_i \in V(p)$ are \enquote{attribute occurrences} of either the form $X.a$  or $l$
-	\end{enumerate}
-
-\end{definition}
-\end{frame}
-
-\begin{frame}{Notation}{Basic form of semantic rule used in classical AG}
-
-Forms of semantic rules ($v_i$ are either $X.a$ or $l$):
-
-\begin{enumerate}
-    \item Classical rule: $$v_0 \texttt{=} g(v_1, \dots, v_k) $$
-\end{enumerate}
-
-\newlinevspace 
-\newlinevspace 
-
-\begin{block}{Shorthand}
-If $g$ is the \alert{identity function}, then the rule can be written \alert{$v_0 = v_1$}
-\end{block}
-    
-\end{frame}
 
 
+A classical attribute grammar is a \alert{grammar} with the following added features:
 
-\begin{frame}{Constraints}{Logical constraints to filter out AGs that do not provide any value}
-
-\begin{definition}
-An attribute grammar is \alert{well-formed} if there is exactly one defining semantic rule for each attribute given a derivation.
-\end{definition}
-
-\begin{definition}
-An attribute grammar is \alert{well-defined} if it is \alert{well-formed}, and there is a unique solution that can be computed for each attribute given a derivation.
-\end{definition}
-\end{frame}
-
-
-
-
-\begin{frame}{Defined and Used Occurrence Sets}{Divide occurrences into two disjoint sets}
-
-In a production $p: X_0 \rightarrow X_1 \dots X_n$
-
-\begin{equation}
-\begin{gathered}
-  \mathit{DO}(p) = \left \{ X_j.a \; \middle\vert
-    \begin{array}{cc}
-     a \in S(X_0) & j = 0 \\
-     a \in I(X_k) & j \neq 0
-    \end{array}
-\right \} \cup L(p) \\
-\mathit{UO}(p) = \left \{ X_j.a \; \middle\vert
-    \begin{array}{cc}
-     a \in I(X_0) & j = 0 \\
-     a \in S(X_k) & j \neq 0
-    \end{array}
-\right \} \cup L(p) \\
-\mathit{AO}(p) = \mathit{DO}(p) \cup \mathit{UO}(p)
-\end{gathered} 
-\end{equation}
-
-\newlinevspace
-
-$\to$ This will be used later to define \emph{compatibility} with $R(p)$
+\begin{itemize}
+    \item Each symbol $X$ has a set of attributes $A(X)$
+    \item $A(X)$ has two disjoint subsets
+    \begin{itemize}
+        \item $S(X)$, synthesized attributes, which are passed up the tree
+        \item $I(X)$, inherited attributes which are passed down the tree
+    \end{itemize}
+    \item Set of local attributes associated with each production
+    \item Each production of the grammar has a set of semantic functions
+\end{itemize}
 
 \end{frame}
 
-\begin{frame}[fragile=singleslide]{Example}{Finding DO and UO sets for simple AG}
+\begin{frame}[fragile=singleslide]{Example}{Classical attribute grammar to find semantic errors in a program}
+
 
 \begin{multicols}{2}
-\begin{Verbatim}[fontsize=\small]
-// DO = { A.i, B.i, S.s }
-// UO = { A.s, B.s }
-S -> A B
-    S.s = A.s + B.s
-    A.i = 'a'
-    B.i = 'b'
+\begin{Verbatim}[fontsize=\fontsize{1}{1}\selectfont]
+program -> block
+	block.env = empty_env()
+	program.msgs = block.msgs
+	
+block -> "begin" decls stmts "end"
+	decls.envin = block.env
+	stmts.env = decls.envout
+	decls.uin = stmts.used
+	block.used = decls.uout
+	block.msgs = decls.msgs ++ stmts.msgs
+	
+decls ->
+	decls.envout = decls.envin
+	decls.uout = decls.uin
+	decls.msgs = { }
 
+decls -> decls decl
+  decls1.envin = decls0.envin
+  decl.envin = decls1.envout
+  decls0.envout = decl.envout
+  decl.uin = decls0.uin
+  decls1.uin = decl.uout
+  decls0.uout = decls1.uout
+  decls0.msgs = decls1.msgs ++ decl.msgs
 
+decl -> id ":" type ";"
+  decl.envout = add_env(<id, type.shape>, decl.envin)
+  decl.uout = decl.uin - id
+  decl.msgs = if id in decl.uin then
+                { }
+              else
+                { "unused: " + id }
 
-// DO = { A.s }
-// UO = { A.i }
-A -> a
-    A.s = A.i
+type -> "Integer"
+  type.shape = INT_SHAPE
 
-// DO = { B.s }
-// UO = { B.i }
-B -> b
-    B.s = B.i
+type -> "String"
+  type.shape = STR_SHAPE
+
+stmt ->
+  stmts.used = { }
+  stmts.msgs = { }
+
+stmts -> stmts stmt
+  stmts1.env = stmts0.env
+  stmt.env = stmts0.env
+  stmts0.used = stmts1.used ++ stmt.used
+  stmts0.msgs = stmts1.msgs ++ stmt.msgs
+
+stmt -> block ";"
+  block.env = stmt.env
+  stmt.used = block.used
+  stmt.msgs = block.msgs
+
+stmts -> expr ":=" expr ";"
+  expr1.env = stmt.env
+  expr2.env = stmt.env
+  stmt.used = expr1.used ++ expr2.used
+  stmt.msgs = (if expr1.shape != expr2.shape then
+                { "type mismatch" }
+              else
+                { }) ++ expr.msgs
+
+expr -> INT_CONSTANT
+  expr.shape = INT_SHAPE
+  expr.used = { }
+  expr.msgs = { }
+
+expr -> STR_CONSTANT
+  expr.shape = STR_SHAPE
+  expr.used = { }
+  expr.msgs = { }
+
+expr -> id
+  local shape = lookup(id, expr.env)
+  expr.shape = shape
+  expr.used = { id }
+  expr.msgs = if shape == NOT_FOUND then
+                { id + " not declared" }
+              else
+                { }
 \end{Verbatim}
 \end{multicols}
 
 \end{frame}
 
 
-\begin{frame}{Derivation}{Embedding tree node in a derivation}
-Basic form of a derivation $\mathscr{D}$
-\[ \alpha_0 \rightarrow \alert{\alpha_1} \rightarrow \dots \rightarrow \alpha_n   \]
-
-Example of a derivation $\mathscr{D}$
-\[ S \rightarrow \alert{A B} \rightarrow a B \rightarrow a b \]
-
-Example of a derivation $\hat{\mathscr{D}}$
-\[ (S, 0) \rightarrow \alert{(A, 1) B} \rightarrow a (B, 2) \rightarrow a b  \]
-\end{frame}
-
-
 \begin{frame}{Instantiated Attribute Grammar}{Attribute Grammar + Derivation}
-\begin{definition}
-An instantiated attribute grammar is $\mathit{IA} = (A, \hat{\mathscr{D}}, \hat R)$ such that
-\begin{enumerate}
-	\item $A = (G, S, I, L, R)$ is an attribute grammar where  $G= (T, N, P, Z)$.
-	
-	\item Derivation \alert{$\hat{\mathscr{D}}$} or set of transitions. $(X, i)$ is called instantiated node.
-    
-    \item \alert{$\hat R$} is a set of instantiated semantic rules, defined as follows: for each step of derivation $\alpha_i \rightarrow \alpha_{i+1}$ which has a form of $\hat{\alpha}(X_0,j)\hat{\beta} \rightarrow \hat{\alpha}\hat{\delta}\hat{\beta}$ we have an associated production $p: X_0 \rightarrow X_1 \dots X_n$ that made that derivation step possible.
-\end{enumerate}
-\end{definition}
+Given a \alert{derivation} of grammar, an attribute grammar becomes \alert{instantiated}:
+\begin{itemize}
+    \item Set of instantiated semantic rules where each attribute \alert{occurrence} is replaced with attribute \alert{instance}
+\end{itemize}
 
-\end{frame}
-
-
-\begin{frame}{Example}{Instantiated rule}
-Rule in production $S \rightarrow A B$
-\[ r: S.s = A.s + B.s  \]
-
-Instantiated rule: occurrences replaced with \alert{attribute instanced}
-\[ \hat{r_0}: (S, 0).a = (A, 1).s + (B,2).s  \]
-\end{frame}
-
-\begin{frame}{Example}{Instantiated attribute grammar rules $\hat{R}$}
-
-
-{\small
-$S \rightarrow A B$
-\begin{gather*}
-\hat{r_0}: (S, 0).a = (A, 1).s + (B,2).s \\
-\hat{r_1}: (A, 1).i = `a` \\
-\hat{r_2}: (B, 2).i = `b`
-\end{gather*}
-
-$A \rightarrow a$
-\begin{gather*}
-\hat{r_3}: (A,1).s = (A,1).i \\
-\end{gather*}
-
-$B \rightarrow b$
-\begin{gather*}
-\hat{r_4}: (B,2).s = (B,2).i \\
-\end{gather*}
-}
-
-
-
-\end{frame}
-
-
-\begin{frame}{Symbols}{Useful symbols for time complexity analysis}
-
-Set of \alert{all tree nodes} and set of \alert{all attribute instances}
-
-\begin{equation}
-\begin{gathered}
-    \hat{N} = \bigcup_{\hat r \in \hat R} \{ (X, i) \mid \hat v_i \in \hat r \wedge \hat v_i \equiv (X, i).a \}  \\
-    \hat{V} = \bigcup_{\hat r \in \hat R} \begin{cases}
-(X, i).a &  \hat v_i \in \hat r \wedge \hat v_i \equiv (X, i).a \\
-(l, i)   &  \hat v_i \in \hat r \wedge \hat v_i \equiv (l, i) 
-\end{cases}
-\end{gathered}
-\end{equation}
 \end{frame}
 
 
 \subsection*{Evaluations}
 
+\begin{frame}{Evaluation}{Core concept}
+
+Evaluation is a process of finding the \alert{values} of \alert{attribute instances}.
+
+\end{frame}
+
 \begin{frame}{Demand Evaluation}{Straightforward evaluation method}
 \begin{definition}
-Demand evaluation is a kind of evaluation where each attribute instance access requires a call to evaluate the corresponding instantiated semantic rule.
+Demand evaluation is a kind of evaluation where each attribute instance access requires a call to evaluate the corresponding instantiated semantic rule that defines it.
 \end{definition}
 
-\begin{gather*}
-\alert{(S, 0).a } \to \hat{r_0}: (S, 0).a = \alert{(A, 1).s} + \alert{(B,2).s} \\
-\to (A, 1).s \to \hat{r_3}: (A,1).s = \alert{(A,1).i} \\
-\to (B,2).s \to \hat{r_4}: (B,2).s = \alert{(B,2).i} \\
-\to (A,1).i \to \hat{r_1}: (A, 1).i = `a` \\
-\to (B,2).i \to \hat{r_2}: (B, 2).i = `b`
-\end{gather*}
+\end{frame}
+
+
+\begin{frame}[fragile=singleslide]{Example}{Simple yet abstract example of classical attribute grammar}
+    
+\begin{multicols}{3}
+\begin{verbatim}
+S -> A
+  A.i1  = S.in
+  A.i2  = A.s1
+  S.out = A.s2
+
+
+
+
+A -> A A
+  A1.i1 = A0.i1
+  A1.i2 = A1.s1
+  A0.s1 = A1.s2
+  A2.i1 = A0.i2
+  A2.i2 = A2.s1
+  A0.s2 = A2.s2
+
+A -> epsilon
+  A.s1 = A.i1 + 1
+  A.s2 = A.i2 + 2
+    
+    
+    
+    
+\end{verbatim}
+\end{multicols}
+
+Source: \cite{10.1145/225540.225544}
+    
+\end{frame}
+
+
+\begin{frame}[fragile=singleslide]{Example}{Instantiated attribute grammar}
+
+\[
+\lefteqn{\underbrace{\phantom{S \rightarrow A}}_{n_0}} S \rightarrow
+\lefteqn{\overbrace{\phantom{A \rightarrow A A}}^{n_1}} A \rightarrow 
+\lefteqn{\underbrace{\phantom{A A \rightarrow \epsilon}}_{n_2}} A A \rightarrow \epsilon
+\lefteqn{\overbrace{A \rightarrow \epsilon}^{n_3}}
+\]
+
+
+\begin{multicols}{3}
+\begin{Verbatim}[fontsize=\scriptsize]
+n0: S -> A
+  r0 : n1.i1  = n0.in
+  r1 : n1.i2  = n1.s1
+  r2 : n0.out = n1.s2
+
+
+
+
+n1: A -> A A
+  r3 : n2.i1 = n1.i1
+  r4 : n2.i2 = n2.s1
+  r5 : n1.s1 = n2.s2
+  r6 : n3.i1 = n1.i2
+  r7 : n3.i2 = n3.s1
+  r8 : n1.s2 = n3.s2
+
+n2: A -> epsilon
+  r9 : n2.s1 = n2.i1 + 1
+  r10: n2.s2 = n2.i2 + 2
+    
+n3: A -> epsilon
+  r11: n3.s1 = n3.i1 + 1
+  r12: n3.s2 = n3.i2 + 2
+\end{Verbatim}
+\end{multicols}
+
+The sequence of steps needed to evaluate $\alert{n_0.\mathit{out}}$:
+$\alert{n_0.\mathit{out}} \to \alert{r_2}{:} n_o.\mathit{out} = n_1.s_2 \to \alert{r_8}{:} n_1.s_2 = n_3.s_2 \to \alert{r_{12}}{:}n_3.s_2 = \dots$
+
 \end{frame}
 
 
@@ -227,21 +303,26 @@ Pros:
 
 Cons:
 \begin{itemize}
-    \item Does not detect cycles before evaluation begins and \alert{may not terminate}
+    \item Does not detect cycles before evaluation begins or \alert{may not terminate}
     \item Space complexity if \alert{caching} is used: $\mathcal{O}(|\hat{V}|)$
     \item Time complexity of: $\mathcal{O}(| \hat{V} | \times | \hat{R} |)$ (for classical AG)
 \end{itemize}
 \end{frame}
 
 
-\begin{frame}{Schedule Evaluation}{Easy to implement}
+\begin{frame}{Schedule Evaluation}{Finding the order of evaluation of instantiated rules before evaluation runtime}
 
 Given this \emph{schedule}, evaluate the AG:
 
-\[ \mathit{schedule} = \{ \hat{r_1} < \hat{r_2} < \hat{r_3} < \hat{r_4} < \hat{r_0}  \} \]
+\begin{equation}
+\begin{split}
+\mathit{schedule} = \Big \{\hat{r}_0 < \hat{r}_3 < \hat{r}_9 < \hat{r}_4 < \hat{r}_{10} < \hat{r}_5 < \hat{r}_1 < \hat{r}_6 \\
+< \hat{r}_{11} < \hat{r}_7 < \hat{r}_{12} < \hat{r}_8 < \hat{r}_2 \Big \}    
+\end{split}
+\end{equation}
 
 \begin{alertblock}{Observation}
-Finding the schedule requires topological sort of attribute instances: $\mathcal{O}(| V +  E|)$ where $V = \hat{V}$ and $E = |\hat{V}  \times  \hat{R}|$.
+Finding the schedule requires topological sort of attribute instances: $\mathcal{O}(| V +  E|)$ where $V = \hat{V}$ and $E = |\hat{V}  \times  \hat{R}|$
 \end{alertblock}
 \end{frame}
 
@@ -266,50 +347,11 @@ Cons:
 \begin{frame}{Schedule}{Total order of instantiated rules}
 What makes a schedule (total order on instantiated rules) valid?
 
-$\to$ \alert{No use of attribute instance before it is defined first}
-
 \newlinevspace
 
-\begin{definition}
-For all $\hat{r_1}, \hat{r_2} \in \hat R$ then  $\hat{r_1} < \hat{r_2}$ iff $\exists \hat{v}_i \in \hat{r_1} (\exists \hat{v}_i \in \hat{r_2} (\texttt{LHS($\hat{r_1}$)} = \hat{v}_i \wedge \hat{v}_i \in \texttt{RHS($\hat{r_2}$)} ))$, meaning that rule $\hat{r_1}$ or simply defines $\hat{v}_i$ and rule $\hat{r_2}$ uses $\hat{v}_i$.
-\end{definition}
-\end{frame}
-
-
-\begin{frame}[fragile=singleslide]{Example}{Example of AG that can produce infinite number of derivations}
-
-Finding the schedule for a particular derivation of this AG is much more harder as a derivation may have many many nodes. 
-
-\begin{multicols}{3}
-\begin{Verbatim}[fontsize=\small]
-S -> A
-  A.i1  = S.in
-  A.i2  = A.s1
-  S.out = A.s2
-
-
-
-
-A -> A A
-  A1.i1 = A0.i1
-  A1.i2 = A1.s1
-  A0.s1 = A1.s2
-  A2.i1 = A0.i2
-  A2.i2 = A2.s1
-  A0.s2 = A2.s2
-
-A -> epsilon
-  A.s1 = A.i1 + 1
-  A.s2 = A.i2 + 2
-    
-    
-    
-    
-\end{Verbatim}
-\end{multicols}
+$\to$ \alert{No use of attribute instance before it is defined first}
 
 \end{frame}
-
 
 
 
@@ -362,20 +404,20 @@ visit_S(n: S -> A)
     A.i1 = S.in
     - visit_A_part1(A)
     A.i2 = A.s1
-    - visit_A_part1(A)
+    - visit_A_part2(A)
     S.out = A.s2
 
 visit_A_part1(n: A -> A A)
     A1.i1 = A0.i1
-    - visit_A_part2(A1)
+    - visit_A_part1(A1)
     A1.i2 = A1.s1
-    - visit_A_part3(A1)
+    - visit_A_part2(A1)
     A0.s1 = A1.s2
 visit_A_part2(n: A -> A A)
     A2.i1 = A0.i2
-    - visit_A_part2(A2)
+    - visit_A_part1(A2)
     A2.i2 = A2.s1
-    - visit_A_part3(A2)
+    - visit_A_part2(A2)
     A0.s2 = A2.s2
 
 visit_A_part1(n: A -> epsilon)
@@ -397,28 +439,16 @@ visit_A_part2(n: A -> epsilon)
 
 \newlinevspace
 
-$\to$ AG is $l$-ordered if exists a $T(X)$  for all non-terminal $X \in N$ such that its \alert{compatible} with $\mathit{AO}(p)$ and $R(p)$ where $p: X \rightarrow \alpha$. 
+$\to$ AG is $l$-ordered if exists a $T(X)$  for all non-terminal $X \in N$ such that its \alert{compatible} with $\mathit{Ord}(\mathit{AO}(p))$ and $\mathit{Ord}(R(p))$ where $p: X \rightarrow \alpha$. 
 
 \end{frame}
 
-\begin{frame}{$l$-ORD}{Definition}
+% \begin{frame}{$l$-ORD}{Definition}
 
-\begin{definition}
-An attribute grammar is called $l$-ordered if there exists a function $T$ that maps each symbol $X$ to a total order $T(X) \subseteq (\mathit{Attr}(X) \times \mathit{Attr}(X))$ of attributes of $X$ that is \alert{compatible} with the whole attribute grammar. That is $\forall p \in P$ the function $T$ is \alert{compatible} with the total order of the attribute occurrences $\mathit{Ord}(\mathit{AO}(p)) \subseteq (V(p) \times V(p))$ and total order of semantic rules $R(p)$.
 
-\end{definition}
-\end{frame}
+% \end{frame}
 
-\begin{frame}{$l$-ORD}{Compatibility}
-    \begin{enumerate}
-        \item \alert{$T$} and $\mathit{Ord}(\alert{\mathit{AO}(p)})$ are called compatible if for any two occurrence of the same non-terminal $(X, i).a, (X, i).a' \in \mathit{AO}(p)$ then $(X.a < X.a') \in \mathit{Ord}(\mathit{AO}(p))$ iff $(a < a') \in T(X)$.
-
-        \item $\mathit{Ord}(\alert{\mathit{AO}(p)})$ and \alert{$R(p)$} are called compatible if for any two occurrence $X.a$, $\allowbreak X'.a' \allowbreak \in \mathit{AO}(p)$ then $(X.a < X'.a') \in \mathit{Ord}(\mathit{AO}(p))$ iff $X.a \in \mathit{DO}(p)$ and $X'.a'  \allowbreak \in \mathit{UO}(p)$.
-    \end{enumerate}
-
-\end{frame}
-
-\begin{frame}{Visit Sequence Evaluation}{Protocol}
+\begin{frame}{Visit Sequence}{Protocol}
 
 \begin{definition}
 A \emph{Protocol} $\Pi(X)$ is an \alert{ordered partition of attributes} for each non-terminal $X \in N$, where it can include an empty set or multiple synthesized or inherited attributes.
@@ -430,81 +460,23 @@ A \emph{Protocol} $\Pi(X)$ is an \alert{ordered partition of attributes} for eac
 For example, $\Pi(A)$ is the following:
 \[ \Pi(A) = \Big\{ \{ A.i_1, A.s_1 \} < \{ A.i_2, A.s_2 \} \Big\} \]
 \end{examples}
-\end{frame}
 
-
-\begin{frame}{Visit Sequence Evaluation}{Visit sequence $\mathscr{V}(p)$}
-
-\begin{definition}
-A \emph{visit-sequence} for a production $p: X \rightarrow \alpha \in P$ of a $l$-ordered attribute grammar is $\mathscr{V}(p)$, a sequence of visits or a \alert{two-level ordered partitions} of rules where each visit (or outer set) corresponds to $\Pi(X)$. Visit sequence is \alert{compatible} with $R(p)$. In other words, for any two attribute occurrence $v_i$ and $v_i'$ defined or used in the rules $r$ and $r'$ respectively which themselves are a part of $\mathscr{V}(p)$, then $(r < r') \in \mathscr{V}(p)$ iff $v_i \in \mathit{DO}(p)$ and $v_j \in \mathit{UO}(p)$.
-\end{definition}
-
-\end{frame}
-
-\begin{frame}{Example}{Visit sequence for a production $\mathscr{V}(p: A \rightarrow A A)$}
-
-\[ \Pi(A) = \Big\{ \{ A.i_1, A.s_1 \} < \{ A.i_2, A.s_2 \} \Big\} \]
-
-\begin{equation}
-\begin{gathered}
-\begin{split}
-\mathscr{V}(p: A_0 \rightarrow A_1 A_2) = \Bigg\{               
-   \overbrace{ \Big\{  \mathit{visit}(A_1, 1)  < \mathit{visit}(A_1, 2)	 \Big\}}^\text{\alert{first visit} corresponding to first set in $\Pi(A)$ }  <  \\
-   \underbrace{ \Big\{  \mathit{visit}(A_2, 1)  < \mathit{visit}(A_2, 2) \Big\}}_\text{\alert{second visit} corresponding to second set in $\Pi(A)$}
-\Bigg\}
-\end{split}
-\end{gathered}
-\end{equation}
+Visit Sequence has to be compatible with $\mathit{Ord}(R(p))$ and $\Pi(X_i)$
 
 \end{frame}
 
 
-\begin{frame}{Visit Sequence Evaluator}{Interpreter style program that used visit sequence}
-
-\begin{definition}
-Visit sequence evaluator is a static attribute grammar evaluator that is a \alert{recursively defined function} and takes as argument: a production $p: X \rightarrow \alpha$, an instance of non-terminal node of LHS of production $(X:i, j)$, \alert{a visit sequence $\mathscr{V}$} and \alert{derivation $\hat{\mathscr{D}}$} and uses them to evaluate all the attribute occurrences \alert{$\mathit{AO}(p)$}.
-\end{definition}
-
-\end{frame}
+% \begin{frame}{Visit Sequence Evaluation}{Visit sequence $\mathscr{V}(p)$}
 
 
-\begin{frame}{Visit Sequence Evaluator}{Recursive function}
+% \end{frame}
 
-\begin{center}
-    \scalebox{0.5}{
-    \begin{minipage}{1.7\linewidth}
-\begin{algorithm}[H]
-\begin{algorithmic}[1]
-\Procedure{\texttt{VISIT\_SEQUENCE\_EVAL}}{$\mathit{AG}, \hat{\mathscr{D}}, \; (X:i, j), \; k, \; \mathit{Val}$}
-    \State{$(p: X \rightarrow \alpha, \; \alpha_l \rightarrow \alpha_{l+1}) \gets \hat{\mathscr{D}}[j]$}
-    \For{$(V', m) \gets (\mathscr{V}(p) \times \mathbb{N})$}
-        \If{$m = k$} \Comment{Evaluate only visit number $k$}
-            \For{$\mathscr{I} \gets V'$}
-                \If{$\mathscr{I} \equiv visit(X':n, o)$}
-                    \State \Comment{Find rules that define child inherited attributes if any}
-                    \State{$\texttt{EVAL\_TREE\_ATTRS}(\mathit{AG}, p, (X':n), \mathit{Val}    )$}
-                    \State
-                    \State \AlgMultiline{$q \gets \exists q \in [j + 1 , \dots,  |\hat{\mathscr{D}}|]  \; ( \alpha_q \rightarrow \alpha_{q+1} \equiv \hat{\mathscr{D}}[q] \wedge \allowbreak  \alpha_q \equiv \hat{\alpha}(X':n,q)\hat{\beta} \wedge  \alpha_{q+1} \equiv  \hat{\alpha}\hat{\delta}\hat{\beta} )$}
-                    \State{$\texttt{VISIT\_SEQUENCE\_EVAL}(\mathit{AG}, \hat{\mathscr{D}}, \; (X':n, q), \; o, \; \mathit{Val}    )$}
-                \ElsIf{$\mathscr{I} \equiv r$}
-                    \State{$\hat{r} \gets \sigma(r)$}
-                    \State{$\texttt{AG\_EVAL}(\hat{r}, \mathit{Val} )$}
-                \EndIf
-            \EndFor
-            \State \Comment{Find rules that define parent synthesized attributes if any}
-            \State{$\texttt{EVAL\_TREE\_ATTRS}(\mathit{AG}, p, (X:i), \mathit{Val}    )$}
-        \EndIf
-    \EndFor
-\EndProcedure
-\end{algorithmic}
-\caption{Schedule evaluation of circular remote attribute grammar}
-\end{algorithm}
-    \end{minipage}%
-    }    
-\end{center}
-    
-    
-\end{frame}
+
+% \begin{frame}{Visit Sequence Evaluator}{Interpreter style program that used visit sequence}
+
+% \end{frame}
+
+
 
 
 \begin{frame}{Visualization Tools}{Dependency graph}
@@ -587,7 +559,7 @@ Visit sequence evaluator is a static attribute grammar evaluator that is a \aler
 
 \end{tikzpicture} }
 
-    \caption{Augmented dependency graph $\mathit{DG}_{p: A \rightarrow A A}^*$}
+    \caption{\small Augmented dependency graph $\mathit{DG}_{p: A \rightarrow A A}$ with SNC summary edges}
 \end{figure}
 
 \end{frame}
@@ -609,6 +581,8 @@ An attribute grammar is an Ordered Attribute Grammar (OAG) if for every producti
 \begin{block}{Remark}
 OAG test runs in polynomial time or $\mathcal{O}(|R|)$
 \end{block}
+
+
 
 
 \end{frame}
@@ -644,7 +618,7 @@ $\to$ Require that the domain of all attributes involved in cyclic chains can be
 
 Pros:
 \begin{itemize}
-    \item Type of \alert{static evaluation}
+    \item Type of \alert{partially dynamic evaluation}
     \item Easy to implement
     \item Uses \alert{fixed-point loop} to ensure fixed-point in attribute values
 \end{itemize}
@@ -657,28 +631,33 @@ Cons:
 \end{frame}
 
 
-\begin{frame}{Example}{Synth function to calculate $s_1$ and $s_2$ attributes}
+\begin{frame}{Example}{Synth function to calculate $s_1$, $s_2$ and $r$ synthesized attributes}
 
-\begin{minipage}{0.8\linewidth}
+\scalebox{0.85}{
+\begin{minipage}{0.7\linewidth}
 \scriptsize
 \begin{algorithmic}
-\Function{$\texttt{EVAL\_A\_s1}$}{$n$}
-    \If{$\texttt{PRODUCTION\_OF($n$)} = p: A_0 \rightarrow A_1 A_2$}
-        \State \Return{$A_1.s_2$}
-    \ElsIf{$\texttt{PRODUCTION\_OF($n$)} =  p: A \rightarrow \epsilon$}
-        \State \Return{$n.i_1 + 1$}
-    \EndIf
-\EndFunction
-\State
-\Function{$\texttt{EVAL\_A\_s2}$}{$n$}
-    \If{$\texttt{PRODUCTION\_OF($n$)} = p: A_0 \rightarrow A_1 A_2$}
-        \State \Return{$A_2.s_2$}
-    \ElsIf{$\texttt{PRODUCTION\_OF($n$)} =  p: A \rightarrow \epsilon$}
-        \State \Return{$n.i_2 + 2$}
-    \EndIf
-\EndFunction
+        \Function{$\texttt{EVAL\_A\_s1}$}{$i_1$}
+            \If{$\texttt{PRODUCTION} = A \rightarrow \epsilon$}
+                \State \Return{$i_1 + 1$}
+            \ElsIf{$\texttt{PRODUCTION} = A \rightarrow A A$}
+                \State \Return{$ \texttt{EVAL\_A\_s2}( \texttt{EVAL\_A\_s1}(i_1)  ) $}
+            \EndIf
+        \EndFunction
+        \State
+        \Function{$\texttt{EVAL\_A\_s2}$}{$i_2$}
+            \If{$\texttt{PRODUCTION} = A \rightarrow \epsilon$}
+                \State \Return{$i_2 + 2$}
+            \ElsIf{$\texttt{PRODUCTION} = A \rightarrow A A$}
+                \State \Return{$ \texttt{EVAL\_A\_s2}( \texttt{EVAL\_A\_s1}(i_2)  ) $}
+            \EndIf
+        \EndFunction
+        \State
+        \Function{$\texttt{EVAL\_S\_r}$}{$\mathit{in}$}
+            \State{\Return{$\texttt{EVAL\_A\_s2}(\texttt{EVAL\_A\_s1}(\mathit{in})) $}}
+        \EndFunction
 \end{algorithmic}
-\end{minipage}
+\end{minipage}}
 
 \end{frame}
 
@@ -696,17 +675,6 @@ In RAG, we can access attribute values that are defined \alert{non-locally} wher
 
 
 
-\begin{frame}{Notation}{Basic form of semantic rule uses in remote AG}
-
-Forms of semantic rules:
-
-\begin{enumerate}
-    \item Classical rule: $$v_0 \texttt{=} g(v_1, \dots, v_k) $$
-    \item Field read: $$v_i = w.f$$
-    \item Partial field write: $$w.f \sqsupseteq v_i$$
-\end{enumerate}
-
-\end{frame}
 
 
 \begin{frame}{Observation}{Partial field write}
@@ -719,136 +687,90 @@ This makes it challenging as schedule for RAG should order instantiated rules su
 
 \end{frame}
 
-\begin{frame}{Remote Attribute Grammar}{$\mathit{DO}$ and $\mathit{UO}$ sets for RAG}
-In a production $p: X_0 \rightarrow X_1 \dots X_n$
-
-\begin{equation}
-\small
-\begin{gathered}
-\mathit{DO}(p) = \left \{ X_j.a \; \middle\vert
-    \begin{array}{cc}
-     a \in S(X_0) & j = 0 \\
-     a \in I(X_k) & j \neq 0
-    \end{array}
-\right \} \cup L(p) \cup 
-\{ O_0 \mid O_0 \in B(p)  \} \\
-\mathit{UO}(p) = \left \{ X_j.a \; \middle\vert
-    \begin{array}{cc}
-     a \in I(X_0) & j = 0 \\
-     a \in S(X_k) & j \neq 0
-    \end{array}
-\right \} \cup L(p) \cup \{ O_0 \mid O_0 \in B(p)  \}
-\end{gathered}
-\end{equation}
-\end{frame}
-
-\begin{frame}[fragile=singleslide]{Example}{A simple remote attribute grammar definition}
-
-\begin{multicols}{3}
-\begin{Verbatim}[fontsize=\small]
-S -> A B
-    B.i = A.s
-    S.x = A.r
 
 
-A -> a
-    object o
-    A.s = o
-    A.r = o.f
+\begin{frame}[fragile=singleslide]{Example}{Remote attribute grammar to find semantic errors in a program}
 
-B -> b
-    local l
-    l = B.i
-    l.f <- 'b'
+\begin{centering}
+\begin{multicols}{2}
+\begin{Verbatim}[fontsize=\fontsize{5.5}{6}\selectfont]
+program -> block
+  block.scope = ROOT_SCOPE
 
+block -> "begin" decls stmts "end"
+  local scope = { decls: { }, enclosing: block.scope }
+  decls.scope = scope
+  stmts.scope = scope
+
+decls ->
+
+decls -> decls decl
+  decls1.scope = decls0.scope
+  decl.scope = decls0.scope
+
+decl -> id ":" type ";"
+  local d = { shape: type.shape, col: false } 
+  decl.scope.decls <- { <id, d> }
+  if not d.used then
+    msgs <- { id + " not used" }
+
+type -> "Integer"
+  type.shape = INT_SHAPE
+
+type -> "String"
+  type.shape = STR_SHAPE
+
+stmts -> 
+
+stmts -> stmts stmt
+  stmts1.scope = stmts0.scope
+  stmt.scope = stmts0.scope
+
+stmt -> block ";"
+  block.scope = stmt.scope
+
+stmt -> expr := expr
+  expr1.scope = stmt.scope
+  expr2.scope = stmt.scope
+  if expr1.shape != expr2.shape then
+    msgs <- { "type mismatch" }
+
+expr -> INT_CONSTANT
+  expr.shape = INT_SHAPE
+
+expr -> STRING_CONSTANT
+  expr.shape = STR_SHAPE
+
+expr -> id
+  local decl = lookup(id, expr.scope)
+  expr.shape = decl.shape
+  if decl == NOT_FOUND then
+    msgs <- { id + " not declared" }
+  else
+    decl.used <- true
 \end{Verbatim}
 \end{multicols}
-    
-\end{frame}
-
-
-
-
-
-\begin{frame}{Remote Attribute Grammar}{Object reference availability notation}
-
-$\to$ Calculating $B$ set is used to \alert{verify schedule for RAG} \cite{Boyland05remoteattribute}
-
-\newlinevspace
-
-\begin{equation}
-\small
-  \begin{gathered}
-\begin{cases}
-B(v_0) \supseteq B(v_i)    & (v_0 \texttt{=} g(v_1, \dots, v_n )) \in \hat R \text{ when } L_{g i} = 0 \\
-B(v) \supseteq B(v') &  (v = w. f ), (w'.f \sqsupseteq v') \in \hat R \text{ when } B(w) \cap B(w') \neq \emptyset \\
-B(o) = \{o\} & o \in B(t) \\
-\end{cases}
-  \end{gathered}
-\end{equation}
+\end{centering}
 
 \end{frame}
 
-\begin{frame}{Remote Attribute Grammar}{Schedule}
+
+
+
+
+\begin{frame}{Notation}{Monotone definition}
 
 \begin{definition}
-Schedule then for a remote attribute grammar is a strict total order ($<$) on the instantiated rules when the two conditions below are met.
- 
-\begin{minipage}[t]{\linegoal}
-\begin{enumerate}
-
-\item {[Same as schedule for classical attribute grammar]}
-
-\item For two rules $r_1 = (v = w.f)$, $r_2 = (w'.f \sqsupseteq v')$ if these rules may be referring to the same object or $B(w) \cap B(w') \neq \emptyset$, then the partial field write must strictly precede the field read or $r_2 < r_1$.
-\end{enumerate}
-\end{minipage}
+If $f:X \rightarrow Y$ is a \alert{set function} from a collection of sets $X$ to an ordered set $Y$, then $f$ is said to be monotone if whenever \alert{$A \subseteq B$} as elements of $X$, \alert{$f(A) \leq f(B)$}
 \end{definition}
-    
-\end{frame}
-
-
-\begin{frame}[fragile=singleslide]{Example}{Instantiated remote attribute grammar + schedule + $B$ set calculation}
-
-\begin{multicols}{3}
-\begin{Verbatim}[fontsize=\small]
-n0: S -> A B
-    r0: n2.i = n1.s
-    r1: n0.x = n1.r
-
-
-n1: A -> a
-    object o0
-    r2: n1.s = o0
-    r3: n1.r = o0.f
-    
-n2: B -> b
-    r4: l0 = n2.i
-    r5: l0.f <- 'b'
-
-\end{Verbatim}
-\end{multicols}
-
-\begin{equation}\label{eq:b-set-rag}
-  \begin{gathered}
-B(l_0) \supseteq B(n_2.i) \supseteq B(n_1.s) \supseteq B(o_0) = \{ o_0 \} \\
-B(n_0.x) \supseteq B(n_1.r) = \emptyset
-  \end{gathered}
-\end{equation}
-
-
-\begin{equation}\label{eq:remote-ag-schedule}
-   \Big \{ \hat{r}_2 < \hat{r}_0 < \hat{r}_4 < \hat{r}_5 < \hat{r}_3 < \hat{r}_1 \Big \}
-\end{equation}
-
 
 \end{frame}
-
 
 
 \begin{frame}{Circular Remote Attribute Grammar}{Definition: Circular + Remote AG}
 
 \begin{definition}
-Circular remote attribute grammar is an \alert{extension of remote attribute grammars} and has the same form as remote attribute grammars, except \alert{certain attributes are circular} and \alert{some functions are declared monotone in some arguments}. This monotonicity is declared as $M_{gi} = \texttt{true}$, meaning that function $g$ is monotone in argument $i$.
+Circular remote attribute grammar is an \alert{extension of remote attribute grammars} and has the same form as remote attribute grammars, except \alert{certain attributes are circular} and \alert{some functions are declared monotone in some arguments}.
 \end{definition}
 \end{frame}
 
@@ -881,14 +803,6 @@ But, what about \alert{schedule}? how to formalize validity of schedule for CRAG
 \end{frame}
 
 
-\begin{frame}{Notation}{Monotone definition}
-
-\begin{definition}
-If $f:X \rightarrow Y$ is a \alert{set function} from a collection of sets $X$ to an ordered set $Y$, then $f$ is said to be monotone if whenever \alert{$A \subseteq B$} as elements of $X$, \alert{$f(A) \leq f(B)$}
-\end{definition}
-
-\end{frame}
-
 
 \begin{frame}{Circular Remote Attribute Grammar}{Evaluation Terminating? Monotonicity}
 $\to$ If we put instantiated rules in a fixed-point loop, How to \alert{ensure evaluation terminates}?
@@ -906,27 +820,6 @@ Partial field write rule as defined in definition of remote attribute grammar \a
 
 
 
-\begin{frame}{Monotone Use}{Validate monotonicity in argument of classical rule}
-
-
-\begin{definition}
-Given classical attribute grammar rule $v_0 \texttt{=} g(v_1, \dots, v_j, \dots, v_n)$, $M_{g j} = \texttt{true}$ or $\texttt{false}$ indicates whether use of attribute instance at argument $j$ of function $g$ is monotone if it yields \texttt{true}. If it yields \texttt{false} then it is not non-monotone.
-\end{definition}    
-    
-\end{frame}
-
-\begin{frame}{Simple and Monotone Use}{Dividing the $\mathit{UO}$ set into two disjoint sets}
-
-\begin{itemize}
-    \item $\mathit{SUO}(p)$ is referring to \alert{simple} (non-monotone) use occurrences  
-    \item $\mathit{MUO}(p)$ refers to \alert{monotone} use occurrences
-\end{itemize}
-
-\newlinevspace
-
-    \[ \mathit{UO}(p) = \mathit{SUO}(p) \cup \mathit{MUO}(p) \]
-
-\end{frame}
 
 \begin{frame}{Notation}{Total pre-order}
 
@@ -939,57 +832,19 @@ Formally, a total pre-order relation $\lesssim$ satisfies the following properti
 
 \end{frame}
 
-\begin{frame}{Circular Remote Attribute Grammar}{Schedule Definition part \#0}
+\begin{frame}{Circular Remote Attribute Grammar}{Schedule Definition}
     
-    \begin{definition}
-A schedule then for a circular remote attribute grammar is a \alert{total pre-order} $\lesssim$ on the \alert{set of instantiated rules} such that the following \alert{three conditions} are met.
-\end{definition}
-    
-\end{frame}
-
-\begin{frame}{Circular Remote Attribute Grammar}{Schedule Definition part \#1}
-    
-    \begin{definition}
-\begin{enumerate}
-\setcounter{enumi}{0}
-  \item Every rule that uses some attribute instance must be scheduled after any rule that defines the same attribute instance. Formally, for all $\hat{r_1}, \hat{r_2} \in \hat R$ then $\hat{r_1} < \hat{r_2}$ or $\hat{r_1} \leq \hat{r_2}$ iff $\exists \hat{v}_i \in \hat{r_1} (\exists \hat{v}_i \in \hat{r_2} (\texttt{LHS($\hat{r_1}$)} = \hat{v}_i \wedge \hat{v}_i \in \texttt{RHS($\hat{r_2}$)}   \wedge \hat{v}_i \notin B(t) ))$. This means that rule $\hat{r_1}$ which defines $\hat{v}_i$ must precede rule $\hat{r_2}$ which uses $\hat{v}_i$. The following defines the condition of when $<$ or $\leq$ is used:
-
-    \[ \begin{cases}
-      \hat{r_1} < \hat{r_2},    & \text{if } \hat{v}_i \in \mathit{SUO}(p) \\
-      \hat{r_1} \leq \hat{r_2}, & \text{otherwise (} \hat{v}_i \in \mathit{MUO}(p)  \text{)}     
-    \end{cases} \]
-\end{enumerate}
-\end{definition}
-    
-\end{frame}
-
-\begin{frame}{Circular Remote Attribute Grammar}{Schedule Definition part \#2}
 \begin{definition}
-
-\begin{enumerate}
-\setcounter{enumi}{1}
-  \item For two rules $r_1 = (v = w.f)$, $r_2 = (w'.f \supseteq v' ) \in R(t)$ if these rules are referring to the same object or $B(w) \cap B(w') \neq \emptyset$, then the partial field write must precede the field read or be done in the same set, meaning $r_2 \leq r_1$.
-\end{enumerate}
+A schedule then for a circular remote attribute grammar is a \alert{total pre-order} $\lesssim$ on the \alert{instantiated rules} such that the following \alert{three conditions} are met.
 \end{definition}
+
+
+\begin{exampleblock}{Observation}
+Any total pre-order on the instantiated rules is isomorphic to a total order on a partition of instantiated rules.
+\end{exampleblock}
+
 \end{frame}
 
-\begin{frame}{Circular Remote Attribute Grammar}{Schedule Definition part \#3}
-\begin{definition}
-A schedule then for a circular remote attribute grammar is a total pre-order $\lesssim$ on the set of instantiated rules such that the following two conditions are met.
-
-\begin{enumerate}
-\setcounter{enumi}{2}
-  \item For all $\hat{r}_0 = v_0 \texttt{=} g(v_1, \dots , v_k)$ and for all $\hat{r}_i$ defining $v_i$, that is $\texttt{LHS($r_i$)} = v_i$, where $i \in [1, k]$, the schedule must follow this relation:
-  
-  \[ 
-  \begin{cases}
-  \hat{r}_i \le \hat{r}_0   & \text{if } M_{gi} = \texttt{true} \\
-  \hat{r}_i < \hat{r}_0 & \text{otherwise}
-  \end{cases}
-  \]
-\end{enumerate}
-\end{definition}
-\end{frame}
 
 
 \begin{frame}[fragile=singleslide]{Example}{CRAG Example}
@@ -1045,31 +900,20 @@ n2: B -> b
 \end{Verbatim}
 \end{multicols}
 
+\[
+     \Big \{ \{ \hat{r}_5 \} < \{ \hat{r}_0 \} < \{ \hat{r}_1 \} < \{ \hat{r}_6 \} < \{ \hat{r}_4 , \hat{r}_7, \hat{r}_2 \} < \{ \hat{r}_3 \}  \Big \}
+\]
 
 \end{frame}
 
-\begin{frame}[fragile=singleslide]{Example}{Schedule + $B$ set calculation}
-
-
-\begin{equation}
-  \begin{gathered}
-    B(n_1.i) \supseteq B(n_2.s) \supseteq B(l_1.f) = \emptyset \\
-    B(l_0) \supseteq B(n_1.r) = \{ o_0 \}  \\
-    B(l_1) \supseteq B(n_2.i) = \{ o_0 \} 
-  \end{gathered}
-\end{equation}
-
-\begin{equation}
-     \Big \{ \{ \hat{r}_5 \} < \{ \hat{r}_0 \} < \{ \hat{r}_1 \} < \{ \hat{r}_6 \} < \{ \hat{r}_4, \hat{r}_7, \hat{r}_2 \} < \{ \hat{r}_3 \}  \Big \}
-\end{equation}
-
-\end{frame}
 
 \begin{frame}{Trivial Schedule}{Observation}
 
 Only when \alert{all functions are monotone}. 
 
-$$ \Big\{ \{ r_0, \dots, r_7 \} \Big \}$$
+$$ \Big\{ \{ \hat{r_0}, \dots, \hat{r_7} \} \Big \}$$
+
+This happens when for all $\hat{r_1}, \hat{r_2} \in \hat{R}$, $\hat{r_1} \lesssim \hat{r_2} \wedge \hat{r_2} \lesssim \hat{r_1}$.
 
 \end{frame}
 
@@ -1079,74 +923,30 @@ $$ \Big\{ \{ r_0, \dots, r_7 \} \Big \}$$
 
 \begin{multicols}{3}
 \begin{Verbatim}[fontsize=\small]
-S -> A B
+n0: S -> A B
     local l
-    l = h(A.r)
-    B.i = h(l)
-    A.i = B.s
-    S.x = h(l.f)
-A -> a
+    r0: l = h(n1.r)
+    r1: n2.i = h(l)
+    r2: n1.i = n2.s
+    r3: n0.x = h(l.f)
+n1: A -> a
     object o
-    o.f <- A.i
-    A.r = h(o0)
+    r4: o.f <- n1.i
+    r5: n1.r = h(o0)
 
 
-B -> b
+n2: B -> b
     local l
-    l = h(B.i)
-    B.s = l.f
+    r6: l = h(n2.i)
+    r7: n2.s = l.f
 \end{Verbatim}
 \end{multicols}
+
 
 
 \newlinevspace
 
 The trivial schedule \alert{does not work} for this example.
-
-\end{frame}
-
-
-
-\begin{frame}{Circular Remote Attribute Grammar}{Schedule Evaluator}
-
-\begin{center}
-    \scalebox{0.5}{
-    \begin{minipage}{1.3\linewidth}
-\begin{algorithm}[H]
-\begin{algorithmic}[1]
-    \Procedure{\texttt{CRAG\_SCHEDULE\_EVAL}}{$\; (\hat R, \lesssim), \mathit{Val} = \texttt{dict()} \;$}
-        \For{$R' \gets (\hat R, \lesssim)$}
-            \Do
-                \State{$\mathit{change} \gets \texttt{false}$}
-                \For{$\hat{r} \gets R'$}
-                    \State $\mathit{prev} \gets \texttt{dict()}$
-                    \For{$v \gets \hat{r}$}
-                        \State{$\mathit{prev}(v) \gets \mathit{Val}(v)$}
-                    \EndFor
-                    \State \texttt{RAG\_EVAL($\hat{r}, \mathit{Val}$)}
-                    \For{$v \gets \hat{r}$}
-                        \If{$\mathit{Val}(v) \supset \mathit{prev}(v)$}
-                            \State $change \gets \texttt{true}$
-                        \EndIf
-                    \EndFor
-                \EndFor
-            \DoWhile{$\mathit{change}$}
-        \EndFor
-    \EndProcedure
-\end{algorithmic}
-\caption{Schedule evaluation of circular remote attribute grammar}
-\end{algorithm}
-    \end{minipage}%
-    }    
-\end{center}
-    
-\end{frame}
-
-\begin{frame}{Circular Visit}{Definition}
-
-\begin{definition}\label{def:circular-set-of-occurances}
-A visit $V'$, $V' \in \mathscr{V}(p: X \rightarrow \alpha)$, is called \emph{circular} \alert{if the corresponding set in the protocol} of non-terminal in the LHS of production is declared circular. Similarly, a set in protocol is circular if all attributes in that set are declared circular. To indicate a set $\pi$ in protocol is circular, $\pi^c$ is used.
-\end{definition}
 
 \end{frame}
 

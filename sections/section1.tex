@@ -4,9 +4,15 @@
 Primary application:
 
 \begin{itemize}
-    \item Type Checking
-    \item Control-Flow Analysis
+    \item Program Analysis
+        \begin{itemize}
+            \item  Type Checking
+            \item Control-Flow Analysis
+        \end{itemize}
     \item Solving problems over AST
+        \begin{itemize}
+            \item  Nullable, First and Follow
+        \end{itemize}
 \end{itemize}
 
 \emptyline
@@ -91,7 +97,9 @@ F -> digit
 
 
 \begin{frame}{Motivation}{Derivation tree}
-Arrows represent \alert{direction} of flow of attribute values
+Arrows represent \alert{direction} of flow of attribute values:
+
+$\to$ \alert{bottom-up} propagation
 
 \begin{center}
 \scalebox{0.75}{\begin{forest}
@@ -117,24 +125,6 @@ Arrows represent \alert{direction} of flow of attribute values
 \end{frame}
 
 
-\begin{frame}{Motivation}{Derivation: Sequence of steps to derive the final form}
-
-How to represent $1 + 2 * 3$ as a derivation?
-
-\begin{equation}
-\begin{split}
-E \rightarrow E + T
-  \rightarrow T + T
-  \rightarrow T * F + T
-  \rightarrow F * F + T \\
-  \rightarrow \mathit{digit} * F + T \\
-  \rightarrow \mathit{digit} * \mathit{digit} + T \\
-  \rightarrow \mathit{digit} * \mathit{digit} + F \\
-  \rightarrow \mathit{digit} * \mathit{digit} + \mathit{digit}
-\end{split}
-\end{equation}
-
-\end{frame}
 
 
 
@@ -144,21 +134,33 @@ E \rightarrow E + T
     \item \alert{Classical Attribute Grammar} Introduced by Knuth in \cite{Knuth68semanticsof}
     \item \alert{Ordered} Attribute Grammar Introduced by Kastens in \cite{10.1007/BF00288644}
     \item \alert{Circular} Attribute Grammar Introduced by Farrow in \cite{10.1145/13310.13320}
-    \item \alert{Remote} Attribute Grammar Introduced separately by Boyland in \cite{Boyland05remoteattribute} and Hedin \cite{DBLP:journals/informaticaSI/Hedin00}
+    \item \alert{Remote} Attribute Grammar Introduced separately by Boyland in \cite{10.5555/924544, Boyland05remoteattribute} and Hedin \cite{DBLP:journals/informaticaSI/Hedin00}
     \item \alert{Circular Remote} Attribute Grammar Introduced by Hedin in \cite{10.1016/j.scico.2005.06.005}
 \end{itemize}
 	
 \end{frame}
 
 
-\begin{frame}{Goal}{Final goal of this thesis}
+\begin{frame}{Goal}{End-goal of this thesis}
     
 \begin{itemize}
     \item \alert{Statically scheduling} circular remote attribute grammars
     \begin{itemize}
-        \item Modifying \alert{APS attribute system} to handle this
+        \item Modifying \alert{APS attribute grammar system} to handle this extension
         \item Testing it against circularly defined problems like First and Follow and \alert{Cool semantic analyzer}
     \end{itemize}
 \end{itemize}
     
+\end{frame}
+
+\begin{frame}{Impact}{Advancing knowledge}
+    
+\begin{itemize}
+    \item This has NOT been done before
+    \begin{itemize}
+        \item Not even static evaluator for \alert{circular AG}
+    \end{itemize}
+    \item Completes the attribute grammars for practical use
+\end{itemize}    
+
 \end{frame}

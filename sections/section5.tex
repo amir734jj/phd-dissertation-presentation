@@ -1,31 +1,5 @@
 \section{Implementation}
 
-\begin{frame}[fragile=singleslide]{APS Code Generation}{Generic module extending its type parameter}
-
-{ \small $\to$ \texttt{MAKE\_LATTICE} module \alert{extends its own generic parameter}, How to code generate this APS feature in \alert{Scala}? }
-
-\newlinevspace
-
-\begin{Verbatim}[fontsize=\tiny]
--- Module (generating module)
-module MAKE_LATTICE[L :: BASIC[]](default : L;
-				  comparef,
-				  compare_equalf : function(_,_:L) : Boolean;
-				  joinf,
-				  meetf : function (_,_:L) : L)
-    :: COMBINABLE[], LATTICE[] extends L
-begin
-end;
-
--- Module with explicit type instance result (non-generating module)
-module MAX_LATTICE[TO :: ORDERED[]](min_element : TO)
-    MaxLattice := MAKE_LATTICE[TO](min_element,(<),(<=),max,min);
-
--- Type declaration instance
-type IntegerMaxLattice := MAX_LATTICE[Integer](0);
-\end{Verbatim}
-
-\end{frame}
 
 \begin{frame}[fragile=singleslide]{APS Code Generation}{Desired Scala code generation final result: Scala Traits}
 
