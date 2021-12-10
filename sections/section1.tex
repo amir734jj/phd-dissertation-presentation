@@ -25,6 +25,12 @@ Other applications:
 \end{itemize}
 \end{frame}
 
+\note[itemize]{
+\item Initially attribute grammars were designed and mainly still to this day used in program analysis
+\item Generally speaking, attribute grammars can be used in solving problems defined over a tree
+\item Recently, however, it has also been used in natural language processing and testing
+}
+
 
 \begin{frame}{Motivation}{Simplest form of attribute grammar}
 Math expression consisting of addition \& multiplication
@@ -36,6 +42,10 @@ Math expression consisting of addition \& multiplication
 How to represent this as a \alert{CFG} with correct order of operation?
 \end{frame}
 
+\note[itemize]{
+\item As a motivation, given this simple arithmetic expression, lets utilize attribute grammars to define semantics of its final value
+\item but first lets construct a context-free grammar for it
+}
 
 \begin{frame}[fragile=singleslide]{Motivation}{Binary Expression CFG}
 
@@ -65,6 +75,12 @@ F -> digit
 \end{frame}
 
 
+\note[itemize]{
+\item This is a context-free grammar describing that arithmetic expression with a correct order of operation
+\item How to represent the final value using attribute grammars?
+\item To do that we need to define the value of LHS using the values of RHS
+}
+
 \begin{frame}[fragile=singleslide]{Motivation}{Pure-S AG}
 
 This is an example of \alert{purely synthesized} attribute grammar
@@ -93,7 +109,12 @@ F -> digit
 
 \end{frame}
 
-
+\note[itemize]{
+\item This is a an attribute grammar describing the value of each expression
+\item Notice propagation of attribute values are always bottom-up
+\item val is a synthesized attribute
+\item non-terminal followed by a dot followed by an attribute name is called an attribute occurrence
+}
 
 
 \begin{frame}{Motivation}{Derivation tree}
@@ -124,7 +145,9 @@ $\to$ \alert{bottom-up} propagation
 
 \end{frame}
 
-
+\note[itemize]{
+\item In a practical setup we have a mix of bottom-up and top-down propagation
+}
 
 
 
@@ -140,6 +163,12 @@ $\to$ \alert{bottom-up} propagation
 	
 \end{frame}
 
+\note[itemize]{
+\item This is a list of highly influential papers that contributed to the field of attribute grammars and we will be building upon them
+\item Starting from Knuth 1968 paper titled "Semantics of Context-Free Languages"
+\item And most recently Hedin in 2007 introduced an extension to Knuth's classical attribute grammar called circular remote attribute grammars 
+}
+
 
 \begin{frame}{Goal}{End-goal of this thesis}
     
@@ -153,6 +182,12 @@ $\to$ \alert{bottom-up} propagation
     
 \end{frame}
 
+\note[itemize]{
+\item What is the end-goal of this thesis and how do we measure whether our hypothesis actually works or not?
+\item So, the goal is statically scheduling circular remote attribute grammars
+\item To validate our work is actually working, we will modify APS attribute grammar system and test it against common circularly defined problems over a tree
+}
+
 \begin{frame}{Impact}{Advancing knowledge}
     
 \begin{itemize}
@@ -164,3 +199,10 @@ $\to$ \alert{bottom-up} propagation
 \end{itemize}    
 
 \end{frame}
+
+\note[itemize]{
+\item How this research is going to impact the field of attribute grammars and program semantic analysis?
+\item As far as we are aware of, This has NOT been done before
+\item Not even static evaluator for circular attribute grammars
+\item And it brings over static schedule to the circular remote attribute grammars which is the most accommodating extension of attribute grammars
+}

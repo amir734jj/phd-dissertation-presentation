@@ -31,6 +31,15 @@ val t_IntegerMaxLattice = new M_MAX_LATTICE[T_Integer]
 
 \end{frame}
 
+\note[itemize]{
+\item APS has a module that generates code in C++ and Scala but it was as a proof of concept work and it had some issue.
+\item More specifically, to show the implementation of circular remote attribute grammar working for First and Follow, we need to use lattices in APS
+\item But in APS lattices are defined as modules with generic parameter and the module itself extends its own generic parameter and Scala does not support this feature and it resulted in generating a Scala code that does not type check
+\item so we had to think out of the box and used Scala traits as a way to accomplish this
+}
+
+
+
 \begin{frame}[fragile=singleslide]{APS Code Generation}{Metadata for AST nodes}
 
 Previously:
@@ -49,6 +58,13 @@ Now:
 
 \end{frame}
 
+\note[itemize]{
+\item Fixing code generation turned out to tricky because internally APS types are AST nodes
+\item Creating AST nodes outside of parser is anti-pattern
+\item So we introduced a concept of canonical types and signatures which substitute formals with actuals and used it in fixing the code generation.
+}
+
+
 
 \begin{frame}{Canonical Types}{Validation of work have been done so far}
     
@@ -59,3 +75,9 @@ After implementing canonical types and signatures into APS, Scala code generated
 $\to$ Next step is getting new \alert{static scheduler} to work so it can take advantage of improvements in code generation.
 
 \end{frame}
+
+\note[itemize]{
+\item Fixing code generation turned out to be tricky because internally APS types are AST nodes
+\item And creating AST nodes outside of parser is anti-pattern
+\item So we introduced a concept of canonical types and canonical signatures which substitute formals with actuals and used it in fixing the code generation.
+}

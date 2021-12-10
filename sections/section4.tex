@@ -1,59 +1,8 @@
 \section{Methods}
 
-
-\begin{frame}{Fiber Construction}{Informal Definition: Beyond the scope of this presentation}
-
-\small
-\begin{itemize}
-    \item A construction that expresses the semantics of \emph{remote attribute grammars} in \emph{classical terms}
-    \item Objects implicitly carry separate values for the fields is like a \alert{rope} which can be separated into the individual fibers
-    \item This yields a improper attribute grammar with an infinite number of attributes
-    \item \emph{fiber approximation} fixes that (which then may include cycles ...)
-\end{itemize}
-
-\begin{center}
-\includegraphics[scale=0.2]{rope-fiber.png}
-\end{center}
-    
-
-\end{frame}
-
-\begin{frame}{Fiber Cycle Breaking}{Some fiber cycles are okay}
-
-In RAG, some cycles can be ignored because they entirely involve so-called \alert{fiber attributes} that have no run-time significance. 
-
-In CRAG, some cycles may carry value and will have run-time significance.
-\end{frame}
-
-\begin{frame}{Fiber Cycle Breaking}{Issue with existing static scheduler}
-
-Previously:
-\begin{itemize}
-    \item For every non-terminal whose fibered attributes take part in the cycle, created two \texttt{attribute\_decl} \alert{AST nodes} called up and down and the connected all nodes to these to break cycles and preserve only UP followed by DOWN.
-\end{itemize}
-
-Now:
-
-\begin{itemize}
-    \item \alert{No creation of AST node}. Treat all nodes as either up or down. If dependency is just fiber dependency then UP followed by DOWN. Otherwise, DOWN followed by UP.
-\end{itemize}
-
-\end{frame}
-
-
-\begin{frame}{Fiber Cycle Breaking}{Validated with RAG!}
-
-\alert{Drop-in replacement} algorithm was successful.
-
-\begin{itemize}
-    \item Validated the algorithm against \alert{previous APS codes} that contained only fiber cycles and First and Follow APS codes
-\end{itemize}
-
-\end{frame}
-
 \begin{frame}[fragile=singleslide]{First and Follow}{}
 
-\alert{First} and \alert{Follow} are functions defined over grammar and they are used in \alert{parsing}
+\alert{First} and \alert{Follow} are functions defined over a grammar and they are used in \alert{parsing}
 
 \begin{itemize}
     \item to distinguish two productions with the same non-terminal $X$ on the LHS, we examine the First($X$) sets for their corresponding RHS.
@@ -61,6 +10,10 @@ Now:
 \end{itemize}
 
 \end{frame}
+
+\note[itemize]{
+\item First and Follow are functions used in parsing and they are recursively defined and we will use them to validate our implementation of static evaluator.
+}
 
 \begin{frame}[fragile=singleslide]{Example}{Example of First and Follow}
 
@@ -85,6 +38,10 @@ Follow(V) = { assign }
 
 \end{frame}
 
+\note[itemize]{
+\item These are some example of First and Follow.
+}
+
 \begin{frame}{Definition}{Formal recursive definition of First and Follow}
 
 \[ \texttt{FIRST}(N) = \bigcup_{N \to \alpha} \texttt{FIRST}(\alpha) \]
@@ -93,8 +50,15 @@ Follow(V) = { assign }
 \[ \texttt{FIRST}(N \beta)   =   \texttt{FIRST}(N) \cdot \texttt{FIRST}(\beta)  \]
 \[ \texttt{FOLLOW}(N) = \bigcup_{N' \to \alpha N \beta} \texttt{FIRST}(\beta) \cdot \texttt{FOLLOW}(N') \]
 
+\newlinevspace
 
+Credit: Dr. Boyland's lecture notes
 \end{frame}
+
+\note[itemize]{
+\item This a formal definition of First and Follow
+\item Notice the recursive nature of the problem specifically in the last equation where we have Follow on the both sides
+}
 
 
 \begin{frame}[fragile=singleslide]{Example}{Grammar definition in APS}
@@ -119,6 +83,10 @@ end;
 \end{Verbatim}
 
 \end{frame}
+
+\note[itemize]{
+\item This a definition of a context-free grammar in APS
+}
 
 \begin{frame}[fragile=singleslide]{Example}{First implementation in APS}
 
@@ -159,6 +127,9 @@ end;
 \end{Verbatim}
 
 \end{frame}
+\note[itemize]{
+\item This a implementation of First in APS
+}
 
 
 \begin{frame}[fragile=singleslide]{Example}{Follow implementation in APS}
@@ -204,6 +175,88 @@ end;
 
 \end{frame}
 
+\note[itemize]{
+\item This a implementation of Follow in APS
+}
+
+
+\begin{frame}{Fiber Construction}{Informal Definition: Beyond the scope of this presentation}
+
+\small
+\begin{itemize}
+    \item A construction that expresses the semantics of \emph{remote attribute grammars} in \emph{classical terms}
+    \item Objects implicitly carry separate values for the fields is like a \alert{rope} which can be separated into the individual fibers
+    \item This yields an improper attribute grammar with an infinite number of attributes
+    \item \emph{fiber approximation} fixes that (which then may include cycles ...)
+\end{itemize}
+
+\begin{center}
+\includegraphics[scale=0.2]{rope-fiber.png}
+\end{center}
+    
+\end{frame}
+
+\note[itemize]{
+    \item I am intentionally not going into details of fiber construction because it would be disservice to remote attribute grammar paper but basically
+    \item Its construction that expresses the semantics of remote attribute grammars in classical terms
+    \item Because objects implicitly carry separate values for the fields and it is like a rope which can be separated into the individual fibers
+    \item But this yields an improper attribute grammar with an infinite number of attributes
+    \item Then fiber approximation fixes that but it then may include cycles ...
+}
+
+
+\begin{frame}{Fiber Cycle Breaking}{Some fiber cycles are okay}
+
+In RAG, some cycles can be ignored because they entirely involve so-called \alert{fiber attributes} that have no run-time significance. 
+
+In CRAG, some cycles may carry value and will have run-time significance.
+\end{frame}
+
+\note[itemize]{
+\item Even in a remote attribute grammar that is non-circular we may have fiber cycles and its okay.
+\item Fiber cycles are different between remote attribute grammar and circular remote attribute grammar because in a latter case they may carry value. 
+}
+
+
+
+\begin{frame}{Fiber Cycle Breaking}{Issue with existing static scheduler}
+
+Previously:
+\begin{itemize}
+    \item For every non-terminal whose fibered attributes take part in the cycle, created two \texttt{attribute\_decl} \alert{AST nodes} called up and down and the connected all nodes to these to break cycles and preserve only UP followed by DOWN.
+\end{itemize}
+
+Now:
+
+\begin{itemize}
+    \item \alert{No creation of AST node}. Treat all nodes as either up or down. If dependency is just fiber dependency then UP followed by DOWN. Otherwise, DOWN followed by UP.
+\end{itemize}
+
+\end{frame}
+
+\note[itemize]{
+\item Previous fiber cycle breaking module created two artificial attributes outside of the parser called UP and DOWN and this caused a lot of problems
+\item to fix these we treat all attributes as either UP or DOWN and it simplified everything
+}
+
+
+
+\begin{frame}{Fiber Cycle Breaking}{Validated with RAG!}
+
+\alert{Drop-in replacement} algorithm was successful.
+
+\begin{itemize}
+    \item Validated the algorithm against \alert{previous APS codes} that contained only fiber cycles and First and Follow APS codes
+\end{itemize}
+
+\end{frame}
+
+\note[itemize]{
+\item Tested the fiber cycle breaking algorithm against First and Follow example.
+\item And it was successful 
+}
+
+
 
 \begin{frame}{Static Scheduler}{Simplify scheduling by using groups}
 
@@ -220,6 +273,11 @@ Now:
 
 \end{frame}
 
+\note[itemize]{
+\item The static scheduler or the module that constructs the visit sequences was tightly coupled with the code generation module and it was not working well
+\item So we designed a replacement that is still greedy but simpler as it schedules instances as groups and uses visit markers to indicate where child visit happens and when we need to return back to parent visit form a child visit
+}
+
 
 
 \begin{frame}{Static Scheduler}{Validation in-progress ...}
@@ -229,3 +287,7 @@ Now:
 \end{itemize}
 
 \end{frame}
+
+\note[itemize]{
+\item The implementation of static schedule generation is currently in-progress but very close to be done.
+}
