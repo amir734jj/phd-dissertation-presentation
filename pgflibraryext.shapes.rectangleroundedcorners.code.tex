@@ -1,0 +1,318 @@
+\pgfset{
+  rectangle with rounded corners north west radius/.initial=.5\pgflinewidth,
+  rectangle with rounded corners north east radius/.initial=.5\pgflinewidth,
+  rectangle with rounded corners south west radius/.initial=.5\pgflinewidth,
+  rectangle with rounded corners south east radius/.initial=.5\pgflinewidth,
+  rectangle with rounded corners radius/.style={
+    /pgf/rectangle with rounded corners north west radius={#1},
+    /pgf/rectangle with rounded corners north east radius={#1},
+    /pgf/rectangle with rounded corners south west radius={#1},
+    /pgf/rectangle with rounded corners south east radius={#1}}
+}%
+\pgfdeclareshape{rectangle with rounded corners}{%
+  \savedmacro\rectanglewithroundedcornersparameter{%
+    %
+    % width = max(text width + 2 * inner xseps, minimum width) + 2 * outer xseps
+    \pgf@x=\wd\pgfnodeparttextbox
+    \pgfmathsetlength\pgf@xc{\pgfkeysvalueof{/pgf/inner xsep}}%
+    \advance\pgf@x by 2\pgf@xc
+    \pgfmathsetlength\pgf@xc{\pgfkeysvalueof{/pgf/minimum width}}%
+    \ifdim\pgf@x<\pgf@xc
+      \pgf@x=\pgf@xc
+    \fi
+    %
+    \pgfmathsetlength\pgf@xc{\pgfkeysvalueof{/pgf/outer xsep}}%
+    \edef\outerxsep{\the\pgf@xc}%
+    \addtosavedmacro\outerxsep
+    \advance\pgf@x by 2\pgf@xc
+    \pgf@x=.5\pgf@x
+    \edef\halfwidth{\the\pgf@x}%
+    \addtosavedmacro\halfwidth
+    %
+    % height = max(text height + text depth + 2 * inner yseps, minimum height) + 2 * outer yseps
+    \pgf@y=\ht\pgfnodeparttextbox
+    \advance\pgf@y by \dp\pgfnodeparttextbox
+    \pgfmathsetlength\pgf@yc{\pgfkeysvalueof{/pgf/inner ysep}}%
+    \advance\pgf@y by 2\pgf@yc
+    \pgfmathsetlength\pgf@yc{\pgfkeysvalueof{/pgf/minimum height}}%
+    \ifdim\pgf@y<\pgf@yc
+      \pgf@y=\pgf@yc
+    \fi
+    %
+    \pgfmathsetlength\pgf@yc{\pgfkeysvalueof{/pgf/outer ysep}}%
+    \edef\outerysep{\the\pgf@yc}%
+    \addtosavedmacro\outerysep
+    \advance\pgf@y by 2\pgf@yc
+    \pgf@y=.5\pgf@y
+    \edef\halfheight{\the\pgf@y}%
+    \addtosavedmacro\halfheight
+    %
+    % \centerpoint
+    \pgf@x=.5\wd\pgfnodeparttextbox
+    \pgf@y=.5\ht\pgfnodeparttextbox
+    \advance\pgf@y by -.5\dp\pgfnodeparttextbox
+    \pgfextract@process\centerpoint{}%
+    \addtosavedmacro\centerpoint
+    %
+    \pgfmathsetlengthmacro\northwestradius{\pgfkeysvalueof{/pgf/rectangle with rounded corners north west radius}}
+    \pgfmathsetlengthmacro\northeastradius{\pgfkeysvalueof{/pgf/rectangle with rounded corners north east radius}}
+    \pgfmathsetlengthmacro\southwestradius{\pgfkeysvalueof{/pgf/rectangle with rounded corners south west radius}}
+    \pgfmathsetlengthmacro\southeastradius{\pgfkeysvalueof{/pgf/rectangle with rounded corners south east radius}}
+    \addtosavedmacro\northwestradius
+    \addtosavedmacro\northeastradius
+    \addtosavedmacro\southwestradius
+    \addtosavedmacro\southeastradius
+  }%
+  \anchor{center}{%
+    \rectanglewithroundedcornersparameter
+    \centerpoint
+  }
+  \anchor{west}{%
+    \rectanglewithroundedcornersparameter
+    \centerpoint
+    \advance\pgf@x by -\halfwidth
+  }
+  \anchor{east}{%
+    \rectanglewithroundedcornersparameter
+    \centerpoint
+    \advance\pgf@x by \halfwidth
+  }
+  \anchor{north}{%
+    \rectanglewithroundedcornersparameter
+    \centerpoint
+    \advance\pgf@y by \halfheight
+  }
+  \anchor{south}{%
+    \rectanglewithroundedcornersparameter
+    \centerpoint
+    \advance\pgf@y by -\halfheight
+  }
+  \anchor{mid}{%
+    \rectanglewithroundedcornersparameter
+    \centerpoint
+    \pgfmathsetlength\pgf@y{+.5ex}%
+  }
+  \anchor{mid west}{%
+    \csname pgf@anchor@rectangle with rounded corners@west\endcsname
+    \pgfmathsetlength\pgf@y{+.5ex}%
+  }
+  \anchor{mid east}{%
+    \csname pgf@anchor@rectangle with rounded corners@east\endcsname
+    \pgfmathsetlength\pgf@y{+.5ex}%
+  }
+  \anchor{base}{%
+    \rectanglewithroundedcornersparameter
+    \centerpoint
+    \pgf@y=0pt
+  }
+  \anchor{base west}{%
+    \csname pgf@anchor@rectangle with rounded corners@west\endcsname
+    \pgf@y=0pt
+  }
+  \anchor{base east}{%
+    \csname pgf@anchor@rectangle with rounded corners@east\endcsname
+    \pgf@y=0pt
+  }
+  \anchor{north west}{%
+    \csname pgf@anchor@rectangle with rounded corners@north west center\endcsname
+    \ifdim\northwestradius=0pt
+    \else
+      \pgf@process{\pgfpointadd{}{\pgfpointpolar{135}{\northwestradius+\outerxsep and \northwestradius+\outerysep}}}%
+    \fi
+  }
+  \anchor{north west center}{%
+    \rectanglewithroundedcornersparameter
+    \pgf@x=-\halfwidth
+    \pgf@y=\halfheight
+    \ifdim\northwestradius=0pt
+    \else
+      \advance\pgf@x by \outerxsep
+      \advance\pgf@x by \northwestradius
+      \advance\pgf@y by -\outerysep
+      \advance\pgf@y by -\northwestradius
+    \fi
+    \pgf@process{\pgfpointadd{}{\centerpoint}}%
+  }
+  \anchor{north east}{%
+    \csname pgf@anchor@rectangle with rounded corners@north east center\endcsname
+    \ifdim\northeastradius=0pt
+    \else
+      \pgf@process{\pgfpointadd{}{\pgfpointpolar{45}{\northeastradius+\outerxsep and \northeastradius+\outerysep}}}%
+    \fi
+  }
+  \anchor{north east center}{%
+    \rectanglewithroundedcornersparameter
+    \pgf@x=\halfwidth
+    \pgf@y=\halfheight
+    \ifdim\northeastradius=0pt
+    \else
+      \advance\pgf@x by -\outerxsep
+      \advance\pgf@x by -\northeastradius
+      \advance\pgf@y by -\outerysep
+      \advance\pgf@y by -\northeastradius
+    \fi
+    \pgf@process{\pgfpointadd{}{\centerpoint}}%
+  }
+  \anchor{south west}{%
+    \csname pgf@anchor@rectangle with rounded corners@south west center\endcsname
+    \ifdim\southwestradius=0pt
+    \else
+      \pgf@process{\pgfpointadd{}{\pgfpointpolar{225}{\southwestradius+\outerxsep and \southwestradius+\outerysep}}}%
+    \fi
+  }
+  \anchor{south west center}{%
+    \rectanglewithroundedcornersparameter
+    \pgf@x=-\halfwidth
+    \pgf@y=-\halfheight
+    \ifdim\southwestradius=0pt
+    \else
+      \advance\pgf@x by \outerxsep
+      \advance\pgf@x by \southwestradius
+      \advance\pgf@y by \outerysep
+      \advance\pgf@y by \southwestradius
+    \fi
+    \pgf@process{\pgfpointadd{}{\centerpoint}}%
+  }
+  \anchor{south east}{%
+    \csname pgf@anchor@rectangle with rounded corners@south east center\endcsname
+    \ifdim\southeastradius=0pt
+    \else
+      \pgf@process{\pgfpointadd{}{\pgfpointpolar{315}{\southeastradius+\outerxsep and \southeastradius+\outerysep}}}%
+    \fi
+  }
+  \anchor{south east center}{%
+    \rectanglewithroundedcornersparameter
+    \pgf@x=\halfwidth
+    \pgf@y=-\halfheight
+    \ifdim\southeastradius=0pt
+    \else
+      \advance\pgf@x by -\outerxsep
+      \advance\pgf@x by -\southeastradius
+      \advance\pgf@y by \outerysep
+      \advance\pgf@y by \southeastradius
+    \fi
+    \pgf@process{\pgfpointadd{}{\centerpoint}}%
+  }
+  \anchor{below north west}{%
+    \csname pgf@anchor@rectangle with rounded corners@north west center\endcsname
+    \advance\pgf@x by -\northwestradius
+    \advance\pgf@x by -\outerxsep
+  }
+  \anchor{above south west}{%
+    \csname pgf@anchor@rectangle with rounded corners@south west center\endcsname
+    \advance\pgf@x by -\southwestradius
+    \advance\pgf@x by -\outerxsep
+  }
+  \anchor{below north east}{%
+    \csname pgf@anchor@rectangle with rounded corners@north east center\endcsname
+    \advance\pgf@x by \northeastradius
+    \advance\pgf@x by \outerxsep
+  }
+  \anchor{above south east}{%
+    \csname pgf@anchor@rectangle with rounded corners@south east center\endcsname
+    \advance\pgf@x by \southeastradius
+    \advance\pgf@x by \outerxsep
+  }
+  \anchor{right north west}{%
+    \csname pgf@anchor@rectangle with rounded corners@north west center\endcsname
+    \advance\pgf@y by \northwestradius
+    \advance\pgf@y by \outerysep
+  }
+  \anchor{right south west}{%
+    \csname pgf@anchor@rectangle with rounded corners@south west center\endcsname
+    \advance\pgf@y by -\southwestradius
+    \advance\pgf@y by -\outerysep
+  }
+  \anchor{left north east}{%
+    \csname pgf@anchor@rectangle with rounded corners@north east center\endcsname
+    \advance\pgf@y by \northeastradius
+    \advance\pgf@y by \outerysep
+  }
+  \anchor{left south east}{%
+    \csname pgf@anchor@rectangle with rounded corners@south east center\endcsname
+    \advance\pgf@y by -\southeastradius
+    \advance\pgf@y by -\outerysep
+  }
+  \backgroundpath{%
+    \rectanglewithroundedcornersparameter
+    %
+    \pgf@xa=\halfwidth
+    \advance\pgf@xa by -\outerxsep
+    \edef\HalfWidth{\the\pgf@xa}%
+    %
+    \pgf@ya=\halfheight
+    \advance\pgf@ya by -\outerysep
+    \edef\HalfHeight{\the\pgf@ya}%
+    %
+    \pgftransformshift{\centerpoint}%
+    %
+    \pgfpathmoveto{\pgfqpoint{\HalfWidth}{0pt}}%
+    \pgfpathlineto{\pgfpoint {+\HalfWidth}{\HalfHeight-\northeastradius}}%
+    \pgfpatharc{0}{90}{\northeastradius}%
+    \pgfpathlineto{\pgfpoint{-\HalfWidth+\northwestradius}{+\HalfHeight}}
+    \pgfpatharc{90}{180}{\northwestradius}%
+    \pgfpathlineto{\pgfpoint{+-\HalfWidth}{-\HalfHeight+\southwestradius}}%
+    \pgfpatharc{180}{270}{\southwestradius}%
+    \pgfpathlineto{\pgfpoint{\HalfWidth-\southeastradius}{+-\HalfHeight}}%
+    \pgfpatharc{270}{360}{\southeastradius}%
+    \pgfpathclose
+    \pgftransformshift{\pgfqpointscale{-1}{\centerpoint}}%
+  }%
+  \anchorborder{%
+    \pgfextract@process\externalpoint{}%
+    \ifdim\pgf@x=0pt
+      \ifdim\pgf@y<0pt
+        \csname pgf@anchor@rectangle with rounded corners@south\endcsname
+      \else
+        \csname pgf@anchor@rectangle with rounded corners@north\endcsname
+      \fi
+    \else
+      \ifdim\pgf@y=0pt
+        \ifdim\pgf@x<0pt
+          \csname pgf@anchor@rectangle with rounded corners@west\endcsname
+        \else
+          \csname pgf@anchor@rectangle with rounded corners@east\endcsname
+        \fi
+      \else
+        \rectanglewithroundedcornersparameter
+        \pgfmathanglebetweenpoints{\pgfpointorigin}{\externalpoint}%
+        \let\angle\pgfmathresult
+        \pgf@xa=\pgf@x
+        \pgf@ya=\pgf@y
+        \pgfextract@process\externalPoint{\pgfpointadd{}{\centerpoint}}%
+        \ifdim\pgf@xa<0pt
+          \ifdim\pgf@ya<0pt
+            % south west
+            \pgf@sh@rwrc@anchorborder{above south west}{right south west}{south west}{180}{270}{\southwestradius}%
+          \else
+            % north west
+            \pgf@sh@rwrc@anchorborder{right north west}{below north west}{north west}{90}{180}{\northwestradius}%
+          \fi
+        \else
+          \ifdim\pgf@ya<0pt
+            % south east
+            \pgf@sh@rwrc@anchorborder{left south east}{above south east}{south east}{270}{360}{\southeastradius}%
+          \else
+            % north east
+            \pgf@sh@rwrc@anchorborder{below north east}{left north east}{north east}{0}{90}{\northeastradius}%
+          \fi
+        \fi
+      \fi
+    \fi
+  }
+}
+\def\pgf@sh@rwrc@anchorborder#1#2#3#4#5#6{%
+  \pgfmathanglebetweenpoints{\centerpoint}{\csname pgf@anchor@rectangle with rounded corners@#1\endcsname}%
+  \let\angleA\pgfmathresult
+  \pgfmathanglebetweenpoints{\centerpoint}{\csname pgf@anchor@rectangle with rounded corners@#2\endcsname}%
+  \let\angleB\pgfmathresult
+  \if\ifdim\angle pt>\angleA pt 0\else1\fi\ifdim\angle pt<\angleB pt 0\else 2\fi
+    \pgfmathpointintersectionoflineandarc{\externalPoint}{\centerpoint}
+      {\csname pgf@anchor@rectangle with rounded corners@#3 center\endcsname}
+      {#4}{#5}{#6+\outerxsep and #6+\outerysep}%
+  \else
+    \pgf@process{\pgfpointadd{\pgfpointborderrectangle{\externalpoint}{\pgfqpoint{\halfwidth}{\halfheight}}}{\centerpoint}}%
+  \fi
+}
+
+\endinput

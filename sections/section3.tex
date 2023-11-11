@@ -5,7 +5,7 @@
 
 \begin{frame}{Context-Free Grammar (CFG)}{Foundation that attribute grammars built upon}
 
-A grammar consists of:
+Context-free grammar consists of:
 \begin{itemize}
     \item a set of non-terminals, one of which is designated as the start variable
     \item a set of terminals
@@ -14,8 +14,8 @@ A grammar consists of:
 \end{frame}
 
 \note[itemize]{
-\item What is a grammar or more specifically a context-free grammar?
-\item Grammar is a tuple of ...
+\item What is grammar or more specifically context-free grammar?
+\item Grammar is a tuple of a set of non-terminals, a set of terminals, and a set of productions.
 }
 
 \begin{frame}[fragile=singleslide]{Example}{Grammar for a simple language}
@@ -26,29 +26,23 @@ program -> block
 
 block -> "begin" decls stmts "end"
 
-decls ->
-
 decls -> decls decl
+    |   /* empty */
 
-decl -> id ":" type ";"
+decl -> ID ":" type ";"
 
 type -> "Integer"
-
-type -> "String"
-
-stmts -> 
+    |   "String"
 
 stmts -> stmts stmt
+    |   /* empty */
 
-stmt -> block ";"
-
-stmt -> expr := expr
+stmt -> expr ":=" expr
+    |   block ";"
 
 expr -> INT_CONSTANT
-
-expr -> STRING_CONSTANT
-
-expr -> id
+    |   STRING_CONSTANT
+    |   ID
 \end{Verbatim}
 \end{multicols}
 
@@ -58,14 +52,16 @@ Source: \cite{Boyland1998AnalyzingDN}
 \end{frame}
 
 \note[itemize]{
-\item This is an example of grammar that defines a simple program which declares some variables and assigns them to an expression
+\item This is an example of grammar that defines a simple program that declares some variables and assigns them to an expression
 \item Notice that it starts from a program and goes to a block
 \item Block consists of declarations and assignments
 }
 
 
-\begin{frame}[fragile=singleslide]{Example}{Derivation of this simple language}
+\begin{frame}[fragile=singleslide]{CFG Example}{A derivation of this simple language}
 
+    \begin{columns}
+    \column{0.5\textwidth}
 \begin{Verbatim}[fontsize=\scriptsize,numbers=left,xleftmargin=5mm]
 begin
    x : String;
@@ -76,21 +72,23 @@ begin
 end
 \end{Verbatim}
 
-Errors:
+    \column{0.5\textwidth}
+\alert{Semantic Errors}
 \begin{itemize}
     \item Use of undeclared variable?
     \item Type mismatch?
     \item Unused variable?
 \end{itemize}
+    \end{columns}
 
 \newlinevspace
 
-$\to$ How to detect these issues using attribute grammars?
+$\Rightarrow$ How to \alert{identity} these issues \alert{using} \emph{attribute grammars} ...?
 \end{frame}
 
 \note[itemize]{
-\item This is a program or a derivation of context-free grammar that we saw in the previous slide
-\item Notice there are multiple semantic errors in this program
+\item This is a program or a derivation of the context-free grammar that we saw in the previous slide
+\item Notice there are multiple semantic errors in this program, can you identify them?
 }
 
 
@@ -98,7 +96,7 @@ $\to$ How to detect these issues using attribute grammars?
 \begin{frame}{Classical Attribute Grammar}{CFG + Rules}
 
 
-A classical attribute grammar is a \alert{grammar} with the following added features:
+A classical attribute grammar is a \alert{CFG grammar} with the following added features:
 
 \begin{itemize}
     \item Each non-terminal $X$ has a set of attributes $A(X)$
@@ -115,8 +113,37 @@ A classical attribute grammar is a \alert{grammar} with the following added feat
 
 \note[itemize]{
 \item What is a classical attribute grammar?
-\item It is a tuple of context-free grammar, set of attributes ...
+\item It is a tuple of context-free grammar, a set of attributes for each non-terminal, set of local attributes and each production has a set of semantic rules that defines some attributes for the LHS of the production
 }
+
+
+
+
+
+\begin{frame}[fragile=singleslide]{Semantic Function}{Identity function syntactic sugar}
+
+\begin{verbatim}
+A -> B c       // CFG production
+    A.s = B.s  // <-- semantic function: A.s = id(B.s)
+               // with one argument
+               // returns the argument
+\end{verbatim}
+
+This particular semantic function is called an \alert{identity function}
+
+\end{frame}
+
+\note[itemize]{
+\item This is just a syntax sugar we will be using throughout this presentation
+}
+
+
+
+
+
+
+
+
 
 \begin{frame}[fragile=singleslide]{Example}{Classical attribute grammar to find semantic errors in a program}
 
@@ -210,14 +237,17 @@ expr -> id
 \end{frame}
 
 \note[itemize]{
-\item This is a classical attribute grammar the detects: type mismatch, unused variable and use of undeclared variable 
+\item This is a classical attribute grammar that detects: type mismatch, unused variables, and use of undeclared variable that we identified in the previous slide
+\item $\mathit{msgs}$ is a synthesized collection attribute of error messages
+\item $\mathit{env}$ is an inherited attribute that denotes the set of variables declared and available to us
+\item $\mathit{used}$ is a set of all variables used as an expression
 }
 
 
-\begin{frame}{Instantiated Attribute Grammar}{Attribute Grammar + Derivation}
-Given a \alert{derivation} of grammar, an attribute grammar becomes \alert{instantiated}:
+\begin{frame}{Instantiated Attribute Grammar}{Attribute Grammar + Derivation = Instantiated AG}
+Given a \alert{derivation} of CFG grammar, an attribute grammar becomes \alert{instantiated}:
 \begin{itemize}
-    \item Set of instantiated semantic rules where each attribute \alert{occurrence} is replaced with attribute \alert{instance}
+    \item Set of instantiated semantic rules where each attribute \alert{occurrence} is replaced with an \alert{attribute instance}
 \end{itemize}
 
 \end{frame}
@@ -230,16 +260,24 @@ Given a \alert{derivation} of grammar, an attribute grammar becomes \alert{insta
 
 \begin{frame}{Evaluation}{Core concept}
 
-Evaluation is a process of finding the \alert{values} of \alert{attribute instances}.
+\begin{itemize}
+    \item Evaluation is a process of finding the \alert{values} of \alert{attribute instances}.
+
+    \item Two types of evaluation:
+\begin{itemize}
+    \item Demand evaluation
+    \item Static evaluation
+\end{itemize}
+\end{itemize}
 
 \end{frame}
 
 \note[itemize]{
-\item We observed that semantic information are stored in attributes
-\item The values of attributes are result of attribute evaluation rules associated with productions of the grammar
+\item We observed that semantic information is stored in attributes
+\item The \enquote{values} of attributes are the result of evaluation rules associated with productions of the grammar
 \item and the evaluation is a process of finding the values of attribute instances
-\item There are two types of evaluations: static and dynamic
-\item Dynamic is a kind of evaluation where generated evaluator is tightly coupled with a particular derivation and it does not work given another derivation of the grammar.
+\item There are two types of evaluations: static and demand
+\item Demand is a kind of evaluation where the evaluator demands each attribute value (usually root node's synthesized attributes), we don't know if the evaluation will succeed or not until the evaluation finishes and it requires runtime dependency graph
 \item Static evaluation is the opposite.
 }
 
@@ -249,15 +287,23 @@ Evaluation is a process of finding the \alert{values} of \alert{attribute instan
 Demand evaluation is a kind of evaluation where each attribute instance access requires a call to evaluate the corresponding instantiated semantic rule that defines it.
 \end{definition}
 
+\begin{alertblock}{Observation}
+In demand evaluation, we do not know whether the evaluation will succeed or not until the evaluation finishes
+\end{alertblock}
+
+\begin{alertblock}{Observation}
+Demand evaluation requires a runtime dependency graph
+\end{alertblock}
+
 \end{frame}
 
 \note[itemize]{
-\item Demand evaluation is a type of dynamic evaluation where we replace access to the value of an attribute instance with a function call that defines the attribute in the first place
+\item Demand evaluation replaces access to the value of an attribute instance with a function call that defines the attribute in the first place
 \item Basically, during the evaluation runtime, the evaluator tries to figure out which rule it should evaluate next
-\item this form of evaluation is simple but it has some down sides
+\item This form of evaluation is simple but it has some downsides
 }
 
-\begin{frame}[fragile=singleslide]{Example}{Simple yet abstract example of classical attribute grammar}
+\begin{frame}[fragile=singleslide]{Example}{Example of classical attribute grammar}
     
 \begin{multicols}{3}
 \begin{verbatim}
@@ -277,7 +323,7 @@ A -> A A
   A2.i2 = A2.s1
   A0.s2 = A2.s2
 
-A -> epsilon
+A -> 'a'
   A.s1 = A.i1 + 1
   A.s2 = A.i2 + 2
     
@@ -295,7 +341,6 @@ Source: \cite{10.1145/225540.225544}
 \item This is an example of classical attribute grammar
 \item Notice root non-terminal $S$ has two attributes, one inherited and one synthesized
 \item Similarly, non-terminal $A$ has two inherited and two synthesized attributes
-\item This example is kind of abstract but its interesting
 }
 
 
@@ -304,8 +349,8 @@ Source: \cite{10.1145/225540.225544}
 \[
 \lefteqn{\underbrace{\phantom{S \rightarrow A}}_{n_0}} S \rightarrow
 \lefteqn{\overbrace{\phantom{A \rightarrow A A}}^{n_1}} A \rightarrow 
-\lefteqn{\underbrace{\phantom{A A \rightarrow \epsilon}}_{n_2}} A A \rightarrow \epsilon
-\lefteqn{\overbrace{A \rightarrow \epsilon}^{n_3}}
+\lefteqn{\underbrace{\phantom{A A \rightarrow \texttt{a}}}_{n_2}} A A \rightarrow \texttt{a}
+\lefteqn{\overbrace{A \rightarrow \texttt{aa}}^{n_3}}
 \]
 
 \begin{center}
@@ -313,8 +358,8 @@ Source: \cite{10.1145/225540.225544}
   [
     $n_0$, name=n0
     [ $n_1$
-        [$n_2$ [$\epsilon$]]
-        [$n_3$ [$\epsilon$]]
+        [$n_2$ [$\texttt{a}$]]
+        [$n_3$ [$\texttt{a}$]]
     ]
   ]
 \end{forest}}
@@ -347,11 +392,11 @@ n1: A -> A A
   r7 : n3.i2 = n3.s1
   r8 : n1.s2 = n3.s2
 
-n2: A -> epsilon
+n2: A -> 'a'
   r9 : n2.s1 = n2.i1 + 1
   r10: n2.s2 = n2.i2 + 2
     
-n3: A -> epsilon
+n3: A -> 'a'
   r11: n3.s1 = n3.i1 + 1
   r12: n3.s2 = n3.i2 + 2
 \end{Verbatim}
@@ -364,11 +409,11 @@ $\alert{n_0.\mathit{out}} \to \alert{r_2}{:} n_o.\mathit{out} = n_1.s_2 \to \ale
 
 \note[itemize]{
 \item This is the instantiated form of an attribute grammar we saw in the previous slide
-\item $n_0$ to $n_3$ are tree nodes
-\item $n$ followed by dot followed by attribute name is called an attribute instance
-\item Also, notice the sequence of steps a demand evaluator needs to take during the evaluation runtime to evaluate root node's synthesized attribute $n_0.\mathit{out}$
-\item This sequence of instantiated rules used to evaluate all attributes is called a schedule
-\item We have to use a topological sort to find the schedule
+\item $n_0$, $n_1$, $n_2$ and $n_3$ are tree nodes
+\item $n_i$ followed by a dot followed by attribute name is called an attribute instance
+\item Also, notice the sequence of steps a demand evaluator needs to take during the evaluation runtime to evaluate the root node's synthesized attribute $n_0.\mathit{out}$
+\item This sequence of instantiated rules used to evaluate all attribute instances is called a schedule
+\item We have to run a topological sort on an instantiated attribute grammar to find the schedule
 }
 
 \begin{frame}{Schedule}{Total order of instantiated rules}
@@ -376,7 +421,7 @@ What makes a schedule (total order on instantiated rules) valid?
 
 \newlinevspace
 
-$\to$ \alert{No use of attribute instance before it is defined first}
+$\Rightarrow$ \alert{No use of attribute instance before it is defined first}
 
 \end{frame}
 
@@ -394,16 +439,16 @@ Pros:
 
 Cons:
 \begin{itemize}
-    \item Does not detect cycles before evaluation begins or \alert{may not terminate}
+    \item Does not detect cycles before the evaluation begins and \alert{may not terminate}
     \item Space complexity if \alert{caching} is used: $\mathcal{O}(|\hat{V}|)$
     \item Time complexity of: $\mathcal{O}(| \hat{V} | \times | \hat{R} |)$ (for classical AG)
 \end{itemize}
 \end{frame}
 
 \note[itemize]{
-\item Demand evaluation has some down sides
-\item We have to use a cache to avoid exponential time complexity because everything will get evaluated over and over again and doing so will impact the space complexity
-\item Also, it does not detect cycles before evaluation begins and we do not know if evaluation is going to terminate or not. So this is not ideal.
+\item Demand evaluation has some downsides
+\item We have to use a cache to avoid exponential time complexity because everything will get evaluated over and over again and caching will impact the space complexity
+\item Also, it does not detect cycles in the dependency graph before the evaluation begins and we do not know if evaluation is going to terminate or not. So this is not ideal.
 }
 
 
@@ -424,9 +469,9 @@ Finding the schedule requires topological sort of attribute instances: $\mathcal
 \end{frame}
 
 \note[itemize]{
-\item Schedule evaluation is a type of dynamic evaluation where we find the schedule beforehand and then during the evaluation runtime we evaluate the instantiated rules according to the schedule.
+\item Schedule evaluation is a type of dynamic evaluation where we find the schedule beforehand and then during the evaluation runtime, we evaluate the instantiated rules according to the schedule.
 \item This is the schedule for the instantiated attribute grammar we saw in the previous slide
-\item We use $r$ hat to denote for instantiated rules
+\item We use $r$ hat to represent instantiated rules
 }
 
 
@@ -437,7 +482,7 @@ Pros:
 \begin{itemize}
     \item If scheduler finds a schedule, then evaluation \alert{will terminate}
     \item Easy to implement
-    \item \alert{No re-evaluation}
+    \item \alert{No possibility of re-evaluation}
     \item Better space complexity as caching is not used
     \item Time complexity of: $\mathcal{O}(| \hat{R} |)$ (for classical AG)
 \end{itemize}
@@ -459,27 +504,27 @@ Cons:
 
 
 
-\begin{frame}{Static Evaluation}{Alternative evaluation method: Constructed independent of a derivation}
+\begin{frame}{Static Evaluation}{Alternative evaluation method: Constructed independent of a particular derivation}
 
 \begin{itemize}
-    \item What if there was a way to \alert{statically} evaluate attribute grammars?
+    \item You may be wondering, what if there was a way to \alert{statically} evaluate attribute grammars?
     \begin{itemize}
         \item Generate evaluator \alert{once} and would \alert{work for all possible derivations} of an attribute grammar.
     \end{itemize}
     \item What \alert{constraints} need to be true for such an attribute grammar to have a static evaluator?
-    \item Does evaluation \alert{terminate}?
+    \item Can we guarantee the evaluation always \alert{terminate}?
     \item How to verify if static evaluation is \alert{valid}?
 \end{itemize}
 \end{frame}
 
 \note[itemize]{
-\item What if there was a better way to evaluate attributes? some kind of static evaluator where it would create the schedule in the runtime and evaluate a classical attribute grammar in a linear time? this would be very ideal.
+\item What if there was a better way to evaluate attributes? some kind of static evaluator that would create the schedule in the runtime and evaluate a classical attribute grammar in a linear time? this would be ideal.
 }
 
 
 \begin{frame}{Visit Sequence Evaluation}{Static evaluator}
 
-$\to$ \alert{Visit sequence evaluation} is a \alert{type of static evaluation}.
+$\Rightarrow$ \alert{Visit sequence evaluation} is a type of \alert{static evaluation}.
 
 \newlinevspace
 
@@ -511,7 +556,7 @@ Cons:
 
 \begin{frame}[fragile=singleslide]{Example}{Visit sequence evaluator}
 
-$\to$ Set of \alert{recursive functions} where each function takes an \alert{instance of non-terminal} (derivation tree node)
+$\Rightarrow$ Set of \alert{recursive functions} where each function takes an \alert{instance of non-terminal} (derivation tree node)
 
 \begin{multicols}{2}
 \begin{Verbatim}[fontsize=\scriptsize]
@@ -535,10 +580,10 @@ visit_A_part2(n: A -> A A)
     - visit_A_part2(A2)
     A0.s2 = A2.s2
 
-visit_A_part1(n: A -> epsilon)
+visit_A_part1(n: A -> 'a')
     A.s1 = A.i1 + 1
 
-visit_A_part2(n: A -> epsilon)
+visit_A_part2(n: A -> 'a')
     A.s2 = A.i2 + 1
     
 \end{Verbatim}
@@ -558,13 +603,13 @@ visit_A_part2(n: A -> epsilon)
 
 \newlinevspace
 
-$\to$ AG is $l$-ordered if exists a $T(X)$  for all non-terminal $X \in N$ such that its \alert{compatible} with $\mathit{Ord}(\mathit{AO}(p))$ and $\mathit{Ord}(R(p))$ where $p: X \rightarrow \alpha$. 
+$\Rightarrow$ AG is $l$-ordered if exists a $T(X)$  for all non-terminal $X \in N$ such that its \alert{compatible} with $\mathit{Ord}(\mathit{AO}(p))$ and $\mathit{Ord}(R(p))$ where $p: X \rightarrow \alpha$. 
 
 \end{frame}
 
 \note[itemize]{
 \item What is an $l$-ordered class of attribute grammars?
-\item We say that AG is $l$-ordered if there is a total order of attribute occurrences for a non-terminal such that its compatible with the ordered set of all attribute occurrences for a production $\mathit{AO}(p)$ and ordered set of all rules associated with a production $R(p)$. 
+\item We say that AG is $l$-ordered if there is a total order of attributes for a non-terminal such that its compatible with the ordered set of all attribute occurrences for a production $\mathit{AO}(p)$ and ordered set of all rules associated with a production $R(p)$. 
 }
 
 
@@ -636,7 +681,7 @@ Visit Sequence has to be compatible with $\mathit{Ord}(R(p))$ and $\Pi(X_i)$
 
 \note[itemize]{
 \item We can draw a dependency graph to visualize dependencies between attribute occurrences in a production
-\item This is an example of dependency graph for production $A \rightarrow A A$
+\item This is an example of a dependency graph for production $A \rightarrow A A$
 }
 
 
@@ -680,19 +725,19 @@ Visit Sequence has to be compatible with $\mathit{Ord}(R(p))$ and $\Pi(X_i)$
 
 \end{tikzpicture} }
 
-    \caption{\small Augmented dependency graph $\mathit{DG}_{p: A \rightarrow A A}$ with SNC summary edges}
+    \caption{\small Dependency graph $\mathit{DG}_{p: A \rightarrow A A}$ with SNC summary edges}
 \end{figure}
 
 \end{frame}
 
 \note[itemize]{
-\item This is an example of augmented summary graph for the same production with SNC summary edges. Notice the red edges at the bottom.
+\item This is an example of an augmented summary graph for the same production with SNC summary edges. Notice the red edges at the bottom.
 }
 
 
 
 \begin{frame}{Ordered AG Test}{Test if visit sequence evaluator exists (efficiently)}
-By definition, there exist a visit sequence for \alert{$l$-ordered} attribute grammars but membership test is \alert{NP-complete} \cite{ENGELFRIET1982283} so its common/practical to use an OAG test which is a greedy algorithm that runs in \alert{polynomial time}.
+By definition, there exists a visit sequence for \alert{$l$-ordered} attribute grammars but the membership test is \alert{NP-complete} \cite{ENGELFRIET1982283} so it's common/practical to use an OAG test which is a greedy algorithm that runs in \alert{polynomial time}.
 
 \[ \mathit{OAG} \subseteq \mathit{l\text{-ordered}} \]
 
@@ -701,7 +746,7 @@ By definition, there exist a visit sequence for \alert{$l$-ordered} attribute gr
 
 \note[itemize]{
 \item Testing for $l$-ordered is NP-complete and not practical at all
-\item OAG is a subset of $l$-ordered and its membership test is runs in a polynomial time
+\item OAG is a subset of $l$-ordered and its membership test runs in a polynomial time
 }
 
 
@@ -719,8 +764,8 @@ OAG test runs in polynomial time or $\mathcal{O}(|R|)$
 
 \note[itemize]{
 \item It turns out the augmented dependency graphs can be helpful not just for visualization purposes
-\item OAG membership test checks whether augmented dependency graph with OAG summary edges is circular or not. If there is any circular dependency then its not OAG.
-\item This test is very straightforward.
+\item OAG membership test checks whether the augmented dependency graph with OAG summary edges is circular or not. If there is any circular dependency then it's not OAG.
+\item This membership test is very straightforward to implement.
 }
 
 
@@ -734,20 +779,22 @@ An attribute grammar is \alert{circular} iff there exists a derivation tree of t
 \end{frame}
 
 \note[itemize]{
-\item Lets talk about extensions to the classical attribute grammar
+\item Let's talk about extensions to the classical attribute grammar
 \item The first extension was allowing circular dependency by Farrow
-\item Traditionally even in the Knuth paper circularities have been treated as an error and have been avoided
+\item Traditionally, even in the Knuth paper circularities have been treated as an error and have been avoided
 \item But in mathematics or even programming its natural to define things circularly or recursively 
+\item Detecting if attribute grammar is circular is not straightforward. It's actually NP-Complete.
+\item Basically we need to test if there exists a schedule for every possible derivation of it and a context-free grammar may have an infinite number of derivations
 }
 
 
 \begin{frame}{Circular AG Evaluation}{Ascending chain condition}
 
-Is it possible to evaluate circular attribute grammars? what if \alert{evaluation never terminates}?
+Is it possible to evaluate circular attribute grammar? what if \alert{evaluation never terminates}?
 
 \newlinevspace
 
-$\to$ Require that the domain of all attributes involved in cyclic chains can be arranged in a \alert{lattice of finite height} and that all semantic functions for these attributes are \alert{monotonic}
+$\Rightarrow$ Require that the domain of all attributes involved in cyclic chains can be arranged in a \alert{lattice of finite height} and that all semantic functions for these attributes are \alert{monotonic}
 
 \[ x_{i+1} = f(x_i) \text{ where } x_0 = \bot \]
 
@@ -756,8 +803,20 @@ $\to$ Require that the domain of all attributes involved in cyclic chains can be
 \note[itemize]{
 \item How to ensure that evaluation of circular attribute grammar terminates?
 \item The answer is monotone functions
+\item $x_0$ is a bottom value of the lattice and the height of the lattice is finite so if we run the cycle over and over again, we will eventually get a fixed-point value
 }
 
+
+\begin{frame}{Notation}{Monotone definition}
+
+\begin{definition}
+If $f:X \rightarrow Y$ is a \alert{set function} from a collection of sets $X$ to an ordered set $Y$, then $f$ is said to be monotone if whenever \alert{$A \subseteq B$} as elements of $X$, \alert{$f(A) \leq f(B)$}
+\end{definition}
+
+\end{frame}
+\note[itemize]{
+\item What is a monotone set function?
+}
 
 
 
@@ -792,8 +851,8 @@ $\to$ Require that the domain of all attributes involved in cyclic chains can be
 \end{frame}
 
 \note[itemize]{
-\item This is an example of synth function introduced by Farrow for the classical attribute grammar we saw previously
-\item Notice how each function takes inherited attributes and uses it to calculate a synthesized attribute
+\item This is an example of the synth function introduced by Farrow for the classical attribute grammar we saw previously
+\item Notice how each function takes inherited attributes and uses them to calculate a single synthesized attribute
 \item To support circular attributes Farrow added fixed-point loops inside of the function
 }
 
@@ -817,15 +876,15 @@ Pros:
 
 Cons:
 \begin{itemize}
-    \item Allows \alert{nested loops}, that is if there is another cycle during the iterated evaluation of circularly defined attribute values. Number of iteration of the innermost loop becomes an \alert{exponential factor} of the nested level of the loop in the worst case.
+    \item Allows \alert{nested loops}, that is if there is another cycle during the iterated evaluation of circularly defined attribute values. The number of iterations of the innermost loop becomes an \alert{exponential factor} of the nested level of the loop in the worst case.
 \end{itemize} }
 
 \end{frame}
 
 \note[itemize]{
-\item Synth functions are example of partially dynamic evaluation
+\item Synth functions are examples of partially dynamic evaluation
 \item They are easy to implement
-\item But they allows nested loops, that is if there is another cycle during the fixed-point evaluation of circularly defined attribute values
+\item But they allow nested loops, that is if there is another cycle during the fixed-point evaluation of circularly defined attribute values
 \item This means that number of iterations of the innermost loop becomes an exponential factor of the nested level loop in the worst case. This is not ideal.
 }
 
@@ -844,7 +903,7 @@ In RAG, we can access attribute values that are defined \alert{non-locally} wher
 \end{frame}
 
 \note[itemize]{
-\item This is a definition of remote attribute grammar or RAG. Basically it extends classical attribute grammar and introduces set of objects and set of fields
+\item This is a definition of remote attribute grammar or RAG. Basically, it extends classical attribute grammar and introduces a set of objects and a set of fields
 }
 
 
@@ -858,15 +917,16 @@ It is valid to have \alert{multiple partial field write} for the same field of a
 
 \newlinevspace
 
-This makes it challenging as schedule for RAG should order instantiated rules such that \alert{read of the object's field} should be done when its value is \alert{final}. 
+This makes it challenging as the schedule for RAG should order instantiated rules such that \alert{read of the object's field} should be done when its value is \alert{final}. 
 
 \end{frame}
 
 \note[itemize]{
-\item Remote attribute grammar introduces two new form of semantic rule in addition to classical form
-\item Partial write of object field and read of object field
+\item Remote attribute grammar extension introduces two new forms of semantic rule in addition to the classical form
+\item Partial write of object field and Read of the object field
 \item Note that attribute instance has to be defined once in a classical form and then we can read it
-\item But object field may be written to multiple times so we need to make sure we arrange the rules in the schedule in such a way that the reading of object's field happens when the value is final
+\item But the object field may be written to multiple times so we need to make sure we arrange the rules in the schedule in such a way that the reading of the object's field happens when the value is final
+\item Objects are assumed instantiated before the evaluation begins
 }
 
 
@@ -940,33 +1000,25 @@ expr -> id
 
 \note[itemize]{
 \item This is the program analysis example using remote attribute grammar
-\item Notice that how much smaller it is now thanks to remote access and eliminating the need to passing attributes up and down
+\item Notice how much smaller it is now thanks to remote access and eliminating the need to pass attributes up and then down
 }
 
 
 
 
-\begin{frame}{Notation}{Monotone definition}
 
-\begin{definition}
-If $f:X \rightarrow Y$ is a \alert{set function} from a collection of sets $X$ to an ordered set $Y$, then $f$ is said to be monotone if whenever \alert{$A \subseteq B$} as elements of $X$, \alert{$f(A) \leq f(B)$}
-\end{definition}
-
-\end{frame}
-\note[itemize]{
-\item What is a monotone function?
-}
 
 
 \begin{frame}{Circular Remote Attribute Grammar}{Definition: Circular + Remote AG}
 
 \begin{definition}
-Circular remote attribute grammar is an \alert{extension of remote attribute grammars} and has the same form as remote attribute grammars, except \alert{certain attributes are circular} and \alert{some functions are declared monotone in some arguments}.
+A circular remote attribute grammar is an \alert{extension of remote attribute grammars} and has the same form as remote attribute grammars, except \alert{certain attributes are circular} and \alert{uses of attribute occurrences in functions are declared monotone in some arguments}.
 \end{definition}
 \end{frame}
 
 \note[itemize]{
-\item Definition of circular remote attribute grammar or CRAG
+\item This is the informal definition of circular remote attribute grammar or CRAG
+\item It is a merge of two previous two extensions into one
 }
 
 
@@ -975,14 +1027,14 @@ Obvious Applications for CRAG:
 
 \begin{itemize}
     \item Unification (in type inference)
-	\item Sub-typing with circular types (class extending its own generic parameter)
+	\item Sub-typing with circular types (a class extending its own generic parameter)
 	\item Detecting circular class extension in Cool semantic analyzer (e.g. A extends B, B extends C, C extends A)
 \end{itemize}
 \end{frame}
 
 \note[itemize]{
-\item There are many applications for a circular remote attribute grammar
-\item Cool is a programming language (classroom object oriented language)
+\item There are many applications for a circular remote attribute grammar including ...
+\item Cool is a programming language (classroom object-oriented language)
 }
 
 
@@ -999,18 +1051,18 @@ Hedin in \cite{10.1016/j.scico.2005.06.005} used fixed-point loops with \alert{d
 
 \newlinevspace
 
-But, what about \alert{schedule}? how to formalize validity of schedule for CRAG?
+But, what about \alert{schedule}? how to formalize the validity of the schedule for CRAG?
 \end{frame}
 
 \note[itemize]{
 \item This is a basic setup of a fixed-point loop.
-\item Basically, we hold on to the previous value and then we run the evaluation and then check whether the new value is a superset and NOT superset-equal of the previous value. And if that is the case then we re-run the loop.
+\item Basically, we hold on to the previous value and then run the evaluation and then check whether the new value is a superset, NOT superset-equal to the previous value. And if that is the case then we re-run the loop.
 }
 
 
 
 \begin{frame}{Circular Remote Attribute Grammar}{Evaluation Terminating? Monotonicity}
-$\to$ If we put instantiated rules in a fixed-point loop, How to \alert{ensure evaluation terminates}?
+$\Rightarrow$ If we put instantiated rules in a fixed-point loop, How to \alert{ensure evaluation terminates}?
 
 \newlinevspace
 
@@ -1019,29 +1071,31 @@ Solution: \alert{Monotonicity} of arguments in a classical rule
 \newlinevspace
 
 \begin{block}{Remark}
-Partial field write rule as defined in definition of remote attribute grammar \alert{is a monotone operation}.
+The partial field write rule as defined in the definition of remote attribute grammar is a \alert{monotone} use.
 \end{block}
 \end{frame}
 
 \note[itemize]{
-\item Adding mononicity constraint helps ensure that fixed-point evaluation terminates.
+\item Adding a monotonicity constraint helps ensure that fixed-point evaluation terminates.
 }
 
 
 
-\begin{frame}{Notation}{Total pre-order}
+\begin{frame}{Notation}{\Customorder{}}
 
-Formally, a total pre-order relation $\lesssim$ satisfies the following properties:
+Formally, a \customorder{} relation ($\lesssim$) satisfies the following properties:
 
 \begin{enumerate}
     \item For all $x,y$ and $z$, if $x\lesssim y$ and $y\lesssim z$ then $x\lesssim z$ (\alert{transitivity}).
-    \item For all $x, y$, then $x\lesssim y$ or $y\lesssim x$ must be true (strong connectedness or \alert{total}). Hence, for all $x$, then $x\lesssim x$ must also be true (\alert{reflexivity}).
-\end{enumerate}    
+    \item For all $x, y$, then $x\lesssim y$ or $y\lesssim x$ must be true (strong connectedness or \alert{total})
+    \item Neither reflexive nor irreflexive
+\end{enumerate}
 
 \end{frame}
 
 \note[itemize]{
-\item This is a definition of total pre-order: its reflexive, transitive and total
+\item For reviewing purposes, this is a definition of \customorder{}: its reflexive, transitive, and total
+\item we use less than with a tilde for \customorder{}
 }
 
 
@@ -1049,19 +1103,19 @@ Formally, a total pre-order relation $\lesssim$ satisfies the following properti
 \begin{frame}{Circular Remote Attribute Grammar}{Schedule Definition}
     
 \begin{definition}
-A schedule then for a circular remote attribute grammar is a \alert{total pre-order} $\lesssim$ on the \alert{instantiated rules}.
+A schedule then for a circular remote attribute grammar is a \alert{\customorder{}} $\lesssim$ on the \alert{instantiated rules}.
 \end{definition}
 
 \begin{exampleblock}{Observation}
-Any total pre-order on the instantiated rules is isomorphic to a total order on a partition of instantiated rules.
+Any \customorder{} on the instantiated rules is isomorphic to a total order on a partition of instantiated rules.
 \end{exampleblock}
 
 \end{frame}
 
 \note[itemize]{
-\item Schedule for CRAG is a total pre-order of instantiated rules.
-\item Note that total pre-order on the instantiated rules is isomorphic to a total order on a partition of instantiated rules.
-\item By partition, we mean an un-ordered set. So there is no order between instantiated rules that belong to the same inner set.
+\item Schedule for CRAG is a \customorder{} of instantiated rules.
+\item Note that the \customorder{} on the instantiated rules is isomorphic to the total order on a partition of instantiated rules.
+\item By partition, we mean an unordered set. So there is no order between instantiated rules that belong to the same inner set.
 }
 
 
@@ -1091,12 +1145,16 @@ B -> b
 
 \newlinevspace
 
-$\to$ Notice the \alert{cycle} involving reading and writing of the same object
+$\Rightarrow$ Notice the \alert{cycle} involving reading and writing of the same object
 
 \end{frame}
 
 \note[itemize]{
-\item This is an example of circular remote attribute grammar}
+\item This is an example of circular remote attribute grammar
+\item Notice $o.f$ gets $A.i$ using partial write and $A.i$ itself gets $B.s$ using classical rule
+\item Then $B.s$ gets $l.f$ where $l$ is a local attribute assigned
+\item Basically, we write to $o.f$ using the value of $o.f$
+}
 
 
 
@@ -1130,13 +1188,14 @@ n2: B -> b
 \end{frame}
 
 \note[itemize]{
-\item This is the instantiated form of the circular remote attribute grammar we introduced in the previous slide using trivial derivation and the corresponding schedule is at the bottom
+\item This is the instantiated form of the circular remote attribute grammar we introduced in the previous slide using trivial derivation
+\item the corresponding schedule is at the bottom
 }
 
 
 \begin{frame}{Trivial Schedule}{Observation}
 
-Only when \alert{all functions are monotone}. 
+Only when \alert{all uses are monotone}. 
 
 $$ \Big\{ \{ \hat{r_0}, \dots, \hat{r_7} \} \Big \}$$
 
@@ -1147,7 +1206,7 @@ This happens when for all $\hat{r_1}, \hat{r_2} \in \hat{R}$, $\hat{r_1} \lesssi
 \note[itemize]{
 \item Trivial schedule is when we have all monotone functions
 \item Basically all instantiated rules belong to the same level
-\item So we just evaluate all instantiated rules over and over again until fixed point is reached
+\item So we just evaluate all instantiated rules over and over again until a fixed point is reached
 }
 
 
@@ -1183,39 +1242,26 @@ The trivial schedule \alert{does not work} for this example.
 
 \note[itemize]{
 \item If we introduce non-monotone function $h$ in a cycle
-\item Then this means that trivial schedule does not work anymore
+\item Then this means that trivial schedule is not valid anymore
 }
 
 
 \begin{frame}{Example}{Circular visit}
 
-\begin{equation}
-\small
-\begin{gathered}
-\Pi(S) =  \Big \{   \{ S.x \}      \Big \} \\
-\Pi(A) =  \Big \{   \{  A.i, A.r \}^c      \Big \} \\
-\Pi(B) =  \Big \{   \{  B.i, B.s \}^c      \Big \}
-\end{gathered}
-\end{equation}
-
-\begin{equation}
-\small
-\begin{gathered}
-\mathscr{V}(p: S \rightarrow A B) = \Big \{  \{  \mathit{visit}(A, 1) <  (l \texttt{=} A.r) < \mathit{visit}(B, 1)  \}    \Big \} \\
-\mathscr{V}(p: A \rightarrow a) = \Big \{  \{  (o.f \sqsupseteq A.i)  < (A.r \texttt{=} o)  \}^c    \Big \} \\
-\mathscr{V}(p: B \rightarrow b) = \Big \{  \{  (l \texttt{=} B.i) < (B.s \texttt{=} l.f)  \}^c    \Big \}
-\end{gathered}
-\end{equation}
+% \begin{equation}
+% \small
+% \begin{gathered}
+% \end{gathered}
+% \end{equation}
 
 \end{frame}
 
 \note[itemize]{
 \item These parts are not fully figured out yet
-\item But we need mark some visits as circular and also some protocols as circular as well
 }
 
 
-\begin{frame}{Fixed-Point Loops}{Case-by-case analysis of when fixed-point loop is needed to avoid nesting fixed-point loops}
+\begin{frame}{Fixed-Point Loops}{Case-by-case analysis of when the fixed-point loop is needed to avoid nesting fixed-point loops}
 
 { \small
 \begin{tabular}{|p{0.4\linewidth} | p{0.5\linewidth}|}
@@ -1224,14 +1270,14 @@ The trivial schedule \alert{does not work} for this example.
 \multicolumn{1}{|c|}{Visit Type} & \multicolumn{1}{c|}{Fixed-Point Loop?}   \\ 
 \hline\hline
 Circular visit inside of circular visit & No fixed-point loop. Since the parent visit repeats the evaluation, its loop includes the child visit as well.\\ \hline
-Non-circular visit in circular visit & No fixed-point loop. Visit has to evaluate only once. \\ \hline
-Non-circular visit in non-circular visit & No fixed-point loop. Visit has to evaluate only once. \\ \hline
-Circular visit in non-circular visit & Needs fixed-point loop. \\ \hline
+Non-circular visit in a circular visit & No fixed-point loop. The visit has to evaluate only once. \\ \hline
+Non-circular visit in a non-circular visit & No fixed-point loop. The visit has to evaluate only once. \\ \hline
+A circular visit in a non-circular visit & Needs a fixed-point loop. \\ \hline
 \end{tabular} }
 
 \end{frame}
 
 \note[itemize]{
-\item This table describes the case-by-case analysis of when fixed-point loop is needed
+\item This table describes the case-by-case analysis of when the fixed-point loop is needed
 \item Notice that if a visit is circular and it is called from another circular visit then the fixed-point loop in the outer visit includes the child visit as well. And therefore no additional fixed-point loop in the child visit is required.
 }

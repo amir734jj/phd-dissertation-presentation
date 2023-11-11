@@ -12,7 +12,7 @@
 \end{frame}
 
 \note[itemize]{
-\item First and Follow are functions used in parsing and they are recursively defined and we will use them to validate our implementation of static evaluator.
+\item First and Follow are functions used in parsing and they are recursively defined and we will use them to validate our implementation of the static evaluator.
 }
 
 \begin{frame}[fragile=singleslide]{Example}{Example of First and Follow}
@@ -39,7 +39,7 @@ Follow(V) = { assign }
 \end{frame}
 
 \note[itemize]{
-\item These are some example of First and Follow.
+\item These are some examples of First and Follow.
 }
 
 \begin{frame}{Definition}{Formal recursive definition of First and Follow}
@@ -57,13 +57,13 @@ Credit: Dr. Boyland's lecture notes
 
 \note[itemize]{
 \item This a formal definition of First and Follow
-\item Notice the recursive nature of the problem specifically in the last equation where we have Follow on the both sides
+\item Notice the recursive nature of the problem specifically in the last equation where we have Follow on both sides
 }
 
 
 \begin{frame}[fragile=singleslide]{Example}{Grammar definition in APS}
 
-\begin{Verbatim}[fontsize=\fontsize{2.5}{4}\selectfont]
+\begin{Verbatim}[fontsize=\tiny]
 module GRAMMAR[] begin
   phylum Grammar;
 
@@ -85,7 +85,7 @@ end;
 \end{frame}
 
 \note[itemize]{
-\item This a definition of a context-free grammar in APS
+\item This a definition of context-free grammar in APS
 }
 
 \begin{frame}[fragile=singleslide]{Example}{First implementation in APS}
@@ -128,7 +128,7 @@ end;
 
 \end{frame}
 \note[itemize]{
-\item This a implementation of First in APS
+\item This an implementation of First in APS
 }
 
 
@@ -176,7 +176,7 @@ end;
 \end{frame}
 
 \note[itemize]{
-\item This a implementation of Follow in APS
+\item This an implementation of Follow in APS
 }
 
 
@@ -197,9 +197,9 @@ end;
 \end{frame}
 
 \note[itemize]{
-    \item I am intentionally not going into details of fiber construction because it would be disservice to remote attribute grammar paper but basically
-    \item Its construction that expresses the semantics of remote attribute grammars in classical terms
-    \item Because objects implicitly carry separate values for the fields and it is like a rope which can be separated into the individual fibers
+    \item I am intentionally not going into details of fiber construction because it would be a disservice to remote attribute grammar paper
+    \item Basically, its construction expresses the semantics of remote attribute grammars in classical terms
+    \item Because objects implicitly carry separate values for the fields and it is like a rope that can be separated into the individual fibers
     \item But this yields an improper attribute grammar with an infinite number of attributes
     \item Then fiber approximation fixes that but it then may include cycles ...
 }
@@ -213,8 +213,8 @@ In CRAG, some cycles may carry value and will have run-time significance.
 \end{frame}
 
 \note[itemize]{
-\item Even in a remote attribute grammar that is non-circular we may have fiber cycles and its okay.
-\item Fiber cycles are different between remote attribute grammar and circular remote attribute grammar because in a latter case they may carry value. 
+\item Even in a remote attribute grammar that is non-circular we may have fiber cycles and it's okay.
+\item Fiber cycles are different between remote attribute grammar and circular remote attribute grammar because in the latter case, they may carry value. 
 }
 
 
@@ -223,20 +223,20 @@ In CRAG, some cycles may carry value and will have run-time significance.
 
 Previously:
 \begin{itemize}
-    \item For every non-terminal whose fibered attributes take part in the cycle, created two \texttt{attribute\_decl} \alert{AST nodes} called up and down and the connected all nodes to these to break cycles and preserve only UP followed by DOWN.
+    \item For every non-terminal whose fibered attributes take part in the cycle, created two \texttt{attribute\_decl} \alert{AST nodes} called up and down and connected all nodes to these to break cycles and preserve only UP followed by DOWN.
 \end{itemize}
 
 Now:
 
 \begin{itemize}
-    \item \alert{No creation of AST node}. Treat all nodes as either up or down. If dependency is just fiber dependency then UP followed by DOWN. Otherwise, DOWN followed by UP.
+    \item \alert{No creation of AST node}. Treat all nodes as either up or down. If the dependency is just fiber dependency then UP followed by DOWN. Otherwise, DOWN followed by UP.
 \end{itemize}
 
 \end{frame}
 
 \note[itemize]{
 \item Previous fiber cycle breaking module created two artificial attributes outside of the parser called UP and DOWN and this caused a lot of problems
-\item to fix these we treat all attributes as either UP or DOWN and it simplified everything
+\item To fix these we treat all attributes as either UP or DOWN and it simplified everything
 }
 
 
@@ -252,7 +252,7 @@ Now:
 \end{frame}
 
 \note[itemize]{
-\item Tested the fiber cycle breaking algorithm against First and Follow example.
+\item Tested the fiber cycle breaking algorithm against First and Follow the example.
 \item And it was successful 
 }
 
@@ -267,15 +267,15 @@ Previously:
     
 Now:
 \begin{itemize}
-    \item Scheduling is still greedy but it is using groups and is simpler, easier to debug and \alert{de-coupled from code generation} module.
-    \item Includes $(\mathit{ph}, \mathit{ch})$ marker to help code generation identify the start and end of child visit.
+    \item Scheduling is still greedy but it is using groups and is simpler, easier to debug, and \alert{de-coupled from code generation} module.
+    \item Includes $(\mathit{ph}, \mathit{ch})$ marker to help code generation identify the start and end of a child visit.
 \end{itemize}
 
 \end{frame}
 
 \note[itemize]{
 \item The static scheduler or the module that constructs the visit sequences was tightly coupled with the code generation module and it was not working well
-\item So we designed a replacement that is still greedy but simpler as it schedules instances as groups and uses visit markers to indicate where child visit happens and when we need to return back to parent visit form a child visit
+\item So we designed a replacement that is still greedy but simpler as it schedules instances as groups and uses visit markers to indicate where child visit happens and when we need to return back to a parent visit from a child visit
 }
 
 
@@ -289,5 +289,5 @@ Now:
 \end{frame}
 
 \note[itemize]{
-\item The implementation of static schedule generation is currently in-progress but very close to be done.
+\item The implementation of static schedule generation is currently in-progress but very close to being done.
 }

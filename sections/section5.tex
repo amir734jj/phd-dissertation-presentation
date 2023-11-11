@@ -32,10 +32,11 @@ val t_IntegerMaxLattice = new M_MAX_LATTICE[T_Integer]
 \end{frame}
 
 \note[itemize]{
-\item APS has a module that generates code in C++ and Scala but it was as a proof of concept work and it had some issue.
+\item APS has a module that generates code in C++ and Scala but it was written as a proof of concept and it had some issues.
 \item More specifically, to show the implementation of circular remote attribute grammar working for First and Follow, we need to use lattices in APS
-\item But in APS lattices are defined as modules with generic parameter and the module itself extends its own generic parameter and Scala does not support this feature and it resulted in generating a Scala code that does not type check
-\item so we had to think out of the box and used Scala traits as a way to accomplish this
+\item But in APS lattices are defined as modules with generic parameters and the module itself extends its own generic parameter
+\item Scala does not support this feature so this resulted in generating a Scala code that does not type check
+\item So we had to think out of the box and used Scala traits as a way to accomplish this
 }
 
 
@@ -45,7 +46,7 @@ val t_IntegerMaxLattice = new M_MAX_LATTICE[T_Integer]
 Previously:
 
 \begin{itemize}
-    \item Internally, APS \emph{types} are AST nodes. Any replacement of formals with actuals will result in AST creation/modification in semantic analyzer (outside of parser). \alert{Anti-pattern}.
+    \item Internally, APS \emph{types} are AST nodes. Any replacement of formals with actuals will result in AST creation/modification in the semantic analyzer (outside of the parser). \alert{Anti-pattern}.
     \item No way to \emph{calculate} type of \emph{use}.
 \end{itemize}
 
@@ -59,9 +60,9 @@ Now:
 \end{frame}
 
 \note[itemize]{
-\item Fixing code generation turned out to tricky because internally APS types are AST nodes
-\item Creating AST nodes outside of parser is anti-pattern
-\item So we introduced a concept of canonical types and signatures which substitute formals with actuals and used it in fixing the code generation.
+\item Fixing code generation turned out to be tricky because internally APS types are AST nodes
+\item Creating AST nodes outside of the parser is anti-pattern
+\item So we introduced a concept of canonical types and signatures that substitute formals with actuals and used it in fixing the code generation.
 }
 
 
@@ -77,7 +78,5 @@ $\to$ Next step is getting new \alert{static scheduler} to work so it can take a
 \end{frame}
 
 \note[itemize]{
-\item Fixing code generation turned out to be tricky because internally APS types are AST nodes
-\item And creating AST nodes outside of parser is anti-pattern
-\item So we introduced a concept of canonical types and canonical signatures which substitute formals with actuals and used it in fixing the code generation.
+\item Canonical types and signatures were successful because Scala code now for First and Follow now type checks.
 }

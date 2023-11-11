@@ -1,0 +1,130 @@
+% Copyright 2022 by Qrrbrbirlbel
+%
+% This file may be distributed and/or modified
+%
+% 1. under the LaTeX Project Public License and/or
+% 2. under the GNU Free Documentation License.
+%
+\usepgflibrary{ext.transformations.mirror}
+\tikzset{
+  mirror/.code={%
+    \pgfutil@in@{--}{#1}%
+    \ifpgfutil@in@
+      \tikzext@trans@mirror#1\tikz@stop
+    \else
+      \tikz@addtransform{\tikz@scan@one@point\pgfqtransformmirror#1\relax}%
+    \fi},
+  ymirror/.code={\pgfutil@ifnextchar(\tikzext@trans@ymirror@coordinate\tikzext@trans@ymirror@simple#1\tikz@stop},
+  xmirror/.code={\pgfutil@ifnextchar(\tikzext@trans@xmirror@coordinate\tikzext@trans@xmirror@simple#1\tikz@stop},
+  mirror x/.code={%
+    \pgfextract@process\tikz@temp{\tikz@scan@one@point\pgfutil@firstofone#1\relax}%
+    \edef\tikz@marshal{%
+      \noexpand\tikz@addtransform{%
+        \noexpand\pgftransformmirror
+          {\expandafter\noexpand\tikz@temp}
+          {\noexpand\pgfpointadd{\expandafter\noexpand\tikz@temp}
+                                {\noexpand\pgfqpointxy{0}{1}}}}}%
+    \tikz@marshal
+  },
+  mirror y/.code={%
+    \pgfextract@process\tikz@temp{\tikz@scan@one@point\pgfutil@firstofone#1\relax}%
+    \edef\tikz@marshal{%
+    \noexpand\tikz@addtransform{%
+      \noexpand\pgftransformmirror
+        {\expandafter\noexpand\tikz@temp}
+        {\noexpand\pgfpointadd{\expandafter\noexpand\tikz@temp}
+                              {\noexpand\pgfqpointxy{1}{0}}}}}%
+    \tikz@marshal
+  },
+  mirror/.value required,
+  ymirror/.default=+0pt,
+  xmirror/.default=+0pt,
+  mirror x/.default={(0,0)},
+  mirror y/.default={(0,0)}%
+}
+\def\tikzext@trans@mirror#1--#2\tikz@stop{%
+  \tikz@addtransform{%
+    \pgftransformmirror{\tikz@scan@one@point\pgfutil@firstofone#1\relax}
+                       {\tikz@scan@one@point\pgfutil@firstofone#2\relax}}}
+\def\tikzext@trans@xmirror@simple#1\tikz@stop{\tikz@addtransform{\pgftransformxmirror{#1}}}
+\def\tikzext@trans@ymirror@simple#1\tikz@stop{\tikz@addtransform{\pgftransformymirror{#1}}}
+\def\tikzext@trans@xmirror@coordinate#1\tikz@stop{%
+  \tikz@scan@one@point\pgfutil@firstofone#1\relax
+  \edef\tikz@marshal{%
+    \noexpand\tikz@addtransform{%
+      \noexpand\pgftransformxmirror{+\the\pgf@x}%
+    }%
+  }%
+  \tikz@marshal
+}
+\def\tikzext@trans@ymirror@coordinate#1\tikz@stop{%
+  \tikz@scan@one@point\pgfutil@firstofone#1\relax
+  \edef\tikz@marshal{%
+    \noexpand\tikz@addtransform{%
+      \noexpand\pgftransformymirror{+\the\pgf@y}%
+    }%
+  }%
+  \tikz@marshal
+}
+
+\tikzset{
+  Mirror/.code={%
+    \pgfutil@in@{--}{#1}%
+    \ifpgfutil@in@
+      \tikzext@trans@Mirror#1\tikz@stop
+    \else
+      \tikz@addtransform{\tikz@scan@one@point\pgfqtransformMirror#1\relax}%
+    \fi},
+  yMirror/.code={\pgfutil@ifnextchar(\tikzext@trans@yMirror@coordinate\tikzext@trans@yMirror@simple#1\tikz@stop},
+  xMirror/.code={\pgfutil@ifnextchar(\tikzext@trans@xMirror@coordinate\tikzext@trans@xMirror@simple#1\tikz@stop},
+  Mirror x/.code={%
+    \pgfextract@process\tikz@temp{\tikz@scan@one@point\pgfutil@firstofone#1\relax}%
+    \edef\tikz@marshal{%
+      \noexpand\tikz@addtransform{%
+        \noexpand\pgftransformMirror
+          {\expandafter\noexpand\tikz@temp}
+          {\noexpand\pgfpointadd{\expandafter\noexpand\tikz@temp}
+                                {\noexpand\pgfqpointxy{0}{1}}}}}%
+    \tikz@marshal
+  },
+  Mirror y/.code={%
+    \pgfextract@process\tikz@temp{\tikz@scan@one@point\pgfutil@firstofone#1\relax}%
+    \edef\tikz@marshal{%
+    \noexpand\tikz@addtransform{%
+      \noexpand\pgftransformMirror
+        {\expandafter\noexpand\tikz@temp}
+        {\noexpand\pgfpointadd{\expandafter\noexpand\tikz@temp}
+                              {\noexpand\pgfqpointxy{1}{0}}}}}%
+    \tikz@marshal
+  },
+  Mirror/.value required,
+  yMirror/.default=+0pt,
+  xMirror/.default=+0pt,
+  Mirror x/.default={(0,0)},
+  Mirror y/.default={(0,0)}%
+}
+\def\tikzext@trans@Mirror#1--#2\tikz@stop{%
+  \tikz@addtransform{%
+    \pgftransformMirror{\tikz@scan@one@point\pgfutil@firstofone#1\relax}
+                       {\tikz@scan@one@point\pgfutil@firstofone#2\relax}}}
+\def\tikzext@trans@xMirror@simple#1\tikz@stop{\tikz@addtransform{\pgftransformxMirror{#1}}}
+\def\tikzext@trans@yMirror@simple#1\tikz@stop{\tikz@addtransform{\pgftransformyMirror{#1}}}
+\def\tikzext@trans@xMirror@coordinate#1\tikz@stop{%
+  \tikz@scan@one@point\pgfutil@firstofone#1\relax
+  \edef\tikz@marshal{%
+    \noexpand\tikz@addtransform{%
+      \noexpand\pgftransformxMirror{+\the\pgf@x}%
+    }%
+  }%
+  \tikz@marshal
+}
+\def\tikzext@trans@yMirror@coordinate#1\tikz@stop{%
+  \tikz@scan@one@point\pgfutil@firstofone#1\relax
+  \edef\tikz@marshal{%
+    \noexpand\tikz@addtransform{%
+      \noexpand\pgftransformyMirror{+\the\pgf@y}%
+    }%
+  }%
+  \tikz@marshal
+}
+\endinput

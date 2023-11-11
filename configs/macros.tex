@@ -6,7 +6,12 @@
 \captionsetup[figure]{font=small}
 \graphicspath{ {figures/} }
 
-\usetikzlibrary{positioning,calc,arrows.meta}
+ %arrows is deprecated
+\usetikzlibrary{positioning,calc,chains,positioning,arrows.meta,decorations.markings,datavisualization,matrix,shapes}
+
+% Manual import hence all the files at the root level
+\usetikzlibrary{ext.paths.ortho}
+\usetikzlibrary{ext.node-families}
 
 \newtheorem{plain}{Remark}
 
@@ -72,3 +77,8 @@
         \tableofcontents[currentsection]
     \end{frame}
 }
+
+
+\newcommand{\customorder}{{quasi total order}}
+\newcommand{\Customorder}{{Quasi total order}}
+\newcommand{\CustomorderSymbol}{{\prec}}

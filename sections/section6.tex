@@ -1,32 +1,205 @@
-\section{Conclusion}
+\section{Benchmarks}
 
-\begin{frame}{What has been done so far?}
+
+\begin{frame}{Benchmark Workstation}{Desktop PC}
+
 
 \begin{itemize}
-    \item Defined circular remote attribute grammar
-    \item Defined what makes a schedule valid for CRAG
-    \item Defined visit sequence for CRAG
-    \item \alert{Proposed} an algorithm to statically evaluate CRAG
-    \item \alert{Identified} the modifications needed for APS to support CRAG
+    \item \texttt{i5-8500} CPU
+    \item \texttt{32GB} of RAM
+    \item \texttt{Ubuntu 22.04-LTS}
+    \item \texttt{Scala 2.13.10} 
+    \item JVM flags \texttt{-Xmx16g}
+    \item  No optional optimization flags
 \end{itemize}
 \end{frame}
 
 \note[itemize]{
-\item We have made a lot of progress done so far up to this point including ...
+\item That is \texttt{16GB} JVM heap size to prevent evaluation running out of memory and repeated garbage collector calls to free the memory. We did not use any optional optimization flags.
 }
 
-\begin{frame}{Next Steps}{Coding + Testing + Benchmarking}
+\begin{frame}{Follow Example}
+    Why did we choose \textbf{Follow}
+    \begin{itemize}
+        \item It's a \alert{recursive} problem over a tree
+        \begin{itemize}
+            \item \alert{circularly defined problem}
+        \end{itemize}
+        \item Follow was \alert{already implemented} in JastAdd
+        \item \alert{Well-known} and \alert{straightforward} to implement
+    \end{itemize}
+\end{frame}
 
-\begin{itemize}
-    \item \alert{Implementation} of visit sequence evaluation for CRAG in APS
-    \item Statically scheduling First and Follow to validate our work
-    \item Statically scheduling \emph{Cool} compiler semantic analyzer
-    \item Benchmarking APS implementation against JastAdd
-\end{itemize}
+\begin{frame}[fragile=singleslide]{Test Input}{Consistent test input to be used to benchmark APS and JastAdd}
+Input:
+    \begin{itemize}
+        \item \alert{Randomly generated} recursive context-free grammar fed into both APS and JastAdd
+        \item CFG has to \alert{include recursive productions} otherwise it would be a recursive problem
+        \item CFG has to \alert{include epsilon productions} otherwise it would not be interesting
+    \end{itemize}
+
+    Example:
+
+\begin{verbatim}
+    S -> a S b
+    S -> a b
+    S -> b a
+    S -> epsilon
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}{Follow Example Benchmark}{APS static CRAG schedule vs. JastAdd demand scheduler running Follow}
+
+\begin{figure}[htbp]
+        \scalebox{1.05}{
+    \tiny
+\begin{tblr}
+{
+rows           = {valign=m},
+columns        = {co=-1,halign=c},
+hspan          = minimal,
+cell{1}{1-4}   = {r=2}{},
+cell{1}{5,7,9} = {c=2}{},
+cell{8}{5}     = {c=2}{},
+cell{7}{9}     = {r=2,c=2}{},
+hlines,
+vlines,
+}
+Input size in MB. & Nodes   & \rotatebox{90}{non-terminals} & \rotatebox{90}{terminals} & JastAdd                        &             & \makecell{APS without\\monotonicity check} &             & \makecell{APS with\\monotonicity check} &             \\
+                &         &               &           & time in sec.                 & memory in MB. & time in sec.                   & memory in MB. & time in sec.                & memory in MB. \\
+2               & 17045   & 256           & 16789     & 0.8                            & 78          & 0.6                              & 63          & 33                            & 98          \\
+5               & 67244   & 512           & 66732     & 2.8                            & 137         & 2.3                              & 126         & 348                           & 344         \\
+11              & 265762  & 1024          & 264738    & 15                             & 479         & 9.3                              & 388         & 3324                          & 774         \\
+21              & 1024167 & 2048          & 1022119   & 127                            & 2793         & 72                               & 1288        & 31716                         & 2946        \\
+69              & 3596625 & 4096          & 3592529   & 1193                            & 11073        & 246                              & 5052        & \makecell{skipped\\takes too long\\ to run}                             &             \\
+289             & 9075268 & 8192          & 9067076   & \makecell{JVM crashed\\after 1670\\seconds} &             & 861                              & 14362       &                               &             \\
+\end{tblr}}
+    \caption{Benchmarks of running \href{https://github.com/boyland/aps/blob/master/examples/follow.aps}{\texttt{Follow}} example}
+    \label{fig:follow-benchmark}
+   
+\end{figure}
 
 \end{frame}
 
 \note[itemize]{
-\item The final question is what is remaining to be done?
+\item lets graph the time and memory usage in log scaling so we can see how much APS static scheduler is faster
 }
 
+
+
+\pgfplotstableread{
+nts  Nodes    ApsTime       ApsMemory        JastAddTime        JastAddMemory
+8      17045        0.6    63     0.8     78
+9      67244       2.3    126     2.8     137
+10      265762      9.3    388     15     479
+11      1024167      72    1288     127     2793
+12      3596625     246    5052    1193     11073
+13      9075268     861    14362    nan       nan
+}\followdata
+
+\begin{frame}[fragile=singleslide]{Follow Example Benchmark}{Log scaled time duration}
+\begin{figure}[htbp]
+\centering
+ \scalebox{0.8}{
+\begin{tikzpicture}[
+    slanted blocks/.style={
+        draw, fill=white, font=\tiny\ttfamily, rotate=45,
+        anchor=south west, inner sep=2pt
+    }]
+    \begin{axis}[
+        axis line style = {thick, gray},
+        ymode = log,
+        ymin = .2,
+        xtick = {8,9,...,13},
+        xlabel = {Non-terminal count},
+        ylabel = {Time (seconds)},
+        legend style = {nodes={right, font=\scriptsize},
+            at={(0.05,0.9)}, anchor=west},
+        clip mode = individual,
+        grid = major,
+        label style={font=\tiny},
+        tick label style={font=\tiny},
+        %%% Added: how to create the ticks, manual page 343 "Tick Options"
+        xticklabel={$2^{\pgfmathprintnumber{\tick}}$},
+        ]
+        \addplot table[x=nts, y=JastAddTime]{\followdata};
+        \addplot table[x=nts, y=ApsTime]{\followdata};
+        \legend{JastAdd, APS}
+        \pgfplotsinvokeforeach{0,1,...,5}{%%% changed to compile
+            \node[slanted blocks] at ({#1+8},.2) %% changed to adjust shift
+                {\pgfplotstablegetelem{#1}{Nodes}\of{\followdata}\pgfplotsretval};
+        }
+        \node[slanted blocks] at (7.1,.2) {\# of nodes};
+        \node[starburst, fill=yellow, draw=red, thick, font=\tiny\ttfamily,
+            inner sep=0pt, starburst point height=6pt]
+            at (12.5, 2000) {crash!};
+    \end{axis}
+\end{tikzpicture}}
+\caption{Graph of time duration in log scaling}
+\end{figure}
+\end{frame}
+
+\note[itemize]{
+\item JastAdd crashes
+}
+
+\begin{frame}[fragile=singleslide]{Follow Example Benchmark}{Log scaled memory usage}
+\begin{figure}[htbp]
+\centering
+ \scalebox{0.8}{
+\begin{tikzpicture}[
+    slanted blocks/.style={
+        draw, fill=white, font=\tiny\ttfamily, rotate=45,
+        anchor=south west, inner sep=2pt
+    }]
+    \begin{axis}[
+        axis line style = {thick, gray},
+        ymode = log,
+        ymin = .2,
+        xtick = {8,9,...,13},
+        xlabel = {Non-terminal count},
+        ylabel = {Memory (MB)},
+        legend style = {nodes={right, font=\scriptsize},
+            at={(0.05,0.9)}, anchor=west},
+        clip mode = individual,
+        grid = major,
+        label style={font=\tiny},
+        tick label style={font=\tiny},
+        %%% Added: how to create the ticks, manual page 343 "Tick Options"
+        xticklabel={$2^{\pgfmathprintnumber{\tick}}$},
+        ]
+        \addplot table[x=nts, y=JastAddMemory]{\followdata};
+        \addplot table[x=nts, y=ApsMemory]{\followdata};
+        \legend{JastAdd, APS}
+        \pgfplotsinvokeforeach{0,1,...,5}{%%% changed to compile
+            \node[slanted blocks] at ({#1+8},.2) %% changed to adjust shift
+                {\pgfplotstablegetelem{#1}{Nodes}\of{\followdata}\pgfplotsretval};
+        }
+        \node[slanted blocks] at (7.1,.2) {\# of nodes};
+        \node[starburst, fill=yellow, draw=red, thick, font=\tiny\ttfamily,
+            inner sep=0pt, starburst point height=6pt]
+            at (12.5, 30000) {crash!};
+    \end{axis}
+\end{tikzpicture}}
+
+\caption{Graph of memory usage in log scaling}
+\end{figure}
+\end{frame}
+
+\note[itemize]{
+
+\item JastAdd crashes
+}
+
+
+
+\begin{frame}{Observations}{Observations after running Follow}
+What we can see when comparing APS vs. JastAdd running Follow on the same CFG?
+
+    \begin{itemize}
+        \item The \alert{exponential nature of the demand evaluation} in JastAdd becomes evident as the number of the AST nodes gets larger
+        \item \alert{Skipping repeated monotonicity validation checks} in APS which happens when it sets the value of a circular attribute instance helps the time complexity
+        \item We can see that \alert{APS without a monotonicity check is much faster} than JastAdd but \alert{APS with a monotonicity check is much slower} than JastAdd
+    \end{itemize}
+\end{frame}

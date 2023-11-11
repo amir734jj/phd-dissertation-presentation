@@ -39,12 +39,12 @@ Math expression consisting of addition \& multiplication
 
 \newlinevspace
 
-How to represent this as a \alert{CFG} with correct order of operation?
+How to represent this as a \alert{CFG} with the correct order of operation?
 \end{frame}
 
 \note[itemize]{
-\item As a motivation, given this simple arithmetic expression, lets utilize attribute grammars to define semantics of its final value
-\item but first lets construct a context-free grammar for it
+\item As a motivation, given this simple arithmetic expression, let's utilize attribute grammars to define the semantics of its final value
+\item but first let's construct a context-free grammar for it
 }
 
 \begin{frame}[fragile=singleslide]{Motivation}{Binary Expression CFG}
@@ -76,7 +76,7 @@ F -> digit
 
 
 \note[itemize]{
-\item This is a context-free grammar describing that arithmetic expression with a correct order of operation
+\item This is a context-free grammar describing that arithmetic expression with the correct order of operation
 \item How to represent the final value using attribute grammars?
 \item To do that we need to define the value of LHS using the values of RHS
 }
@@ -110,17 +110,17 @@ F -> digit
 \end{frame}
 
 \note[itemize]{
-\item This is a an attribute grammar describing the value of each expression
-\item Notice propagation of attribute values are always bottom-up
-\item val is a synthesized attribute
+\item This is an attribute grammar describing the value of each expression
+\item Notice propagation of attribute values is always bottom-up
+\item \texttt{val} is a synthesized attribute
 \item non-terminal followed by a dot followed by an attribute name is called an attribute occurrence
 }
 
 
 \begin{frame}{Motivation}{Derivation tree}
-Arrows represent \alert{direction} of flow of attribute values:
+Arrow ($\to$) represent \alert{direction} of flow of attribute values:
 
-$\to$ \alert{bottom-up} propagation
+\alert{bottom-up} propagation only in this example
 
 \begin{center}
 \scalebox{0.75}{\begin{forest}
@@ -151,7 +151,7 @@ $\to$ \alert{bottom-up} propagation
 
 
 
-\begin{frame}{Attribute Grammars}{Extensions to original Knuth paper}
+\begin{frame}{Attribute Grammars}{Extensions to the original Knuth paper}
 
 \begin{itemize}
     \item \alert{Classical Attribute Grammar} Introduced by Knuth in \cite{Knuth68semanticsof}
@@ -164,9 +164,9 @@ $\to$ \alert{bottom-up} propagation
 \end{frame}
 
 \note[itemize]{
-\item This is a list of highly influential papers that contributed to the field of attribute grammars and we will be building upon them
-\item Starting from Knuth 1968 paper titled "Semantics of Context-Free Languages"
-\item And most recently Hedin in 2007 introduced an extension to Knuth's classical attribute grammar called circular remote attribute grammars 
+\item This is a list of highly influential papers that contributed to the field of attribute grammar and we will be building upon them
+\item Starting from Knuth's 1968 paper titled "Semantics of Context-Free Languages"
+\item And most recently Hedin 2007 introduced an extension to Knuth's classical attribute grammar called circular remote attribute grammar 
 }
 
 
@@ -175,34 +175,41 @@ $\to$ \alert{bottom-up} propagation
 \begin{itemize}
     \item \alert{Statically scheduling} circular remote attribute grammars
     \begin{itemize}
+        \item Extend \alert{definition of $l$-ordered} to CRAG
+        \item Suggest a method to \alert{generate a static schedule} for CRAG
         \item Modifying \alert{APS attribute grammar system} to handle this extension
-        \item Testing it against circularly defined problems like First and Follow and \alert{Cool semantic analyzer}
+        \item Testing it against circularly defined problems:
+        \begin{itemize}
+            \item \alert{First} and \alert{Follow} in APS vs JastAdd
+            \item \alert{COOL semantic analyzer} in APS using demand vs static evaluation
+        \end{itemize}
     \end{itemize}
 \end{itemize}
     
 \end{frame}
 
 \note[itemize]{
-\item What is the end-goal of this thesis and how do we measure whether our hypothesis actually works or not?
+\item What is the end goal of this thesis and how do we measure whether our implementation actually works or not?
 \item So, the goal is statically scheduling circular remote attribute grammars
-\item To validate our work is actually working, we will modify APS attribute grammar system and test it against common circularly defined problems over a tree
+\item To validate that our implementation is actually working, we will modify the APS attribute grammar system and test it against common circularly defined problems over a tree
+\item Examples of these circularly defined problems are COOL programming language semantic analyzer, First and Follow in LR parsing
 }
 
 \begin{frame}{Impact}{Advancing knowledge}
     
 \begin{itemize}
-    \item This has NOT been done before
+    \item Statically scheduling circular remote AGs has NOT been done before
     \begin{itemize}
         \item Not even static evaluator for \alert{circular AG}
     \end{itemize}
-    \item Completes the attribute grammars for practical use
+    \item \alert{Complements the attribute grammars} and enables its practical use because of how \alert{common} and \alert{accommodating} circularly defined problems over a tree are in the real-world applications
 \end{itemize}    
 
 \end{frame}
 
 \note[itemize]{
-\item How this research is going to impact the field of attribute grammars and program semantic analysis?
-\item As far as we are aware of, This has NOT been done before
+\item How this research is going to impact the field of attribute grammar and program semantic analysis?
+\item As far as we are aware, statically scheduling circular remote attribute grammars has NOT been done before
 \item Not even static evaluator for circular attribute grammars
-\item And it brings over static schedule to the circular remote attribute grammars which is the most accommodating extension of attribute grammars
+\item And this thesis brings over static scheduling to the circular remote attribute grammars which is the most accommodating extension of attribute grammars for the users
 }
