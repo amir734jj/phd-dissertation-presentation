@@ -1,0 +1,323 @@
+
+\begin{frame}{Methods Overview}{Methods and algorithms}
+     \begin{description}
+        \item $\checkmark$ Fiber cycle breaking
+        \item $\square$  \alert{Visit sequences}
+        \item $\square$  SCC chunk scheduling
+    \end{description}
+\end{frame}
+
+\note[itemize]{
+\item Next, we are going to talk about visit sequences
+}
+
+\begin{frame}{Visit Sequence Evaluation}{Static evaluator based on $l$-ordered evaluation class}
+
+$\Rightarrow$ \alert{Visit sequence evaluation} is a type of \alert{static evaluation}
+
+\newlinevspace
+
+Pros:
+\begin{itemize}
+    \item Evaluation \alert{will terminate}
+    \item \alert{No re-evaluation}
+    \item Better space complexity as runtime dependencies are not stored
+    \item Time complexity of: $\mathcal{O}(| \hat{R} |)$ (for classical AG)
+    \item \alert{Practical}: can be generated independent of derivation
+\end{itemize}
+
+Cons:
+\begin{itemize}
+    \item Requires extensive static analysis of attribute grammars
+\end{itemize}
+\end{frame}
+
+\note[itemize]{
+\item Kastens introduced $l$-ordered class of attribute grammars and introduced a type of static evaluator called a visit sequence evaluator
+\item Visit sequence evaluator does not need a runtime dependency analysis so it has a better space and time complexity compared to demand evaluation
+\item And runs in linear time for a classical attribute grammar
+\item And can be generated once and works for all derivations of a grammar
+\item But only works for $l$-ordered evaluation class of attribute grammars
+}
+
+
+% visit sequence is a series of recursive function where each each non-terminal is visited fixed number of times and each visit can visit the children, and in the end all visits are done for every node of the tree
+\begin{frame}[fragile=singleslide]{Example}{Visit sequence evaluator}
+
+Set of \alert{recursive functions} where each function takes an \alert{instance of non-terminal} (derivation tree node)
+
+{\tiny
+\begin{multicols}{2}
+\begin{Verbatim}[fontsize=\scriptsize]
+visit_S(n: S -> A)
+    A.i1 = S.in
+    visit_A_part1(A)
+    A.i2 = A.s1
+    visit_A_part2(A)
+    S.out = A.s2
+
+visit_A_part1(n: A -> A A)
+    A1.i1 = A0.i1
+    visit_A_part1(A1)
+    A1.i2 = A1.s1
+    visit_A_part2(A1)
+    A0.s1 = A1.s2
+visit_A_part2(n: A -> A A)
+    A2.i1 = A0.i2
+    visit_A_part1(A2)
+    A2.i2 = A2.s1
+    visit_A_part2(A2)
+    A0.s2 = A2.s2
+
+visit_A_part1(n: A -> 'a')
+    A.s1 = A.i1 + 1
+
+visit_A_part2(n: A -> 'a')
+    A.s2 = A.i2 + 1
+    
+\end{Verbatim}
+\end{multicols}
+}
+
+\end{frame}
+
+\note[itemize]{
+\item This is a visit sequence evaluator for the classical attribute grammar we described previously
+\item Notice that we have 4 recursive functions, each function takes an attribute instance associated with a production and then evaluates some of its attributes inside the visit function
+\item We have 5 recursive functions in this example
+\item We also see that visit $A$ has part $1$ and part $2$ and that corresponds to phase $1$ and phase $2$ of the summary graph schedule
+}
+
+
+\begin{frame}{Visit Sequence}{Protocol is like an interface}
+
+\begin{definition}
+A \emph{Protocol} $\Pi(X)$ is an \alert{ordered partition of attributes} for each non-terminal $X \in N$, where it can include an empty set or multiple synthesized or inherited attributes.
+\end{definition}
+
+$\rightarrow$ inherited and synthesized are packaged together
+\begin{itemize}
+    \item \alert{inherited goes in} and \alert{synthesized goes out}
+\end{itemize}
+
+
+For example, $\Pi(A)$ is the following:
+\[ \Pi(A) = \Big\{ \{ A.i_1, A.s_1 \} < \{ A.i_2, A.s_2 \} \Big\} \]
+
+Visit Sequence has to be compatible with $\mathit{Ord}(R(p))$ and $\Pi(X_i)$
+
+\end{frame}
+
+\note[itemize]{
+\item To understand a visit sequence we first need to understand a protocol which is like an interface in a programming language
+\item A protocol for a non-terminal is an ordered partition of attributes, this may include an empty set or set containing multiple synthesized or inherited attributes
+\item Protocol for a non-terminal is just like a package of inherited and synthesized attributes. Inherited goes in and synthesized comes out
+\item A visit sequence for a production has to be compatible with an ordered set of all rules associated with a production $R(p)$ and protocol for all non-terminals involved in a production
+\item We call each inner-set in the protocol a \textit{phase}
+}
+
+
+\begin{frame}{Visits for Classical AG}{Definition of visit sequence for classical AG}
+
+A \emph{visit-sequence} $\mathscr{V}(p)$ for $p{:} X \rightarrow \alpha \in P$ of a $l$-ordered AG is:
+
+\begin{itemize}
+    \item a sequence of visits where each visit consists of
+    \begin{itemize}
+        \item rules that define local attributes
+        \item rules that define/use child inherited/synthesized attributes 
+        \item child visit call of a particular phase
+    \end{itemize}
+\end{itemize}
+
+
+{
+\scriptsize
+\begin{equation}\label{eq:visit-for-production-aa}
+\begin{gathered}
+\mathscr{V}(p{:} A_0 \rightarrow A_1 A_2) = \Bigg\{               
+   \overbrace{ \Big\{  \mathit{visit}(A_1, 1)  < \mathit{visit}(A_1, 2)	 \Big\}}^\text{first visit corresponding to first set in $\Pi(A)$ }  <  \\
+   \underbrace{ \Big\{  \mathit{visit}(A_2, 1)  < \mathit{visit}(A_2, 2) \Big\}}_\text{second visit corresponding to second set in $\Pi(A)$}
+\Bigg\}
+\end{gathered}
+\end{equation}
+}
+
+\end{frame}
+
+\note[itemize]{
+\item Visit sequence is a sequence of visits
+\item Each visit may contain rules or child visit call for a particular phase
+\item By rules we mean rule that define local attributes, or rules that define child inherited attributes or rules that use child synthesized attributes or rules that define parent synthesized attributes, so all of that
+\item In this example, we have a visit sequence with two visits, because the protocol for the LHS non-terminal of the production had two phases
+\item Each visit is corresponding to a phase or set in the protocol
+\item For example, visit one is corresponding to phase one of the protocol
+}
+
+
+\begin{frame}{Protocol for CRAG}{CRAG protocols can have empty phases}
+
+\begin{definition}
+\emph{Protocol} $\Pi(X)$ for each non-terminal $X \in N$ of circular remote attribute grammar is a \alert{sequence of possibly empty sets} of attributes of non-terminal where some of the sets are marked as cyclic.
+\end{definition}
+
+Empty phase in protocol:
+\begin{itemize}
+    \item start and end with non-circular phase
+    \item empty phase between two circular phase to make sure cycles do not get merged
+\end{itemize}
+
+\end{frame}
+
+
+\note[itemize]{
+\item Protocol for CRAG is different from protocol in classical AG because it has to accommodate cycles
+\item To that we mark each inner-set in the protocol as circular or non-circular
+\item And then we need to make sure protocol start and end with non-circular phase, if there is none then we can just stick an empty non-circular phase at the start or end
+\item Similarly, to make sure separate cycles do not get merged, so we add an empty non-circular phase between two circular phases
+}
+
+
+
+\begin{frame}{Example of Protocol for CRAG}
+
+\begin{equation}\label{eq:protocol-for-crag-example}
+\begin{gathered}
+\Pi(S) =  \Big \{   \overbrace{\{ S.x \} }^{\text{non-circular visit}}     \Big \} \\
+\Pi(A) =  \Big \{  
+\overbrace{\big \{  A.r  \big \}}^{\text{empty non-circular visit}} <
+\overbrace{\big \{  \underbrace{  \{  A.i  \}}_{\text{cycle}}  \big \}}^{\text{circular visit}} <
+\overbrace{\big \{    \big \}}^{\text{empty non-circular visit}}
+\Big \} \\
+\Pi(B) =  \Big \{
+\overbrace{\big \{   B.i  \big \}}^{\text{empty non-circular visit}} <
+\overbrace{\big \{  \underbrace{  \{  B.s \}}_{\text{cycle}}  \big \}}^{\text{circular visit}} <
+\overbrace{\big \{    \big \}}^{\text{empty non-circular visit}}
+\Big \} \\
+\end{gathered}
+\end{equation}
+    
+\end{frame}
+
+\note[itemize]{
+\item This is a protocol for each non-terminal of circular remote attribute grammar we previously saw
+\item Notice that each set is marked as circular or non-circular and we start and end with non-circular phase
+}
+
+\begin{frame}{Visits for CRAG}{Definition of visit sequence for CRAG}
+
+A \emph{visit-sequence} $\mathscr{V}(p)$ for $p{:} X \rightarrow \alpha \in P$ of $l$-ordered circular remote attribute grammar is:
+
+\begin{itemize}
+    \item an ordered set of visits similar to visit sequence for classical AG but:
+    \begin{itemize}
+        \item inside in each visit there can additionally be a sub-sequence of rules or child visits
+        \item Inside this sub-sequence, there cannot be another level sub-sequence \item Each visit of each child occurs exactly once and they appear in the exact order they appear in the protocol.
+    \end{itemize}
+\end{itemize}
+
+\end{frame}
+
+\note[itemize]{
+\item Visit sequence for circular remote attribute grammar is different from visit sequence for classical attribute grammar in  sense that it can include sub-sequences
+\item Sub-sequences cannot include another level of sub-sequence
+}
+
+
+\begin{frame}{Visits for CRAG}{Visits in CRAG may contain sub-sequence}
+
+
+{
+\scriptsize
+\begin{equation}\label{eq:visit-sequence-for-crag-example}
+\begin{gathered}
+\mathscr{V}(p{:} S \rightarrow A B) = \Biggl\{
+\overbrace{
+\begin{aligned}
+\Bigl\{
+ \mathit{visit}(A, 1)  < (l \texttt{=} A.r) < (B.i \texttt{=} l) < \mathit{visit}(B, 1) < \\
+\underbrace{\{ \mathit{visit}(A, 2)   , \mathit{visit}(B, 2), (A.i \texttt{=} B.s)  \}}_{\text{sub-sequence cycle (fixed-point loop needed)}}   < \\
+\mathit{visit}(A, 3)  < \mathit{visit}(B, 3) < \\
+(S.x \texttt{=} l.f)
+\Bigr\}
+\end{aligned}
+}^{\text{single parent visit corresponding to $\Pi(S)[0]$}}
+\Biggr \} \\
+\mathscr{V}(p{:} A \rightarrow a) = \Biggl\{
+\overbrace{\Big \{  (A.r \texttt{=} o)  \Big \}}^{\text{non-circular visit}} <
+\overbrace{\Big \{  (o.f \sqsupseteq A.i)   \Big \} }^{\text{visit}} <
+\overbrace{\Big \{    \Big \}}^{\text{empty non-circular visit}}
+\Biggr\} \\
+\mathscr{V}(p{:} B \rightarrow b) = \Biggl\{
+\overbrace{\Big \{  
+(l \texttt{=} B.i )
+\Big \}}^{\text{non-circular visit}} <
+\overbrace{\Big \{  (B.s \texttt{=} l.f)  \Big \} }^{\text{visit}} <
+\overbrace{\Big \{    \Big \}}^{\text{non-circular visit}}
+\Biggr\}
+\end{gathered}
+\end{equation}
+}
+ 
+\end{frame}
+
+
+\note[itemize]{
+\item This is the visit sequence for the circular remote attribute grammar we previously saw
+\item Notice we have some empty visits corresponding to empty phases in the protocol
+\item Also each visit in the visit sequence corresponds to the protocol of the LHS non-terminal of the production
+\item Lastly we have a sub-sequence in the first visit sequence 
+}
+
+
+\begin{frame}[fragile=singleslide]{Visit Sequence}{Visit sequence for circular remote AG}
+
+{\scriptsize
+\begin{figure}[htbp]
+    \centering
+\begin{multicols}{2}
+\begin{verbatim}
+visit_S(n: S -> A B)
+    visit_A_1(A)
+    l = A.r
+    B.i = l
+    visit_B_1(B)
+
+    cycle:
+        visit_A_2(A)
+        visit_B_2(B)
+        A.i = B.s
+
+    visit_A_3(A)
+    visit_B_3(B)
+    S.x = l.f
+
+
+
+visit_A_1(n: A -> a)
+    o = new O()
+    A.r = o
+
+visit_B_1(n: B -> b)
+    l = B.i
+
+visit_A_2(n: A -> a)
+    o.f <- A.i
+
+visit_B_2(n: B -> b)
+    B.s = l.f
+
+visit_A_3(n: A -> a)
+
+visit_B_3(n: B -> b)
+
+\end{verbatim}
+\end{multicols}
+\end{figure}
+}
+
+\end{frame}
+
+\note[itemize]{
+\item This is the same visit sequence as a code, notice that we mark the sub-sequence as a cycle
+}

@@ -1,82 +1,137 @@
 \section{Implementation}
 
 
-\begin{frame}[fragile=singleslide]{APS Code Generation}{Desired Scala code generation final result: Scala Traits}
-
-
-\begin{Verbatim}[fontsize=\tiny]
-val t_IntegerMaxLattice = new M_MAX_LATTICE[T_Integer]
-        ("IntegerMaxLattice",t_Integer,0)
-    with C_TYPE[T_Integer]
-    with C_PRINTABLE[T_Integer]
-    with C_ORDERED[T_Integer]
-    with C_NUMERIC[T_Integer] {
-        override val v_string = t_Integer.v_string;
-        override val v_zero = t_Integer.v_zero;
-        override val v_one = t_Integer.v_one;
-        override val v_plus = t_Integer.v_plus;
-        override val v_minus = t_Integer.v_minus;
-        override val v_times = t_Integer.v_times;
-        override val v_divide = t_Integer.v_divide;
-        override val v_unary_plus = t_Integer.v_unary_plus;
-        override val v_unary_minus = t_Integer.v_unary_minus;
-        override val v_unary_times = t_Integer.v_unary_times;
-        override val v_unary_divide = t_Integer.v_unary_divide;
-        
-        val v_assert = t_Integer.v_assert;
-        val v_equal = t_Integer.v_equal;
-        val v_node_equivalent = t_Integer.v_node_equivalent;
-  }
-\end{Verbatim}
-
-\end{frame}
-
-\note[itemize]{
-\item APS has a module that generates code in C++ and Scala but it was written as a proof of concept and it had some issues.
-\item More specifically, to show the implementation of circular remote attribute grammar working for First and Follow, we need to use lattices in APS
-\item But in APS lattices are defined as modules with generic parameters and the module itself extends its own generic parameter
-\item Scala does not support this feature so this resulted in generating a Scala code that does not type check
-\item So we had to think out of the box and used Scala traits as a way to accomplish this
-}
-
-
-
-\begin{frame}[fragile=singleslide]{APS Code Generation}{Metadata for AST nodes}
+\begin{frame}{Static Scheduler}{Simplify scheduling by using groups}
 
 Previously:
-
 \begin{itemize}
-    \item Internally, APS \emph{types} are AST nodes. Any replacement of formals with actuals will result in AST creation/modification in the semantic analyzer (outside of the parser). \alert{Anti-pattern}.
-    \item No way to \emph{calculate} type of \emph{use}.
+    \item Old greedy scheduler was \alert{tightly coupled with code generation} module
 \end{itemize}
-
+    
 Now:
-
 \begin{itemize}
-    \item \alert{Canonical Type} map a \emph{use} to its type-declaration statement
-    \item \alert{Canonical Signatures} map a \alert{Canonical Type} to list of modules with type parameter \alert{substituted} (formals replaced with actuals)
+    \item Scheduling is still greedy but it is using groups and is simpler, easier to debug, and \alert{de-coupled from code generation} module
+    \item Includes $(\mathit{ph}, \mathit{ch})$ marker to help code generation identify where a \alert{child visit} is happening and mark the \alert{end of parent visit}
 \end{itemize}
 
 \end{frame}
 
+
 \note[itemize]{
-\item Fixing code generation turned out to be tricky because internally APS types are AST nodes
-\item Creating AST nodes outside of the parser is anti-pattern
-\item So we introduced a concept of canonical types and signatures that substitute formals with actuals and used it in fixing the code generation.
+\item Lets talk about the implementation of SCC chunk static scheduling in APS
+\item The static scheduler or the module that constructs the visit sequences was tightly coupled with the code generation module and it was not working well
+\item So we designed a replacement that is still greedy but simpler as it schedules instances as groups and uses visit markers to indicate where child visit happens and when parent visit ends
 }
 
 
 
-\begin{frame}{Canonical Types}{Validation of work have been done so far}
-    
-After implementing canonical types and signatures into APS, Scala code generated First and Follow examples \alert{now type checks}!
+
+\begin{frame}{Static Schedule Assertions}{Ensuring greedy algorithm generates valid schedule}
+    Due to the \alert{greedy nature of the static scheduler}, we included a series of \alert{assertions} to \alert{statically} (NOT during runtime) ensure the generated static schedule makes sense.
 
 \newlinevspace
-
-$\to$ Next step is getting new \alert{static scheduler} to work so it can take advantage of improvements in code generation.
-
+    
+    \begin{itemize}
+        \item No non-circular attribute in a circular parent visit
+        \item Non-circular declared attributes may not participate in cycles
+        \item Parent visits have to appear sequentially
+        \item Child visits have to be invoked sequentially
+        \item No missing parent and child visit
+    \end{itemize}
 \end{frame}
 
 \note[itemize]{
-\item Canonical types and signatures were successful because Scala code now for First and Follow now type checks.
+\item Due to the greedy nature of the static scheduling algorithm we need some validation or assertions to make sure the generated schedule makes sense  
+\item These validations are described in the thesis in the methods chapter
+\item But some of these validations are described in this slide
+}
+
+
+\begin{frame}{\texttt{C} Code Statistic}{Basic Statistics About the New Scheduler}
+    \begin{itemize}
+        \item Old Scheduler only: $\approx500$ lines of \texttt{C} code
+        \item New Static Scheduler + \alert{Assertions}: $\approx 3000$ lines of \texttt{C} code
+    \end{itemize}
+\end{frame}
+
+
+\note[itemize]{
+\item Here we have basic statistics about the new static scheduler
+\item Note that the number on the second line also includes various assertion functions as well
+}
+
+\begin{frame}[fragile=singleslide]{CRAG Scala Generated Evaluator}{Attribute Instance Setter + Monotonicity check}
+\begin{Verbatim}[fontsize=\scriptsize]
+// Template code to support static circular evaluation
+// by building upon circular evaluation structure
+var changed: Boolean = false;
+trait StaticCircularEvaluation[V_P, V_T] extends CircularEvaluation[V_P, V_T] {
+  override def set(newValue : ValueType): Unit = {
+    val prevValue = value;
+    super.set(newValue);
+    changed |= prevValue != value;
+  }
+
+  override def check(newValue : ValueType): Unit = {
+    if (value != null) {
+      if (!lattice.v_equal(value, newValue)) {
+        if (!lattice.v_compare(value, newValue)) {
+          throw new Evaluation.CyclicAttributeException("non-monotonic " + name);
+        }
+      }
+    }
+  }
+  
+  // Do not treat multiple assignments of attributes as errors
+  checkForLateUpdate = false;
+}
+\end{Verbatim}
+\end{frame}
+
+
+\note[itemize]{
+\item This is an example of an attribute instance setter, notice that we have a monotonicity checker that compares the old value with the new value to make sure the monotonicity requirement is being followed
+\item We allow multiple attribute value assignments as this is an attribute that was declared circular 
+\item We also have a global changed variable that we set if there was a \enquote{change} in attribute value after the assignment
+\item In the next slide we will see how this \enquote{changed} global variable is being used
+}
+
+% kill scala codes, especially this
+\begin{frame}[fragile=singleslide]{CRAG Scala Generated Evaluator}{Fixed-Point Loop around visits}
+\begin{Verbatim}[fontsize=\scriptsize]
+// Example of how child visits can be wrapped inside of the do-while loop
+// Backup previous (global) changed value and run the code block at least once
+val prevChanged_2_0 = changed;
+do {
+  changed = false;
+  visit_4_2(v_prods);
+} while (changed);
+// Restore the changed value to ensure the fixed-point loop does not interfere
+// with potential other fixed-point loops somewhere higher in the tree
+changed = prevChanged_2_0;
+\end{Verbatim}
+\end{frame}
+
+\note[itemize]{
+\item Notice that \enquote{changed} global variable is being backed up before we get to the fixed-point loop and restored after the fixed-point loop
+\item And then we see a do-while loop while there is a change somewhere in the attribute instances that are being re-evaluated during the visit subroutine call
+}
+
+\begin{frame}{Concession}{Concession in the implementation}
+    \alert{Concession} in the implementation was \alert{no support for conditional cycles}
+
+    \newlinevspace 
+    There are two situations that can arise when using conditions with circular attribute grammars:
+    
+    \begin{itemize}
+        \item[] \cmark \; \alert{Conditions inside the cycle}, which showcases the need to use direct edges for scheduling chunks because of potential scoping issues (\texttt{cycle-series.aps})
+        \item[] \xmark \; Conditional cycles where the \alert{condition sits outside controlling the cycles}, this is where our APS implementation is not supported (\texttt{tiny-coag.aps})
+    \end{itemize}
+\end{frame}
+
+\note[itemize]{
+\item There are two types of the conditions with cycles, we can have a condition inside the cycle and condition outside of the cycle. The first one is supported and the second on is not
+\item This is a small concession in the implementation that we left-out as a future work
+\item There is a graph of an example of such attribute grammar in the thesis
+\item In APS, we statically detect if a given attribute grammar has this type of a condition and we throw an error
 }

@@ -1,0 +1,188 @@
+\begin{frame}{Methods Overview}{Methods and algorithms}
+     \begin{description}
+        \item $\checkmark$ Fiber cycle breaking
+        \item $\checkmark$  Visit sequences
+        \item $\square$  \alert{SCC chunk scheduling}
+    \end{description}
+\end{frame}
+
+\note[itemize]{
+\item Next, we are going to discuss SCC chunk scheduling and how its working
+}
+
+
+\begin{frame}{Group Scheduling}{Simpler way to static schedule}
+
+In each visit of visit sequence:
+\begin{itemize}
+    \item whole group of parent inherited
+    \item whole group of parent synthesized
+    \item locals (i.e. local attributes and conditionals)
+    \item child inherited and synthesized
+\end{itemize}
+\end{frame}
+
+\note[itemize]{
+\item Let's talk about group scheduling, instead of greedy scheduling individual attributes, we can schedule them as a group
+\item In each visit of visit sequence there are 4 possible groups: parent inherited, parent synthesized, locals, and child visits (i.e. package of child inherited and synthesized attributes)
+\item So instead of checking if an attribute is ready to be scheduled when all its dependencies are ready, we say a group of attributes is ready to be scheduled when they are all ready 
+\item This greatly simplifies the static schedule generation
+}
+
+
+\begin{frame}{SCC Chunk Scheduling Goal}{What is the end goal?}
+    \begin{itemize}
+        \item We want to follow group scheduling
+        \item We want to preserve scoping for locals (e.g. IF statement)
+        \item Circular attributes that are in a cycle with each other need to be scheduled together
+    \end{itemize}
+\end{frame}
+
+\note[itemize]{
+\item An ideal static scheduling algorithm:
+\begin{itemize}
+    \item Should follow group scheduling
+    \item Should preserve locals for scoping purposes
+    \item And circular attributes that are involved in a cycle should be scheduled together
+\end{itemize}
+\item And that is the goal of SCC chunk scheduling algorithm
+}
+
+
+\begin{frame}{Chunks}{Chunks as a way of scheduling groups}
+    What are the chunks?
+    \newlinevspace{}
+
+    \begin{itemize}
+        \item \alert{Half-left}: parent inherited attributes for a particular phase
+        \item \alert{Half-right}: parent synthesized attributes for a particular phase
+        \item \alert{Child visit}: contain child inherited and synthesized for a given phase of a particular child
+        \item \alert{Local}: contain a single local attribute
+    \end{itemize}
+\end{frame}
+
+\note[itemize]{
+\item We introduce the concept of chunks
+\item There are four types of chunks. Half-left, half-right, visit chunks and locals
+}
+
+
+\begin{frame}{Chunk Graph}{Reflect attribute dependencies into chunk graph}
+
+\begin{figure}
+    \centering
+\begin{tikzpicture}[%
+node distance = 10mm and 12mm,
+  start chain = A going below,
+   arr/.style = {-Stealth, shorten >=1mm, shorten <=1mm},
+   box/.style = {draw, semithick, align=center,
+                 minimum height=6mm, text width=23em},
+     C/.style = {circle, draw=black!50, semithick, node contents={}},
+every join/.style = {arr}
+                        ]
+    \begin{scope}[nodes={on chain=A}]
+\coordinate (aux);
+\node[box]  {Create Chunks};   % A-2
+\node[box, join]  {Bring Attribute Dependencies to Chunks};
+\node[box, join]  {Add Guiding Dependencies to Chunks}; % A-4
+\node[box, join]  {Find Strongly Connected Regions in Chunk Graph}; % A-4
+    \end{scope}
+\end{tikzpicture}
+\end{figure}
+
+
+\end{frame}
+
+\note[itemize]{
+\item The first step is to create chunks
+\item If LHS non-terminal has $n$ phases or inner-sets in its protocol, then we create $n$ half-left and $n$ half-right corresponding to each phase
+\item For each non-terminal appearing on the RHS, we construct visit chunks where each visit chunk has a corresponding child index and phase number
+\item Each local attribute belongs to its own chunk
+\item Then we reflect attribute dependencies into the chunk graph, basically, if two attributes have a dependency then their belonging chunks have to include that dependency
+\item Next we add guiding dependencies because remember some chunks may be empty because we may have added some empty phases in their corresponding protocol
+\item These guiding dependencies ensure that visits appear in a consecutive way eventhough some may be empty
+\item Next we find strongly connected components of the chunk graph
+}
+
+\begin{frame}{Scheduling Circular vs. Non-Circular Phase}
+    \begin{itemize}
+        \item \alert{Circular phase}
+            \begin{itemize}
+                \item One large SCC component containing half-left, half-right, visits and locals and then group scheduling attributes in this SCC
+            \end{itemize}
+        \item \alert{Non-circular phase}
+        \begin{itemize}
+            \item Greedy group scheduling attributes 
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\note[itemize]{
+ \item We have to distinguish between circular and non-circular parent phases
+ \item If parent phase or protocol inner-set at a particular index is circular then we should have a single strongly connected component containing half-left and half-right for this phase and its child visits
+ \item If parent phase is non-circular then we should greedy schedule attributes
+ }
+
+\begin{frame}[fragile=singleslide]{SCC Chunk Scheduling high-level}{Algorithm that makes scheduling CRAG possible}
+
+    \begin{tikzpicture}[%
+node distance = 8mm and 12mm,
+  start chain = A going below,
+   arr/.style = {-Stealth, shorten >=1mm, shorten <=1mm},
+   box/.style = {draw, semithick, align=center,
+                 minimum height=6mm, text width=9em},
+     C/.style = {circle, draw=black!50, semithick, node contents={}},
+every join/.style = {arr}
+                        ]
+    \begin{scope}[nodes={on chain=A}]
+\coordinate (aux);
+\node[box]  {SCC Scheduling};   % A-2
+\node[box, join]  {Chunk Scheduling};
+\node[box, join]  {Group Scheduling}; % A-4
+    \end{scope}
+\node (in)  [C, left =of A-2, 
+             label=left: Start];
+\node (out) [C, right=of A-4,
+             label=right:End];
+%%%%
+\draw[arr]  (in)  -- (A-2);
+\draw[arr]  (A-4) -- (out);
+
+\draw[arr]  (A-3.east) -|-[distance=-6em] (aux) 
+                node[pos=0.5, right, align=left] {Loop SCC\\ for each Chunk}
+                        -| ($(in)!0.5!(A-2.west)$); 
+\draw[arr]  (A-4.west) -|-[distance=-6em] ($(A-2.south)!0.5!(A-3.north)$)
+                node[pos=0.5, left, align=right] {Loop Chunk\\ for each Group};
+
+\end{tikzpicture}
+\end{frame}
+
+\note[itemize]{
+ \item This is the high-level structure of the algorithm
+ \item Notice that we first find a next ready-to-schedule chunk-component, then we find a next ready-to-schedule chunk, then we apply group scheduling and then start all over
+ }
+
+
+
+\begin{frame}{Fixed-Point Loops}{Case-by-case analysis of when the fixed-point loop is needed or not allowed}
+
+{ \small
+\begin{tabular}{|p{0.46\linewidth} | p{0.45\linewidth}|}
+\hline
+% https://tex.stackexchange.com/questions/33486
+\multicolumn{1}{|c|}{Visit Type} & \multicolumn{1}{c|}{Fixed-Point Loop?}   \\ 
+\hline\hline
+Circular visit inside of circular visit & No fixed-point loop. Since the parent visit repeats the evaluation, its loop includes the child visit as well.\\ \hline
+Non-circular visit in a circular visit & Not allowed. \\ \hline
+Non-circular visit in a non-circular visit & No fixed-point loop. The visit has to be evaluated only once. \\ \hline
+A circular visit in a non-circular visit & Needs a fixed-point loop. \\ \hline
+\end{tabular} }
+
+\end{frame}
+
+\note[itemize]{
+\item This table describes the case-by-case analysis of when the fixed-point loop is needed during the visit sequence evaluation
+\item Notice that if a visit is circular and it is called from another circular visit then the fixed-point loop in the outer visit includes the child visit as well. And therefore no additional fixed-point loop in the child visit is required
+\item Additionally, a non-circular visit is not allowed in a circular visit
+\item Similarly, a circular visit in a non-circular visit requires a fixed-point loop
+}

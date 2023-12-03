@@ -1,6 +1,22 @@
 
-\usetheme{Ilmenau}
+\usetheme{Madrid}
 % \usetheme{default}
+
+\setbeamertemplate{footline}
+{
+  \leavevmode%
+  \hbox{%
+  \begin{beamercolorbox}[wd=.25\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+    \usebeamerfont{author in head/foot}\insertshortauthor
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.6\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+    \usebeamerfont{title in head/foot}\insertshorttitle\hspace*{3em}
+  \end{beamercolorbox}}%
+   \begin{beamercolorbox}[wd=.15\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+    UW-Milwaukee
+  \end{beamercolorbox}%
+  \vskip0pt%
+}
 
 
 \captionsetup[figure]{font=small}
@@ -41,7 +57,7 @@
 % - Use the \inst command only if there are several affiliations.
 % - Keep it simple, no one is interested in your street address.
 
-\date{Winter 2021}
+\date{December 2022}
 
 \newcommand{\newlinevspace}{\vspace{\baselineskip}}
 
@@ -82,3 +98,7 @@
 \newcommand{\customorder}{{quasi total order}}
 \newcommand{\Customorder}{{Quasi total order}}
 \newcommand{\CustomorderSymbol}{{\prec}}
+
+
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%

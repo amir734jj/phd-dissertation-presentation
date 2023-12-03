@@ -1,0 +1,531 @@
+
+\begin{frame}{Classical Attribute Grammar}{CFG + Rules}
+
+
+A classical attribute grammar is a \alert{CFG grammar} with the following added features:
+
+\begin{itemize}
+    \item Each non-terminal $X$ has a set of attributes $A(X)$
+    \item $A(X)$ has two disjoint subsets
+    \begin{itemize}
+        \item $S(X)$, synthesized attributes, which are passed up the tree
+        \item $I(X)$, inherited attributes which are passed down the tree
+    \end{itemize}
+    \item Set of local attributes associated with each production
+    \item Each production of the grammar has a set of \alert{semantic rules}
+\end{itemize}
+
+\end{frame}
+
+\note[itemize]{
+\item What is a classical attribute grammar?
+\item It is a tuple of:
+\begin{itemize}
+    \item Context-free grammar
+    \item Set of attributes for each non-terminal
+    \item Set of local attributes
+    \item Each production has a set of semantic rules that defines attributes for the LHS non-terminal of the production
+
+\end{itemize}
+}
+
+
+
+
+
+\begin{frame}[fragile=singleslide]{Semantic Function}{Identity function syntactic sugar}
+
+\begin{verbatim}
+A -> B c       // CFG production
+    A.s = B.s  // <-- semantic function: A.s = id(B.s)
+               // with one argument
+               // returns the argument
+\end{verbatim}
+
+This particular semantic function is called an \alert{identity function}
+
+\end{frame}
+
+\note[itemize]{
+\item This is just a syntax sugar we will be using throughout this presentation
+\item \textit{id} here means an identity function
+\item Also, in a production, we may say a \textit{parent node} and by that we mean LHS non-terminal, we may also say \textit{child nodes} or children and by that we mean RHS non-terminals
+}
+
+
+
+
+
+
+
+
+
+% \begin{frame}[fragile=singleslide]{Example}{Classical attribute grammar to find semantic errors in a program}
+
+
+% \begin{multicols}{2}
+% \begin{Verbatim}[fontsize=\fontsize{1}{1}\selectfont]
+% program -> block
+% 	block.env = empty_env()
+% 	program.msgs = block.msgs
+	
+% block -> "begin" decls stmts "end"
+% 	decls.envin = block.env
+% 	stmts.env = decls.envout
+% 	decls.uin = stmts.used
+% 	block.used = decls.uout
+% 	block.msgs = decls.msgs ++ stmts.msgs
+	
+% decls ->
+% 	decls.envout = decls.envin
+% 	decls.uout = decls.uin
+% 	decls.msgs = { }
+
+% decls -> decls decl
+%   decls1.envin = decls0.envin
+%   decl.envin = decls1.envout
+%   decls0.envout = decl.envout
+%   decl.uin = decls0.uin
+%   decls1.uin = decl.uout
+%   decls0.uout = decls1.uout
+%   decls0.msgs = decls1.msgs ++ decl.msgs
+
+% decl -> id ":" type ";"
+%   decl.envout = add_env(<id, type.shape>, decl.envin)
+%   decl.uout = decl.uin - id
+%   decl.msgs = if id in decl.uin then
+%                 { }
+%               else
+%                 { "unused: " + id }
+
+% type -> "Integer"
+%   type.shape = INT_SHAPE
+
+% type -> "String"
+%   type.shape = STR_SHAPE
+
+% stmt ->
+%   stmts.used = { }
+%   stmts.msgs = { }
+
+% stmts -> stmts stmt
+%   stmts1.env = stmts0.env
+%   stmt.env = stmts0.env
+%   stmts0.used = stmts1.used ++ stmt.used
+%   stmts0.msgs = stmts1.msgs ++ stmt.msgs
+
+% stmt -> block ";"
+%   block.env = stmt.env
+%   stmt.used = block.used
+%   stmt.msgs = block.msgs
+
+% stmts -> expr ":=" expr ";"
+%   expr1.env = stmt.env
+%   expr2.env = stmt.env
+%   stmt.used = expr1.used ++ expr2.used
+%   stmt.msgs = (if expr1.shape != expr2.shape then
+%                 { "type mismatch" }
+%               else
+%                 { }) ++ expr.msgs
+
+% expr -> INT_CONSTANT
+%   expr.shape = INT_SHAPE
+%   expr.used = { }
+%   expr.msgs = { }
+
+% expr -> STR_CONSTANT
+%   expr.shape = STR_SHAPE
+%   expr.used = { }
+%   expr.msgs = { }
+
+% expr -> id
+%   local shape = lookup(id, expr.env)
+%   expr.shape = shape
+%   expr.used = { id }
+%   expr.msgs = if shape == NOT_FOUND then
+%                 { id + " not declared" }
+%               else
+%                 { }
+% \end{Verbatim}
+% \end{multicols}
+
+% \end{frame}
+
+% \note[itemize]{
+% \item This is a classical attribute grammar that detects: type mismatch, unused variables, and use of undeclared variable that we identified in the previous slide
+% \item $\mathit{msgs}$ is a synthesized collection attribute of error messages
+% \item $\mathit{env}$ is an inherited attribute that denotes the set of variables declared and available to us
+% \item $\mathit{used}$ is a set of all variables used as an expression
+% }
+
+% maybe delete
+\begin{frame}{Instantiated Attribute Grammar}{Attribute Grammar + Derivation = Instantiated AG}
+Given a \alert{derivation} of CFG grammar, an attribute grammar becomes \alert{instantiated}:
+\begin{itemize}
+    \item Set of \alert{instantiated semantic rules} where each attribute \alert{occurrence} is replaced with an \alert{attribute instance}
+\end{itemize}
+
+\end{frame}
+
+\note[itemize]{
+\item Combining an attribute grammar and a derivation results in an instantiated attribute grammar where instead of attribute occurrences we now have attribute instances.
+\item Similarly, instead of semantic rules we have instantiated semantic rules.
+}
+
+\subsection*{Evaluations}
+
+\begin{frame}{Evaluation}{Core concept}
+
+\begin{itemize}
+    \item Evaluation is a process of finding the \alert{values} of \alert{attribute instances}.
+
+    \item Two types of evaluation:
+\begin{itemize}
+    \item \alert{Demand} evaluation (slow, memory inefficient)
+    \item \alert{Static} evaluation (faster, less memory footprint)
+\end{itemize}
+\end{itemize}
+
+\end{frame}
+
+\note[itemize]{
+\item We observed that value or semantic information is stored in attributes
+\item The \enquote{values} of attributes are the result of the evaluation of rules associated with productions of the grammar
+\item And the evaluation is a process of finding the values of attribute instances
+\item There are two types of evaluations: static and demand
+\item Demand is a kind of evaluation where the evaluator demands each attribute instance value (usually root node's synthesized attributes), and then the evaluator will find the dependent attribute instances needed to evaluate those, and so on. 
+\item In demand evaluation we don't know if the evaluation is going to succeed or not until the evaluation finishes and it requires a runtime dependency analysis to find the dependencies
+\item Static evaluation is the opposite. There is no need to keep track of runtime dependency.
+}
+
+
+\begin{frame}{Demand Evaluation}{Straightforward evaluation method}
+\begin{definition}
+Demand evaluation is a kind of evaluation where each attribute instance access requires a call to evaluate the corresponding instantiated semantic rule that defines it.
+\end{definition}
+
+\begin{alertblock}{Observation}
+In demand evaluation, we do not know whether the evaluation will succeed or not until the evaluation finishes
+\end{alertblock}
+
+% fix this
+% \begin{alertblock}{Observation}
+% Demand evaluation 
+% \end{alertblock}
+
+\end{frame}
+
+\note[itemize]{
+\item Demand evaluation replaces access to the value of an attribute instance with a function call that defines the attribute in the first place
+\item Basically, during the evaluation runtime, the evaluator tries to figure out which rule it should evaluate next
+\item This form of evaluation is simple to understand and implement but it has some downsides, more specifically not knowing whether the evaluation will terminate or not and a need to keep track of runtime dependencies during the evaluation runtime which can be costly both in terms of space and time complexity
+}
+
+%  move to where we talk about demand previously
+\begin{frame}{Demand Evaluation}{Pros and cons}
+Pros:
+\begin{itemize}
+    \item Can benefit form \alert{caching to prevent re-evaluation}
+    \item Easy to implement
+\end{itemize}
+
+Cons:
+\begin{itemize}
+    \item Does not detect cycles before the evaluation begins and \alert{may not terminate}
+    \item Space complexity if \alert{caching} is used: $\mathcal{O}(|\hat{V}|)$
+    \item Time complexity of: $\mathcal{O}(| \hat{V} | \times | \hat{R} |)$ (for classical AG)
+\end{itemize}
+\end{frame}
+
+\note[itemize]{
+\item In demand evaluation we have to use a cache to avoid exponential time complexity because everything will get evaluated over and over again and caching will impact the space complexity
+\item Also, it does not detect cycles in the dependency graph before the evaluation begins so we do not know if evaluation is going to terminate or not. This is not ideal.
+}
+
+
+% maybe get rid of
+\begin{frame}[fragile=singleslide]{Example}{Example of classical attribute grammar}
+    
+\begin{multicols}{3}
+\begin{verbatim}
+S -> A
+  A.i1  = S.in
+  A.i2  = A.s1
+  S.out = A.s2
+
+
+
+
+A -> A A
+  A1.i1 = A0.i1
+  A1.i2 = A1.s1
+  A0.s1 = A1.s2
+  A2.i1 = A0.i2
+  A2.i2 = A2.s1
+  A0.s2 = A2.s2
+
+A -> 'a'
+  A.s1 = A.i1 + 1
+  A.s2 = A.i2 + 2
+    
+    
+    
+    
+\end{verbatim}
+\end{multicols}
+
+Source: \cite{10.1145/225540.225544}
+    
+\end{frame}
+
+\note[itemize]{
+\item This is an example of classical attribute grammar
+\item Notice root non-terminal $S$ has two attributes, one inherited and one synthesized
+\item Similarly, non-terminal $A$ has two inherited and two synthesized attributes
+}
+
+% get rid of possibly
+\begin{frame}[fragile=singleslide]{Derivation}{4 nodes in the tree}
+
+\[
+\lefteqn{\underbrace{\phantom{S \rightarrow A}}_{n_0}} S \rightarrow
+\lefteqn{\overbrace{\phantom{A \rightarrow A A}}^{n_1}} A \rightarrow 
+\lefteqn{\underbrace{\phantom{A A \rightarrow \texttt{a}}}_{n_2}} A A \rightarrow \texttt{a}
+\lefteqn{\overbrace{A \rightarrow \texttt{aa}}^{n_3}}
+\]
+
+\begin{center}
+\scalebox{0.75}{\begin{forest}
+  [
+    $n_0$, name=n0
+    [ $n_1$
+        [$n_2$ [$\texttt{a}$]]
+        [$n_3$ [$\texttt{a}$]]
+    ]
+  ]
+\end{forest}}
+\end{center}
+
+\end{frame}
+
+\note[itemize]{
+\item This is a derivation of attribute grammar we saw in the previous slide
+\item This derivation results in 4 nodes in the syntax tree
+}
+
+\begin{frame}[fragile=singleslide]{Example}{Instantiated attribute grammar}
+
+
+\begin{multicols}{3}
+\begin{Verbatim}[fontsize=\scriptsize]
+n0: S -> A
+  r0 : n1.i1  = n0.in
+  r1 : n1.i2  = n1.s1
+  r2 : n0.out = n1.s2
+
+
+
+
+n1: A -> A A
+  r3 : n2.i1 = n1.i1
+  r4 : n2.i2 = n2.s1
+  r5 : n1.s1 = n2.s2
+  r6 : n3.i1 = n1.i2
+  r7 : n3.i2 = n3.s1
+  r8 : n1.s2 = n3.s2
+
+n2: A -> 'a'
+  r9 : n2.s1 = n2.i1 + 1
+  r10: n2.s2 = n2.i2 + 2
+    
+n3: A -> 'a'
+  r11: n3.s1 = n3.i1 + 1
+  r12: n3.s2 = n3.i2 + 2
+\end{Verbatim}
+\end{multicols}
+
+The sequence of steps needed to evaluate $\alert{n_0.\mathit{out}}$:
+$\alert{n_0.\mathit{out}} \to \alert{r_2}{:} n_o.\mathit{out} = n_1.s_2 \to \alert{r_8}{:} n_1.s_2 = n_3.s_2 \to \alert{r_{12}}{:}n_3.s_2 = \dots$
+
+\end{frame}
+
+\note[itemize]{
+\item This is the instantiated form of an attribute grammar using that derivation we saw in the previous slide
+\item $n_0$, $n_1$, $n_2$ and $n_3$ are tree nodes
+\item $n_i$ followed by a dot followed by attribute name is called an attribute instance
+\item Also, notice the sequence of steps a demand evaluator needs to take during the evaluation runtime to evaluate the root node's synthesized attribute $n_0.\mathit{out}$
+\item This sequence of instantiated rules used to evaluate all attribute instances is called a schedule
+\item We have to run a topological sort on an instantiated attribute grammar to find the schedule
+}
+
+\begin{frame}{Schedule}{Total order of instantiated rules}
+What makes a schedule (total order on instantiated rules) valid?
+
+\newlinevspace
+
+$\Rightarrow$ \alert{No use of attribute instance before it is defined first}
+\newlinevspace
+
+Schedule can be formally defined using $\mathit{DO}$ and $\mathit{UO}$ notation.
+
+\begin{itemize}
+    \item \alert{$\mathit{DO}(r)$}: defining occurrences
+    \item \alert{$\mathit{UO}(r)$}: used occurrences
+\end{itemize}
+
+\[r{:}\; X.a = Y.b\;\;\;\; \mathit{DO}(r) = \{X.a\}\;\mathit{UO}(r) = \{Y.b\}\]
+
+\end{frame}
+
+\note[itemize]{
+\item In a valid schedule, we have to arrange the instantiated rules such that no attribute instance is used before it is defined first.
+\item So definition of an attribute instance has to precede the use.
+\item Schedule can be defined formally using $\mathit{DO}$ and $\mathit{UO}$ sets which are called defining occurrences and used occurrences respectively.
+\item Basically if you are using an attribute instance, the rule that defines it must be scheduled earlier that the rule that uses it
+}
+
+
+\begin{frame}{Schedule for Classical Attribute Grammar}{Schedule and what makes it valid}
+    \begin{itemize}
+        \item Schedule for classical attribute grammar is a \alert{total order on instantiated rules}
+
+        \item Schedule is \alert{valid} when ($a < b$ is a total order):
+
+    \begin{itemize}
+        \item $\hat{r_i} < \hat{r_j} \text{  whenever } \hat{v}_k \in \mathit{DO}(\hat{r_i}) \wedge \hat{v}_k \in \mathit{UO}(\hat{r_j})$
+    \end{itemize}
+    \end{itemize}
+
+\end{frame}
+
+
+\note[itemize]{
+\item Schedule for classical attribute grammar is a total order of instantiated rules
+\item Schedule is valid when dependencies defined using $\mathit{DO}$ and $\mathit{UO}$ are respected meaning that the definition of attribute instance strictly precedes the use of the same attribute instance
+\item We use $\hat{r}$ \enquote{hat} to represent instantiated semantic rules
+}
+
+\begin{frame}{Schedule Evaluation}{Finding the order of evaluation of instantiated rules before evaluation runtime}
+
+Given this \emph{schedule}, evaluate the AG:
+
+\begin{equation}
+\begin{split}
+\mathit{schedule} = \Big \{\hat{r}_0 < \hat{r}_3 < \hat{r}_9 < \hat{r}_4 < \hat{r}_{10} < \hat{r}_5 < \hat{r}_1 < \hat{r}_6 \\
+< \hat{r}_{11} < \hat{r}_7 < \hat{r}_{12} < \hat{r}_8 < \hat{r}_2 \Big \}    
+\end{split}
+\end{equation}
+
+% obvious way but not required, fix this
+\begin{alertblock}{Observation}
+Finding the schedule requires topological sort of attribute instances: $\mathcal{O}(| V +  E|)$ where $V = \hat{V}$ and $E = |\hat{V}  \times  \hat{R}|$
+\end{alertblock}
+\end{frame}
+
+\note[itemize]{
+\item Schedule evaluation is a type of dynamic evaluation where we find the schedule beforehand and then during the evaluation runtime, we evaluate the instantiated rules according to the schedule.
+\item This is the schedule for the instantiated attribute grammar we saw in the previous slide
+}
+
+
+
+% kill this slide
+\begin{frame}{Schedule Evaluation}{Pros and cons}
+Pros:
+\begin{itemize}
+    \item If scheduler finds a schedule, then evaluation \alert{will terminate}
+    \item Easy to implement
+    \item \alert{No possibility of re-evaluation}
+    \item Better space complexity
+    \item Time complexity of: $\mathcal{O}(| \hat{R} |)$ (for classical AG)
+\end{itemize}
+
+Cons:
+\begin{itemize}
+    \item Schedule \alert{works only for one derivation} of attribute grammar
+\end{itemize}
+\end{frame}
+
+\note[itemize]{
+\item Schedule evaluator runs in a linear time for classical attribute grammar
+\item It has a better space complexity as no runtime dependency information is needed
+\item But schedule only works for one derivation, and if we are given a different derivation then we need to find a different schedule. So this is not ideal.
+}
+
+
+
+
+
+
+\begin{frame}{Static Evaluation}{Alternative evaluation method: Constructed independent of a particular derivation}
+
+\begin{itemize}
+    \item What if there was a way to \alert{statically} evaluate attribute grammars?
+    \begin{itemize}
+        \item Generate evaluator \alert{once} and would \alert{work for all possible derivations} of an attribute grammar.
+    \end{itemize}
+    \item What \alert{constraints} need to be true for such an attribute grammar to have a static evaluator?
+    \item Can we guarantee the evaluation always \alert{terminate}?
+    \item How to verify if static evaluation is \alert{valid}?
+\end{itemize}
+\end{frame}
+
+\note[itemize]{
+\item What if there was a better way to evaluate attributes? some kind of static evaluator that would create the schedule in the runtime without runtime keeping track of dependencies and this static evaluator would work for all possible derivations of this context-free grammar? this would be ideal
+}
+
+
+
+
+\begin{frame}{$l$-Ordered Attribute Grammars}{Key to static evaluation}
+
+Kastens introduced \enquote{ordered attribute grammars}:
+
+\newlinevspace 
+
+Basically, for each symbol of the grammar, a total-order over the associated attributes can be defined, such that given any derivation of this CFG, the attributes can be evaluated in that order.
+
+\end{frame}
+\note[itemize]{
+\item First, lets talk about $l$-ordered evaluation class of attribute grammars
+\item Kastens introduced ordered attribute grammars and this evaluation class of attribute grammars says that one can construct an algorithm or static schedule to evaluate the attributes given any derivation of an ordered attribute grammar.
+\item In $l$-ordered evaluation class, attributes can always be evaluated in that particular order
+\item There are non-circular AGs where there is no fixed order, but interesting non-circular AGs can be evaluated this way
+}
+
+\begin{frame}{$l$-ORD}{How to check AG is $l$-ordered}
+
+How to check attribute grammar is $l$-ordered:
+
+\begin{itemize}
+    \item for each non-terminal in the grammar
+    \item \enquote{guess} a summary graph or order of attributes for a non-terminal
+    \item construct an augmented dependency graph
+    \item ensure check the augmented dependency graph is non-circular
+\end{itemize}
+
+\newlinevspace
+
+This is a NP problem, more specifically \alert{NP-complete} \cite{ENGELFRIET1982283}
+
+\end{frame}
+
+\note[itemize]{
+\item The problem of determining a non-circular AG is $l$-ordered is actually NP-complete because we have to guess an order of attributes for each non-terminal and then construct augmented dependency graph and check if its non-circular
+}
+
+
+
+% determinining AG is l-ordered is NP complete, but OAG is a subset
+\begin{frame}{Ordered AG Test}{Test if visit sequence evaluator exists (efficiently)}
+$l$-ordered membership test is \alert{NP-complete} \cite{ENGELFRIET1982283} so it's common/practical to use an \alert{OAG subset test} test which is a greedy algorithm that runs in \alert{polynomial time}.
+
+\end{frame}
+
+
+\note[itemize]{
+\item Testing for $l$-ordered is NP-complete and not practical at all
+\item OAG test finds a subset of $l$-ordered and its membership test runs in a polynomial time
+}
+
+

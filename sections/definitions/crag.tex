@@ -1,0 +1,246 @@
+
+\subsection*{Circular Remote AG}{}
+
+\begin{frame}{Extensions Overview}{Classical AG extensions}
+     \begin{description}
+        \item $\checkmark$ Classical attribute grammar
+        \item $\checkmark$  Remote attribute grammars
+        \item $\checkmark$ Circular attribute grammars
+        \item $\square$   \alert{Circular remote attribute grammars}
+    \end{description}
+\end{frame}
+
+\note[itemize]{
+\item Next, we are going to describe circular remote attribute grammars
+}
+
+
+\begin{frame}{Circular Remote Attribute Grammar}{Definition: Circular + Remote AG}
+
+\begin{definition}
+A circular remote attribute grammar is an \alert{extension of remote attribute grammars} and has the same form as remote attribute grammars, except \alert{certain attributes are circular} and \alert{uses of attribute occurrences in functions are declared monotone in some arguments}.
+\end{definition}
+\end{frame}
+
+\note[itemize]{
+\item This is the informal definition of circular remote attribute grammar or CRAG
+\item It is a merge of two previous two extensions: circular and remote into one
+\item This is the most accommodating extension to describe circularly defined problems over a tree
+}
+
+% TODO
+\begin{frame}{Circular Remote Attribute Grammar}{Applications}
+Applications for CRAG:
+
+\begin{itemize}
+    \item First and Follow sets
+    \item Unification (in type inference)
+	\item Sub-typing with circular types (a class extending its own generic parameter)
+	\item Detecting circular class extension in COOL semantic analyzer (e.g. A extends B, B extends C, C extends A)
+ \item Program control-flow analysis
+\end{itemize}
+\end{frame}
+
+\note[itemize]{
+\item There are many applications for a circular remote attribute grammar including First and Follow in parsing, unification in type inference, detecting circularly defined class hierarchy during type checking, and control flow analysis
+% \item COOL is a programming language (classroom object-oriented language)
+}
+
+
+\begin{frame}[fragile=singleslide]{Circular Remote Attribute Grammar}{Evaluation strategy}
+Hedin in \cite{10.1016/j.scico.2005.06.005} used fixed-point loops with \alert{demand evaluation} to evaluate circular remote attribute grammar.
+
+\begin{Verbatim}[fontsize=\small]
+    do {
+    
+        // Evaluate rules (again?)
+        
+    } while (currentValue \supset prevValue)
+\end{Verbatim}
+
+\newlinevspace
+
+But, what about \alert{schedule}? how to formalize the validity of the schedule for CRAG?
+\end{frame}
+
+\note[itemize]{
+\item In CRAG, similar to circular attribute grammars we need a fixed point loop for evaluation
+\item This is the basic setup of a fixed-point loop introduced by Hedin
+\item Basically, we hold on to the previous value and then run the evaluation and then check whether the new value is a superset, NOT superset-equal to the previous value. And if that is the case then we re-run the loop.
+}
+
+
+
+\begin{frame}{Circular Remote Attribute Grammar}{Evaluation Terminating? Monotonicity}
+
+\begin{block}{Remark}
+The partial field write rule as defined in the definition of remote attribute grammar is a \alert{monotone} use.
+\end{block}
+
+\end{frame}
+
+\note[itemize]{
+\item Adding a monotonicity constraint ensures that fixed-point evaluation terminates
+\item However, partial field writes are monotone, this is because object fields are \enquote{set} so they can be involved in a cycle
+\item The only thing remaining is ensuring that arguments of semantic functions are monotone in a classical rule
+}
+
+
+
+
+
+
+\begin{frame}{Circular Remote Attribute Grammar}{Schedule Definition}
+    
+\begin{definition}
+A schedule for a circular remote attribute grammar is a \alert{\customorder{}} $\lesssim$ on the \alert{instantiated rules}.
+\end{definition}
+
+
+Schedule is valid when ($a < b$ is $a \lesssim b \wedge b \not \lesssim a$):
+
+% TODO: the same as 38
+\[\begin{cases}
+      \hat{r_i} < \hat{r_j},    & \text{whenever } \hat{v}_k \in \mathit{DO}(\hat{r_i}) \wedge \hat{v}_k \in \mathit{SUO}(\hat{r_j}) \\
+      \hat{r_i} \lesssim \hat{r_j}, & \text{whenever } \hat{v}_k \in \mathit{DO}(\hat{r_i}) \wedge \hat{v}_k \in \mathit{MUO}(\hat{r_j})  
+    \end{cases}\]
+
+    And for any two rules $\hat{r}_i = (v \texttt{=} w.f)$, $\hat{r}_j = (w'.f \sqsupseteq v' ) \in R(t)$ if these rules are \alert{potentially} referring to the same object then $\hat{r}_j \lesssim \hat{r}_i$ 
+
+\end{frame}
+
+\note[itemize]{
+\item Schedule for CRAG is a \customorder{} of instantiated rules
+\item Schedule is valid when dependencies defined using $\mathit{DO}$ and $\mathit{UO}$ are respected meaning that the definition of attribute instance precedes the use of the same attribute instance
+\item And similarly writes to field of an object should precede the read of the field of the same object
+}
+
+
+
+% keep this :)
+\begin{frame}[fragile=singleslide]{Example}{CRAG Example}
+
+\begin{multicols}{3}
+\begin{Verbatim}[fontsize=\small]
+S -> A B
+    local l
+    l = A.r
+    B.i = l
+    A.i = B.s
+    S.x = l.f
+A -> a
+    object o
+    o.f <- A.i
+    A.r = o
+
+
+B -> b
+    local l
+    l = B.i
+    B.s = l.f
+\end{Verbatim}
+\end{multicols}
+
+\newlinevspace
+
+$\Rightarrow$ Notice the \alert{cycle} involving reading and writing of the same object
+
+\end{frame}
+
+\note[itemize]{
+\item This is an example of circular remote attribute grammar
+\item Notice $o.f$ gets $A.i$ using partial write and $A.i$ itself gets $B.s$ using classical rule
+\item Then $B.s$ gets $l.f$ where $l$ is a local attribute assigned
+\item Basically, we write to $o.f$ using the value of $o.f$. Hence a cycle.
+}
+
+
+% kill this
+\begin{frame}[fragile=singleslide]{Example}{Instantiated CRAG with trivial derivation}
+
+\begin{multicols}{3}
+\begin{Verbatim}[fontsize=\small]
+n0: S -> A B
+    local l0
+    r0: l0 = n1.r
+    r1: n2.i = l0
+    r2: n1.i = n2.s
+    r3: n0.x = l0.f
+n1: A -> a
+    object o0
+    r4: o0.f <- n1.i
+    r5: n1.r = o0
+
+
+n2: B -> b
+    local l1
+    r6: l1 = n2.i
+    r7: n2.s = l1.f
+\end{Verbatim}
+\end{multicols}
+
+Schedule: 
+
+\[
+     \Big \{ \{ \hat{r}_5 \} < \{ \hat{r}_0 \} < \{ \hat{r}_1 \} < \{ \hat{r}_6 \} < \{ \hat{r}_4 , \hat{r}_7, \hat{r}_2 \} < \{ \hat{r}_3 \}  \Big \}
+\]
+
+\end{frame}
+
+\note[itemize]{
+\item This is the instantiated form of the circular remote attribute grammar we introduced in the previous slide
+\item The corresponding schedule is at the bottom
+\item Remember that \customorder{} is a total-order on a partition, hence why we used less-than $<$ here
+}
+
+
+
+
+% kill this
+\begin{frame}[fragile=singleslide]{Example}{CRAG Example with non-monotone function $h$}
+
+\begin{multicols}{3}
+\begin{Verbatim}[fontsize=\small]
+n0: S -> A B
+    local l
+    r0: l = h(n1.r)
+    r1: n2.i = h(l)
+    r2: n1.i = n2.s
+    r3: n0.x = h(l.f)
+n1: A -> a
+    object o
+    r4: o.f <- n1.i
+    r5: n1.r = h(o0)
+
+
+n2: B -> b
+    local l
+    r6: l = h(n2.i)
+    r7: n2.s = l.f
+\end{Verbatim}
+\end{multicols}
+
+\newlinevspace
+
+The \textbf{trivial schedule} \alert{does not work} for this example because of $h$
+
+\end{frame}
+
+\note[itemize]{
+\item If we introduce non-monotone function $h$ in a cycle, this means that the trivial schedule is no longer valid
+}
+
+
+\begin{frame}{$l$-Ordered Circular Remote Attribute Grammars}{Extending definition of $l$-ordered to circular remote AGs (CRAG)}
+    
+    \begin{lemma}\label{crag-lordered-wellformed}
+$l$-ordered circular remote attribute grammars are well-formed.
+\end{lemma}
+\newlinevspace
+    Proof by applying \enquote{fiber construction} and \enquote{fiber approximation} to proof of $l$-ordered circular attribute grammars
+    
+\end{frame}
+
+\note[itemize]{
+\item Lastly, we showed in the thesis that definition of $l$-ordered can be extended to circular remote attribute grammars thanks to \enquote{fiber-construction} and \enquote{fiber-approximation}
+}

@@ -4,14 +4,13 @@
 Primary application:
 
 \begin{itemize}
+    \item Compilation
+    \begin{itemize}
+        \item  Type Checking
+    \end{itemize}
     \item Program Analysis
         \begin{itemize}
-            \item  Type Checking
-            \item Control-Flow Analysis
-        \end{itemize}
-    \item Solving problems over AST
-        \begin{itemize}
-            \item  Nullable, First and Follow
+            \item \alert{Control-Flow Analysis}
         \end{itemize}
 \end{itemize}
 
@@ -29,6 +28,7 @@ Other applications:
 \item Initially attribute grammars were designed and mainly still to this day used in program analysis
 \item Generally speaking, attribute grammars can be used in solving problems defined over a tree
 \item Recently, however, it has also been used in natural language processing and testing
+\item Many control flow analysis problems like 0-CFA are circularly defined, so having the ability to define them using attribute grammars and efficiently evaluate them would be exciting and that is the main goal of this thesis.
 }
 
 
@@ -47,7 +47,7 @@ How to represent this as a \alert{CFG} with the correct order of operation?
 \item but first let's construct a context-free grammar for it
 }
 
-\begin{frame}[fragile=singleslide]{Motivation}{Binary Expression CFG}
+\begin{frame}[fragile=singleslide]{Motivational Example}{Binary Expression CFG}
 
 How to represent the \alert{final value} as an attribute grammar?
 
@@ -77,7 +77,7 @@ F -> digit
 
 \note[itemize]{
 \item This is a context-free grammar describing that arithmetic expression with the correct order of operation
-\item How to represent the final value using attribute grammars?
+\item The question is, how to represent the final value using attribute grammars?
 \item To do that we need to define the value of LHS using the values of RHS
 }
 
@@ -157,7 +157,7 @@ Arrow ($\to$) represent \alert{direction} of flow of attribute values:
     \item \alert{Classical Attribute Grammar} Introduced by Knuth in \cite{Knuth68semanticsof}
     \item \alert{Ordered} Attribute Grammar Introduced by Kastens in \cite{10.1007/BF00288644}
     \item \alert{Circular} Attribute Grammar Introduced by Farrow in \cite{10.1145/13310.13320}
-    \item \alert{Remote} Attribute Grammar Introduced separately by Boyland in \cite{10.5555/924544, Boyland05remoteattribute} and Hedin \cite{DBLP:journals/informaticaSI/Hedin00}
+    \item \alert{Remote} Attribute Grammar Introduced separately by Boyland in \cite{Boyland_1995, Boyland05remoteattribute} and Hedin \cite{DBLP:journals/informaticaSI/Hedin00}
     \item \alert{Circular Remote} Attribute Grammar Introduced by Hedin in \cite{10.1016/j.scico.2005.06.005}
 \end{itemize}
 	
@@ -165,8 +165,8 @@ Arrow ($\to$) represent \alert{direction} of flow of attribute values:
 
 \note[itemize]{
 \item This is a list of highly influential papers that contributed to the field of attribute grammar and we will be building upon them
-\item Starting from Knuth's 1968 paper titled "Semantics of Context-Free Languages"
-\item And most recently Hedin 2007 introduced an extension to Knuth's classical attribute grammar called circular remote attribute grammar 
+\item Starting from Knuth's 1968 paper titled \enquote{Semantics of Context-Free Languages}
+\item And most recently Hedin 2007 paper which introduced an extension to Knuth's classical attribute grammar called circular remote attribute grammar 
 }
 
 
@@ -195,7 +195,7 @@ Arrow ($\to$) represent \alert{direction} of flow of attribute values:
 \item Examples of these circularly defined problems are COOL programming language semantic analyzer, First and Follow in LR parsing
 }
 
-\begin{frame}{Impact}{Advancing knowledge}
+\begin{frame}{Impact}{Advancing field of attribute grammars}
     
 \begin{itemize}
     \item Statically scheduling circular remote AGs has NOT been done before
@@ -203,6 +203,7 @@ Arrow ($\to$) represent \alert{direction} of flow of attribute values:
         \item Not even static evaluator for \alert{circular AG}
     \end{itemize}
     \item \alert{Complements the attribute grammars} and enables its practical use because of how \alert{common} and \alert{accommodating} circularly defined problems over a tree are in the real-world applications
+    \item \alert{Unexpected} but \alert{welcome} improvement to the Remote Attribute Grammar by eliminating the need to break (spurious) fiber cycles
 \end{itemize}    
 
 \end{frame}
@@ -212,4 +213,5 @@ Arrow ($\to$) represent \alert{direction} of flow of attribute values:
 \item As far as we are aware, statically scheduling circular remote attribute grammars has NOT been done before
 \item Not even static evaluator for circular attribute grammars
 \item And this thesis brings over static scheduling to the circular remote attribute grammars which is the most accommodating extension of attribute grammars for the users
+\item Finally there was an unexpected but welcome improvement to Professor Boyland's remote attribute grammar implementation where now there is no need to remove fiber cycles, because fiber cycles are monotone. Will talk about that later.
 }

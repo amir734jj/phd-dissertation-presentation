@@ -1,0 +1,329 @@
+\subsection*{Circular AG}{}
+
+\begin{frame}{Extensions Overview}{Classical AG extensions}
+     \begin{description}
+        \item $\checkmark$ Classical attribute grammar
+        \item $\checkmark$  Remote attribute grammars
+        \item $\square$  \alert{Circular attribute grammars}
+        \item $\square$  Circular remote attribute grammars
+    \end{description}
+\end{frame}
+
+\note[itemize]{
+\item Next, we are going to describe circular attribute grammars
+}
+
+\begin{frame}{Circular Attribute Grammar}{Classical AG + allowing circularity}
+\begin{definition}
+An attribute grammar is \alert{circular} if there exists a derivation tree of the context-free grammar whose \alert{attribute dependency has a cycle}.
+\end{definition}
+\end{frame}
+
+\note[itemize]{
+\item Traditionally, even in the Knuth paper circularities in attribute grammar have been treated as an error and have been avoided
+\item But in mathematics or even programming its natural to define things circularly or recursively 
+\item Detecting if attribute grammar is circular is not straightforward. It's actually NP-complete.
+\item Basically, we need to test if there is a cycle in dependency graph for every possible derivation, but a context-free grammar may have an infinite number of derivations
+}
+
+
+\begin{frame}{Circular AG Evaluation}{Ascending chain condition}
+
+Farrow showed that \alert{in certain situations} AG with circular dependencies can be evaluated using fixed point semantics, and this is called \enquote{circular attribute grammar extension}
+
+
+\newlinevspace
+
+$\Rightarrow$ Require that the domain of all attributes involved in cyclic chains can be arranged in a \alert{lattice of finite height} and that all uses in involved in the cycle to be \alert{monotone}
+
+\[ x_{i+1} = f(x_i) \text{ where } x_0 = \bot \]
+
+\end{frame}
+
+\note[itemize]{
+\item How to ensure that evaluation of circular attribute grammar terminates?
+\item Farrow described a class of circular attribute grammars where it uses fixed-point semantics to ensure that attribute grammar can be evaluated in finite number of iterations
+\item $x_0$ is a bottom value of the lattice and the height of the lattice is finite so if we evaluate the cycle over and over again, we will eventually get a fixed-point value
+}
+
+
+\begin{frame}{Simple and Monotone use}
+    \begin{equation}
+  \begin{gathered}
+\mathit{SUO}(r) = \{ v_j \mid M_{g j} = \texttt{false} \text{ for }  1 \leq j \leq k  \text{ in classical rule } \\ v_0 \texttt{=} g(v_1, \dots, v_k) \}  \\ 
+\mathit{\mathit{MUO}}(r) = \mathit{UO}(r) - \mathit{SUO}(r) \\
+\mathit{UO}(r) = \mathit{SUO}(r) \cup \mathit{\mathit{MUO}}(r) 
+  \end{gathered}
+\end{equation}
+\end{frame}
+
+\note[itemize]{
+\item Previously we defined schedule for classical attribute grammar using $\mathit{DO}$ and $\mathit{UO}$
+\item However in circular attribute grammar we have to ensure simple or non-monotone dependencies should not be involved in a cycle
+\item The key is distinguishing between simple (or non-monotone) and monotone uses by splitting $\mathit{UO}$ into $\mathit{SUO}$ and $\mathit{MUO}$ 
+}
+
+
+\begin{frame}{\Customorder{}}{Precursor to define schedule for circular attribute grammar}
+    Formally, a \customorder{} relation $\lesssim$ satisfies the following properties:
+
+\begin{enumerate}
+    \item For all $x,y$ and $z$, if $x\lesssim y$ and $y\lesssim z$ then $x\lesssim z$ (\alert{transitivity}).
+    \item For all $x, y$, then $x\lesssim y$ or $y\lesssim x$ must be true or both (strong connectedness or \alert{total}).
+\end{enumerate}
+\end{frame}
+
+\note[itemize]{
+\item The precursor to define schedule for circular attribute grammars is to define some kind of order, this order cannot be \enquote{total-order} because we may have cycles
+\item Therefore, we defined \customorder{} as an order such that it is transitive and total
+\item We use less-sim symbol $\lesssim$ for \customorder{}
+}
+
+\begin{frame}{Total order of partition}{\Customorder{} as total order on the partition}
+
+The following set of binary \customorder{} relationship: $S=\{ a \lesssim b$, $b \lesssim a$,  $b \lesssim c$, $c \lesssim c \}$ can be expressed as total order on the partition of $S$: $\{ a, b\} < \{ c \}$.
+
+\begin{figure}
+    \centering
+\begin{tikzpicture}[scale=0.70]
+\begin{scope}[every node/.style={circle,thick,draw}]
+    \node (A) at (0,0) {a};
+    \node (B) at (3,0) {b};
+    \node (C) at (6,0) {c};
+\end{scope}
+
+\begin{scope}[>={Stealth[black]},
+              every node/.style={fill=white,circle},
+              every edge/.style={draw=black,very thick}]
+    \path [->] (A) edge[bend right=60] (B);
+    \path [->] (B) edge[bend right=60] (A);
+    \path [->] (B) edge[bend right=0] (C);
+    \path [->] (A) edge[bend right=-90, dotted] (C);
+    \path [->] (C) edge[loop below, in=-50,out=-130, looseness=8] (C);
+\end{scope}
+\end{tikzpicture}
+\end{figure}
+
+\end{frame}
+
+\note[itemize]{
+\item \Customorder{} can be defined as a total order on the partition of a set
+\item This means that \customorder{} on the instantiated rules is isomorphic to the \enquote{total-order} on a partition of instantiated rules
+\item By partition, we mean an unordered set. So there is no order between instantiated rules that belong to the same inner set
+\item Also notice in this picture we have loops, these are elements that are in a cycle
+}
+
+\begin{frame}{Schedule For CAG (This Thesis)}{Schedule for circular attribute grammar}
+
+\begin{definition}\label{def:cag-schedule-definition}
+A \emph{schedule} for a circular attribute grammar is a \customorder{} ($\lesssim$) on the set of instantiated rules.
+\end{definition}
+
+\newlinevspace
+
+Schedule is valid when ($a < b$ is $a \lesssim b \wedge b \not \lesssim a$):
+
+% TODO
+\[\begin{cases}
+      \hat{r_i} < \hat{r_j},    & \text{whenever } \hat{v}_k \in \mathit{DO}(\hat{r_i}) \wedge \hat{v}_k \in \mathit{SUO}(\hat{r_j}) \\
+      \hat{r_i} \lesssim \hat{r_j}, & \text{whenever } \hat{v}_k \in \mathit{DO}(\hat{r_i}) \wedge \hat{v}_k \in \mathit{MUO}(\hat{r_j})  
+    \end{cases}\]
+    
+\end{frame}
+
+
+\note[itemize]{
+\item Schedule for circular attribute grammar is a \customorder{} on the instantiated rules
+\item Schedule is valid when dependencies are respected, meaning that simple or non-monotone uses are not involved in a cycle
+\item Also, note that less than symbol $<$ here does not mean total order, instead it means something is less-sim $\lesssim$ another but not the other way around
+\item I also did not use the word: \enquote{strict}
+}
+
+
+% trivial schedule can go to where you talk about circular stuff
+\begin{frame}{Trivial Schedule}{Observation}
+
+Only when \alert{all uses are monotone}
+
+$$ \Big\{ \{ \hat{r_0}, \dots, \hat{r_7} \} \Big \}$$
+
+This happens when for all $\hat{r_1}, \hat{r_2} \in \hat{R}$, $\hat{r_1} \lesssim \hat{r_2} \wedge \hat{r_2} \lesssim \hat{r_1}$.
+
+\end{frame}
+
+\note[itemize]{
+\item In circular and circular remote attribute grammars, we can have a trivial schedule
+\item Trivial schedule is when we have all monotone functions
+\item Basically all instantiated rules may belong to the same level
+\item So we just evaluate all instantiated rules over and over again until a fixed point is reached
+}
+
+\begin{frame}{$l$-Ordered Circular Attribute Grammars}{Definition of $l$-ordered for CAG}
+
+$l$-ordered Circular Attribute Grammars requires:
+\begin{itemize}
+    \item Summary graph to be \customorder{}
+    \item Augmented dependency for each production is a \customorder{} such that:
+    \begin{itemize}
+        \item All dependencies involved in cycles must be monotone
+        \item Restricted \customorder{} of the augmented dependency graph for a non-terminal must be the same as the \customorder{} for the summary graph for that non-terminal
+    \end{itemize}
+\end{itemize}
+
+
+\end{frame}
+
+\note[itemize]{
+\item In $l$-ordered circular attribute grammar, we are required to have a summary graph that is a \customorder{}
+\item For every augmented dependency graph we can form a \customorder{} and all dependencies in the cycle have to be monotone 
+\item Also, if we restrict the \customorder{} of the augmented dependency graph to just one of the non-terminals, it should be the same \customorder{} for the summary graph
+}
+
+\begin{frame}[fragile=singleslide]{CAG Example}{CAG example with 2 independent cycles}
+
+
+
+\begin{multicols}{2}
+\begin{Verbatim}[fontsize=\small]
+S -> A A
+    A0.i1 = A1.s1
+    A0.i2 = A1.s2
+ 
+    A1.i1 = A0.s1
+    A1.i2 = A0.s2
+
+    S.s = A0.s1 + A0.s2
+
+A -> a
+    A.s1 = A.i1
+    A.s2 = A.i2
+
+
+
+
+
+\end{Verbatim}
+\end{multicols}
+    
+\end{frame}
+
+\note[itemize]{
+\item As an exercise, let's analyze this circular attribute grammar
+\item Notice that there are two independent cycles involving $i_1$, $s_1$ and another cycle involving $i_2$, $s_2$
+\item To resolve $A_1.s_1$ we need to resolve $A_1.i_1$ and to resolve that we need to resolve $A_0.s_1$ and to resolve that we need to resolve $A_1.s_1$, hence the cycle as we write to $A_1.s_1$ using $A_1.s_1$.
+\item There is a similar cycle involving attributes $i_2$ and $s_2$
+}
+
+
+\begin{frame}{CAG $l$-ordered}{ Summary graph for CAG example}
+    Summary graph that is \customorder{} for non-terminal $A$
+
+
+
+	\begin{figure}[htbp]
+		\centering
+		\begin{tikzpicture}[->,>=Stealth,auto,scale=0.6,shorten >= 4pt,
+			thick,main node/.style={draw, rectangle, align=center}]
+
+			\node[main node,text width=1.5cm] (1) at (0,0)    {$i_1$};
+			\node[main node,text width=1.5cm, anchor=north west] (2) at(1.north east) {$i_2$};
+			\node[main node,text width=1.5cm, anchor=south west] (3) at(2.north east) {$s_1$};
+			\node[main node,text width=1.5cm, anchor=north west] (4) at(3.north east) {$s_2$};
+		
+			\draw[black, dash dot] (1.south) to[out=-90, in=-120,looseness=1] (3.south);
+			\draw[black, dash dot] (2.south) to[out=-90, in=-120,looseness=1] (4.south);
+
+   			\draw[black, dash dot] (3.north) to[out=90, in=60,looseness=1] (2.north);
+		\end{tikzpicture} 
+		
+		\caption{$\mathit{SDG}_A$}
+	\end{figure}
+
+\end{frame}
+\note[itemize]{
+\item Let's propose a summary graph for non-terminal $A$ that captures all possible dependencies among its attribute 
+}
+
+
+
+\begin{frame}{CAG $l$-ordered}{ Augmented dependency graph for CAG example}
+
+    $\mathit{ADG}_{S \to AA}$: Augmented dependency graph for $S \to A A$
+
+	\begin{figure}[htbp]
+		\centering
+		\begin{tikzpicture}[->,>=Stealth,auto,scale=0.35,shorten >= 4pt,
+			thick,main node/.style={draw, rectangle, align=center}]
+			
+			\node[main node,text width=1cm] (1) at (5,14)    {$S.s$};
+			
+			
+			\node[main node,text width=1cm] (2) at (-8,0)    {$A_0.i_1$};
+			\node[main node,text width=1cm, anchor=north west] (3) at(2.north east) {$A_0.i_2$};
+			\node[main node,text width=1cm, anchor=south west] (4) at(3.north east) {$A_0.s_1$};
+			\node[main node,text width=1cm, anchor=north west] (5) at(4.north east) {$A_0.s_2$};
+			
+			\node[main node,text width=1cm] (6) at (8,0)    {$A_1.i_1$};
+			\node[main node,text width=1cm, anchor=north west] (7) at(6.north east) {$A_1.i_2$};
+			\node[main node,text width=1cm, anchor=south west] (8) at(7.north east) {$A_1.s_1$};
+			\node[main node,text width=1cm, anchor=north west] (9) at(8.north east) {$A_1.s_2$};
+			
+			\draw[black] (4.north) to[out=90, in=-120,looseness=1] (1.south);
+			\draw[black] (5.north) to[out=90, in=-60,looseness=1] (1.south);
+
+			\draw[blue] (8.north) to[out=60, in=90,looseness=1.2] (2.north);
+			\draw[red] (9.north) to[out=90, in=120,looseness=1] (3.north);
+
+			\draw[blue] (4.north) to[out=60, in=120,looseness=1] (6.north);
+			\draw[red] (5.north) to[out=60, in=120,looseness=1] (7.north);
+   
+			\draw[blue, dash dot] (2.south) to[out=-90, in=-120,looseness=1] (4.south);
+			\draw[red, dash dot] (3) to[out=-90, in=-120,looseness=1] (5.south);
+
+			\draw[blue, dash dot] (6.south) to[out=-90, in=-120,looseness=1] (8.south);
+			\draw[red, dash dot] (7.south) to[out=-90, in=-120,looseness=1] (9.south);
+   
+			\draw[black, dash dot] (4.north) to[out=90, in=60,looseness=1.5] (3.north);
+			\draw[black, dash dot] (8.north) to[out=90, in=60,looseness=1.5] (7.north);
+   
+		\end{tikzpicture} 
+		
+	\end{figure}
+	
+
+    
+\end{frame}
+\note[itemize]{
+\item Notice this dependency graph is definitely a \customorder{}
+\item There are two independent cycles: red and blue
+\item These cycles became total thanks to the two edges (colored in black) from $A_0.s_1$ to $A_0.i_2$ and similarly $A_1.s_1$ to $A_1.i_2$, these two edges came from the summary dependency graph of non-terminal $A$
+\item If we restrict the augmented dependency graph to just non-terminal $A$, we will get back the same \customorder{} that was given in the summary graph of $A$, hence this circular attribute grammar is $l$-ordered
+}
+
+\begin{frame}{\Customorder{} in $\mathit{ADG}$}
+
+    \Customorder{} in the $\mathit{ADG}_{S \to AA}$
+    
+\[ \bigg \{  \big \{ A_0.i_1, A_0.s_1, A_1.i_1, A_1.s_1 \big \} < \big \{ A_0.i_2, A_0.s_2, A_1.i_2, A_1.s_2 \big \} < S.s \bigg \} \]
+
+
+\end{frame}
+
+\note[itemize]{
+\item This is the \customorder{} of the augmented dependency graph we saw in the previous slide as a total order on the partition of the set
+\item Notice that we have two independent cycles and they appear in-order 
+}
+
+\begin{frame}{$l$-Ordered Circular Attribute Grammars}{Extending definition of $l$-ordered to circular AGs (CAG)}
+    
+    \begin{lemma}\label{cag-lordered-wellformed}
+$l$-ordered circular attribute grammars are well-formed.
+\end{lemma}
+\newlinevspace
+    Constructive proof with contradictions in case analysis.
+    
+\end{frame}
+
+\note[itemize]{
+\item Lastly, we \textbf{proved} in the thesis that the definition of $l$-ordered can be extended to circular attribute grammars
+}

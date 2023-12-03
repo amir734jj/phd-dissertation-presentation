@@ -9,17 +9,38 @@
     \item \texttt{32GB} of RAM
     \item \texttt{Ubuntu 22.04-LTS}
     \item \texttt{Scala 2.13.10} 
-    \item JVM flags \texttt{-Xmx16g}
+    \item \alert{JVM flags \texttt{-Xmx16g}}
     \item  No optional optimization flags
 \end{itemize}
 \end{frame}
 
 \note[itemize]{
-\item That is \texttt{16GB} JVM heap size to prevent evaluation running out of memory and repeated garbage collector calls to free the memory. We did not use any optional optimization flags.
+\item Next, lets talk about benchmarking and our implementation
+\item We used a Ubuntu workstation with\texttt{i5} CPU and 32 GB of RAM
+\item The highlighted bullet point is a \texttt{16GB} JVM heap size to prevent evaluation running out of memory and repeated garbage collector calls to free the memory
+\item We did not use any optional optimization flags
 }
 
-\begin{frame}{Follow Example}
-    Why did we choose \textbf{Follow}
+
+\begin{frame}[fragile=singleslide]{First and Follow}{}
+
+\alert{First} and \alert{Follow} are functions defined over a grammar and they are used in \alert{parsing}
+
+\begin{itemize}
+    \item to distinguish two productions with the same non-terminal $X$ on the LHS, we examine the First($X$) sets for their corresponding RHS.
+    \item set of terminal symbols that can follow a non-terminal $X$ in a parse as Follow(X).
+\end{itemize}
+
+\end{frame}
+
+\note[itemize]{
+\item First and Follow are functions used in parsing and they are recursively defined and we will use them to validate our implementation of the static evaluator
+}
+
+
+
+\begin{frame}{Follow Example}{What makes Follow example interesting}
+    Why did we choose \textbf{Follow} for benchmarking purposes
     \begin{itemize}
         \item It's a \alert{recursive} problem over a tree
         \begin{itemize}
@@ -29,6 +50,57 @@
         \item \alert{Well-known} and \alert{straightforward} to implement
     \end{itemize}
 \end{frame}
+
+\note[itemize]{
+\item Follow is a recursively defined tree problem and given a context-free grammar with recursively defined productions then calculation of Follow set is going to be interesting 
+\item Additionally the JastAdd team implemented Follow already in their git repository so if we implement Follow in APS and our implementation for the same context-free grammar runs comparatively close to their implementation, this means we did a good job
+}
+
+\begin{frame}[fragile=singleslide]{Example}{Example of First and Follow}
+
+\begin{multicols}{2}
+\begin{Verbatim}[fontsize=\small]
+S -> id
+    | V assign E
+V -> id
+E -> V
+    | num
+
+
+First(S) = { id }
+First(E) = { num, id }
+First(V) = { id }
+
+Follow(S) = { }
+Follow(E) = { }
+Follow(V) = { assign }
+\end{Verbatim}
+\end{multicols}
+
+\end{frame}
+
+\note[itemize]{
+\item These are examples of First and Follow
+}
+
+\begin{frame}{Definition}{Formal recursive definition of First and Follow}
+
+\[ \texttt{FIRST}(N) = \bigcup_{N \to \alpha} \texttt{FIRST}(\alpha) \]
+\[ \texttt{FIRST}(\epsilon)   = \{ \epsilon \} \]
+\[ \texttt{FIRST}(x \beta)   =\{x\} \]
+\[ \texttt{FIRST}(N \beta)   =   \texttt{FIRST}(N) \cdot \texttt{FIRST}(\beta)  \]
+\[ \alert{\texttt{FOLLOW}}(N) = \bigcup_{N' \to \alpha N \beta} \texttt{FIRST}(\beta) \cdot \alert{\texttt{FOLLOW}}(N') \]
+
+\newlinevspace
+
+Credit: Dr. Boyland's lecture notes
+\end{frame}
+
+\note[itemize]{
+\item This a formal definition of First and Follow
+\item Notice the recursive nature of the problem specifically in the last equation where we have Follow on both sides
+}
+
 
 \begin{frame}[fragile=singleslide]{Test Input}{Consistent test input to be used to benchmark APS and JastAdd}
 Input:
@@ -49,10 +121,15 @@ Input:
 
 \end{frame}
 
+\note[itemize]{
+\item We fed the same context-free grammar into both APS and JastAdd in-order to calculate their Follow set, and we wanted the randomly generated context-free grammar to be interesting
+\item So we made sure it included epsilon RHS and a lot of recursive productions
+}
+
 \begin{frame}{Follow Example Benchmark}{APS static CRAG schedule vs. JastAdd demand scheduler running Follow}
 
 \begin{figure}[htbp]
-        \scalebox{1.05}{
+        \scalebox{0.95}{
     \tiny
 \begin{tblr}
 {
@@ -83,7 +160,11 @@ Input size in MB. & Nodes   & \rotatebox{90}{non-terminals} & \rotatebox{90}{ter
 \end{frame}
 
 \note[itemize]{
-\item lets graph the time and memory usage in log scaling so we can see how much APS static scheduler is faster
+\item This table is the time and memory usage 
+\item The times are in seconds and memory usage is in MB
+\item Notice that if we skip the monotonicity check in APS which is an IF statement to ensure that programmer has not lied to us by declaring function monotone but it is actually non-monotone meaning that attribute value is getting smaller each time the fixed-point loop run, then APS is substantially faster and more memory efficient compared to JastAdd
+\item APS trusts that if programmer declares function monotone, its indeed monotone
+\item Lets graph this table in log scaling so we can see how much APS static schedule evaluator is faster
 }
 
 
@@ -141,7 +222,8 @@ nts  Nodes    ApsTime       ApsMemory        JastAddTime        JastAddMemory
 \end{frame}
 
 \note[itemize]{
-\item JastAdd crashes
+\item This is a log scaled graph of evaluation runtime
+\item We see that JastAdd crashes
 }
 
 \begin{frame}[fragile=singleslide]{Follow Example Benchmark}{Log scaled memory usage}
@@ -188,8 +270,8 @@ nts  Nodes    ApsTime       ApsMemory        JastAddTime        JastAddMemory
 \end{frame}
 
 \note[itemize]{
-
-\item JastAdd crashes
+\item This is a log scaled graph of evaluation memory usage
+\item We see that JastAdd crashes
 }
 
 
@@ -203,3 +285,8 @@ What we can see when comparing APS vs. JastAdd running Follow on the same CFG?
         \item We can see that \alert{APS without a monotonicity check is much faster} than JastAdd but \alert{APS with a monotonicity check is much slower} than JastAdd
     \end{itemize}
 \end{frame}
+
+\note[itemize]{
+\item Exponential nature of JastAdd's demand evaluation become clear as input gets larger because it has to keep track of runtime dependencies whereas in APS we see a somewhat linear graph
+\item This result was expected. Static scheduling by definition is faster and more efficient than demand evaluation and this benchmark is the proof that static scheduling of circular remote attribute grammars is not only possible but it can be done efficiently
+}

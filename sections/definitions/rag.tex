@@ -1,0 +1,181 @@
+\subsection*{Remote AG}{}
+
+\begin{frame}{Extensions Overview}{Classical AG extensions}
+     \begin{description}
+        \item $\checkmark$ Classical attribute grammar
+        \item $\square$  \alert{Remote attribute grammars}
+        \item $\square$  Circular attribute grammars
+        \item $\square$  Circular remote attribute grammars
+    \end{description}
+\end{frame}
+
+\note[itemize]{
+\item Next, we are going to describe remote attribute grammars
+}
+
+
+% no definitions
+% high-level, no G S I L
+% 
+\begin{frame}{Remote Attribute Grammar (RAG)}{Classical AG + allowing references}
+
+% todo
+\begin{itemize}
+    \item Introduced by introduced separately in both \cite{Boyland_1995, Boyland05remoteattribute},  and \cite{4236994589494506a212280893694207}
+    \item Extension of classical attribute grammar by adding a set of \alert{objects} and \alert{fields}
+    \item In addition to the capabilities of classical AG, it allows the passing of object references and object fields as attributes.
+    \item In RAG, we can access attribute values that are defined \alert{non-locally} whereas in classical AG all attributes are defined and used \alert{locally}.
+\end{itemize}
+
+
+\end{frame}
+
+\note[itemize]{
+\item Remote attribute grammars were introduced separately by Boyland and Hedin. Basically, it extends classical attribute grammar and introduces a set of objects and a set of fields
+\item This means that we now have objects and we can pass them around by reference
+\item Furthermore, it gives the user more flexibility as now we are now allowed to read and write non-local attributes as opposed to only local read and local writes in classical attribute grammar
+}
+
+
+
+
+
+
+\begin{frame}{Schedule for RAG Observation}{Partial field write}
+
+It is valid to have \alert{multiple partial field write} for the same field of an object. This is \alert{unlike classical rule} where we can define an attribute instance \alert{once}.
+
+\newlinevspace
+
+This makes it challenging as the schedule for RAG should order instantiated rules such that \alert{read of the object's field} should be done when its value is \alert{final} (i.e. after all writes are done)
+
+\end{frame}
+
+\note[itemize]{
+\item Remote attribute grammar extension introduces two new forms of semantic rule in addition to the classical form
+\item Partial write of object field, and read of the object field
+\item Note that attribute instance has to be defined once in a classical form and then we can read it
+\item But the object field may be written to multiple times so we need to make sure we arrange the rules in the schedule in such a way that the reading of the object's field happens when the value is final
+\item Objects are assumed instantiated before the evaluation begins
+}
+
+
+
+
+
+\begin{frame}{RAG Semantic and $l$-ordered in RAG}{Potentially infinite attribute instances}
+    
+\begin{itemize}
+    \item Express \alert{semantics of remote attribute grammars} in classical attribute grammar using \enquote{fiber construction}
+    \item This can lead to \alert{infinite} attribute instances (\alert{improper attribute grammar})
+    \begin{itemize}
+        \item Objects can be attributes and attributes can be on objects too and so on
+    \end{itemize}
+    \item Boyland \cite{Boyland05remoteattribute} introduced a process called \enquote{fiber approximation} that results in the representation of the RAG in classical AG with a \alert{finite number of attribute instances}
+    \item This process can be used to define $l$-ordered for remote attribute grammars by applying it to the definition of $l$-ordered for classical attribute grammars 
+\end{itemize}
+
+\end{frame}
+
+\note[itemize]{
+\item Semantic of remote attribute grammar can be defined in terms of classical attribute grammar, this process is call fiber construction
+\item However, the problem is objects can be attributes and attributes can be objects so we end up with an improper attribute grammar with infinite number of attributes instances
+\item Professor Boyland defined fiber approximation which can do just that in finite number of attribute instances
+\item Subsequently, we can apply that process to definition of $l$-ordered for classical attribute grammar to define ordered remote attribute grammars
+}
+
+\begin{frame}{Schedule for RAG}{Schedule and what makes schedule valid}
+
+        \begin{itemize}
+        \item Schedule for remote attribute grammar is a \alert{total order on instantiated rules}
+
+        \item Schedule is \alert{valid} when ($a < b$ is a total order):
+
+    \begin{itemize}
+        \item $\hat{r_i} < \hat{r_j} \text{  whenever } \hat{v}_k \in \mathit{DO}(\hat{r_i}) \wedge \hat{v}_k \in \mathit{UO}(\hat{r_j})$
+        \item And for any two rules $\hat{r}_i = (v \texttt{=} w.f)$, $\hat{r}_j = (w'.f \sqsupseteq v' ) \in R(t)$ if these rules are \alert{potentially} referring to the same object then $\hat{r}_j < \hat{r}_i$ 
+    \end{itemize}
+    \end{itemize}
+
+\end{frame}
+
+\note[itemize]{
+\item Schedule for remote attribute grammar is a total order of instantiated rules
+\item Schedule is valid when dependencies defined using $\mathit{DO}$ and $\mathit{UO}$ are respected meaning that the definition of attribute instance strictly precedes the use of the same attribute instance
+\item Similarly, writes to field of an object should strictly precede the read of the field of the same object
+}
+
+% kill this
+% \begin{frame}[fragile=singleslide]{Example}{Remote attribute grammar to find semantic errors in a program}
+
+% \begin{centering}
+% \begin{multicols}{2}
+% \begin{Verbatim}[fontsize=\fontsize{5.5}{6}\selectfont]
+% program -> block
+%   block.scope = ROOT_SCOPE
+
+% block -> "begin" decls stmts "end"
+%   local scope = { decls: { }, enclosing: block.scope }
+%   decls.scope = scope
+%   stmts.scope = scope
+
+% decls ->
+
+% decls -> decls decl
+%   decls1.scope = decls0.scope
+%   decl.scope = decls0.scope
+
+% decl -> id ":" type ";"
+%   local d = { shape: type.shape, col: false } 
+%   decl.scope.decls <- { <id, d> }
+%   if not d.used then
+%     msgs <- { id + " not used" }
+
+% type -> "Integer"
+%   type.shape = INT_SHAPE
+
+% type -> "String"
+%   type.shape = STR_SHAPE
+
+% stmts -> 
+
+% stmts -> stmts stmt
+%   stmts1.scope = stmts0.scope
+%   stmt.scope = stmts0.scope
+
+% stmt -> block ";"
+%   block.scope = stmt.scope
+
+% stmt -> expr := expr
+%   expr1.scope = stmt.scope
+%   expr2.scope = stmt.scope
+%   if expr1.shape != expr2.shape then
+%     msgs <- { "type mismatch" }
+
+% expr -> INT_CONSTANT
+%   expr.shape = INT_SHAPE
+
+% expr -> STRING_CONSTANT
+%   expr.shape = STR_SHAPE
+
+% expr -> id
+%   local decl = lookup(id, expr.scope)
+%   expr.shape = decl.shape
+%   if decl == NOT_FOUND then
+%     msgs <- { id + " not declared" }
+%   else
+%     decl.used <- true
+% \end{Verbatim}
+% \end{multicols}
+% \end{centering}
+
+% \end{frame}
+
+% \note[itemize]{
+% \item This is the program analysis example using remote attribute grammar
+% \item Notice how much smaller it is now thanks to remote access and eliminating the need to pass attributes up and then down
+% }
+
+
+
+
