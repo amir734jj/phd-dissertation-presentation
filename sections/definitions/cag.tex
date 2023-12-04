@@ -23,7 +23,7 @@ An attribute grammar is \alert{circular} if there exists a derivation tree of th
 \item Traditionally, even in the Knuth paper circularities in attribute grammar have been treated as an error and have been avoided
 \item But in mathematics or even programming its natural to define things circularly or recursively 
 \item Detecting if attribute grammar is circular is not straightforward. It's actually NP-complete.
-\item Basically, we need to test if there is a cycle in dependency graph for every possible derivation, but a context-free grammar may have an infinite number of derivations
+\item Basically, we need to test if there is a cycle in dependency graph in any of possible derivations, but a context-free grammar may have an infinite number of derivations
 }
 
 
@@ -68,8 +68,8 @@ $\Rightarrow$ Require that the domain of all attributes involved in cyclic chain
     Formally, a \customorder{} relation $\lesssim$ satisfies the following properties:
 
 \begin{enumerate}
-    \item For all $x,y$ and $z$, if $x\lesssim y$ and $y\lesssim z$ then $x\lesssim z$ (\alert{transitivity}).
-    \item For all $x, y$, then $x\lesssim y$ or $y\lesssim x$ must be true or both (strong connectedness or \alert{total}).
+    \item For all $x,y$ and $z$, if $x\lesssim y$ and $y\lesssim z$ then $x\lesssim z$ (\alert{transitivity})
+    \item For all $x, y$, then $x\lesssim y$ or $y\lesssim x$ must be true or both (strong connectedness or \alert{total})
 \end{enumerate}
 \end{frame}
 
@@ -81,7 +81,7 @@ $\Rightarrow$ Require that the domain of all attributes involved in cyclic chain
 
 \begin{frame}{Total order of partition}{\Customorder{} as total order on the partition}
 
-The following set of binary \customorder{} relationship: $S=\{ a \lesssim b$, $b \lesssim a$,  $b \lesssim c$, $c \lesssim c \}$ can be expressed as total order on the partition of $S$: $\{ a, b\} < \{ c \}$.
+The following set of binary \customorder{} relationship: $S=\{ a \lesssim b$, $b \lesssim a$,  $b \lesssim c$, $c \lesssim c \}$ can be expressed as total order on the partition of $S$: $\big \{ \{ a, b\} < \{ c \} \big \}$.
 
 \begin{figure}
     \centering
@@ -325,5 +325,5 @@ $l$-ordered circular attribute grammars are well-formed.
 \end{frame}
 
 \note[itemize]{
-\item Lastly, we \textbf{proved} in the thesis that the definition of $l$-ordered can be extended to circular attribute grammars
+\item Lastly, we \textbf{proved} in the thesis that the definition of $l$-ordered can be extended to circular attribute grammars and its well-formed
 }

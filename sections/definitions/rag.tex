@@ -24,16 +24,16 @@
     \item Introduced by introduced separately in both \cite{Boyland_1995, Boyland05remoteattribute},  and \cite{4236994589494506a212280893694207}
     \item Extension of classical attribute grammar by adding a set of \alert{objects} and \alert{fields}
     \item In addition to the capabilities of classical AG, it allows the passing of object references and object fields as attributes.
-    \item In RAG, we can access attribute values that are defined \alert{non-locally} whereas in classical AG all attributes are defined and used \alert{locally}.
+    \item In RAG, we can access attribute values that are defined \alert{non-locally} whereas in classical AG all attributes are defined and used \alert{locally}
 \end{itemize}
 
 
 \end{frame}
 
 \note[itemize]{
-\item Remote attribute grammars were introduced separately by Boyland and Hedin. Basically, it extends classical attribute grammar and introduces a set of objects and a set of fields
+\item Remote attribute grammars were introduced separately by Prof. Boyland and Prof. Hedin. Basically, it extends classical attribute grammar and introduces a set of objects and a set of fields
 \item This means that we now have objects and we can pass them around by reference
-\item Furthermore, it gives the user more flexibility as now we are now allowed to read and write non-local attributes as opposed to only local read and local writes in classical attribute grammar
+\item Furthermore, it gives the user more flexibility as we are now allowed to read and write non-local attributes as opposed to only local read and local writes in classical attribute grammar
 }
 
 
@@ -43,7 +43,9 @@
 
 \begin{frame}{Schedule for RAG Observation}{Partial field write}
 
-It is valid to have \alert{multiple partial field write} for the same field of an object. This is \alert{unlike classical rule} where we can define an attribute instance \alert{once}.
+It is valid to have \alert{multiple partial field write} for the same field of an object. This is \alert{unlike classical rule} where we can define an attribute instance \alert{once}
+
+\[ w'.f \sqsupseteq v' \]
 
 \newlinevspace
 
@@ -55,8 +57,9 @@ This makes it challenging as the schedule for RAG should order instantiated rule
 \item Remote attribute grammar extension introduces two new forms of semantic rule in addition to the classical form
 \item Partial write of object field, and read of the object field
 \item Note that attribute instance has to be defined once in a classical form and then we can read it
-\item But the object field may be written to multiple times so we need to make sure we arrange the rules in the schedule in such a way that the reading of the object's field happens when the value is final
+\item But the object field may be written to multiple times, so we need to make sure we arrange the rules in the schedule in such a way that the reading of the object's field happens when the value is final
 \item Objects are assumed instantiated before the evaluation begins
+\item We use $\sqsupseteq$ square-super-set-eq symbol to indicate that $\hat{v}$ is contributing to the object field value of $\hat{w}.f$
 }
 
 
@@ -69,7 +72,7 @@ This makes it challenging as the schedule for RAG should order instantiated rule
     \item Express \alert{semantics of remote attribute grammars} in classical attribute grammar using \enquote{fiber construction}
     \item This can lead to \alert{infinite} attribute instances (\alert{improper attribute grammar})
     \begin{itemize}
-        \item Objects can be attributes and attributes can be on objects too and so on
+        \item Objects can be attributes and attributes can be on objects too
     \end{itemize}
     \item Boyland \cite{Boyland05remoteattribute} introduced a process called \enquote{fiber approximation} that results in the representation of the RAG in classical AG with a \alert{finite number of attribute instances}
     \item This process can be used to define $l$-ordered for remote attribute grammars by applying it to the definition of $l$-ordered for classical attribute grammars 
@@ -78,10 +81,10 @@ This makes it challenging as the schedule for RAG should order instantiated rule
 \end{frame}
 
 \note[itemize]{
-\item Semantic of remote attribute grammar can be defined in terms of classical attribute grammar, this process is call fiber construction
-\item However, the problem is objects can be attributes and attributes can be objects so we end up with an improper attribute grammar with infinite number of attributes instances
-\item Professor Boyland defined fiber approximation which can do just that in finite number of attribute instances
-\item Subsequently, we can apply that process to definition of $l$-ordered for classical attribute grammar to define ordered remote attribute grammars
+\item Semantic of remote attribute grammar can be defined in terms of a classical attribute grammar, this process is called fiber construction
+\item However, the problem is objects can be attributes and attributes can be objects so we end up with an improper attribute grammar with an infinite number of attribute instances
+\item Professor Boyland defined fiber approximation which can do just that in a finite number of attribute instances
+\item Subsequently, we can apply that process to the definition of $l$-ordered for classical attribute grammar to define ordered remote attribute grammar
 }
 
 \begin{frame}{Schedule for RAG}{Schedule and what makes schedule valid}
@@ -102,7 +105,7 @@ This makes it challenging as the schedule for RAG should order instantiated rule
 \note[itemize]{
 \item Schedule for remote attribute grammar is a total order of instantiated rules
 \item Schedule is valid when dependencies defined using $\mathit{DO}$ and $\mathit{UO}$ are respected meaning that the definition of attribute instance strictly precedes the use of the same attribute instance
-\item Similarly, writes to field of an object should strictly precede the read of the field of the same object
+\item Similarly, writes to the field of an object should strictly precede the read of the field of the same object
 }
 
 % kill this

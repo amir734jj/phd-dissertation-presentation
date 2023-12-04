@@ -16,7 +16,7 @@
 
 \note[itemize]{
 \item Next, lets talk about benchmarking and our implementation
-\item We used a Ubuntu workstation with\texttt{i5} CPU and 32 GB of RAM
+\item We used a Ubuntu workstation with \texttt{i5} CPU and 32 GB of RAM
 \item The highlighted bullet point is a \texttt{16GB} JVM heap size to prevent evaluation running out of memory and repeated garbage collector calls to free the memory
 \item We did not use any optional optimization flags
 }
@@ -52,7 +52,7 @@
 \end{frame}
 
 \note[itemize]{
-\item Follow is a recursively defined tree problem and given a context-free grammar with recursively defined productions then calculation of Follow set is going to be interesting 
+\item We chose Follow for benchmarking because it is a recursively defined tree problem, and given a context-free grammar with recursively defined productions then calculation of Follow set is going to be interesting 
 \item Additionally the JastAdd team implemented Follow already in their git repository so if we implement Follow in APS and our implementation for the same context-free grammar runs comparatively close to their implementation, this means we did a good job
 }
 
@@ -106,7 +106,7 @@ Credit: Dr. Boyland's lecture notes
 Input:
     \begin{itemize}
         \item \alert{Randomly generated} recursive context-free grammar fed into both APS and JastAdd
-        \item CFG has to \alert{include recursive productions} otherwise it would be a recursive problem
+        \item CFG has to \alert{include recursive productions} otherwise it would not be a recursive problem
         \item CFG has to \alert{include epsilon productions} otherwise it would not be interesting
     \end{itemize}
 

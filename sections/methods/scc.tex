@@ -1,3 +1,5 @@
+\subsection*{SCC-Chunk Scheduling}{}
+
 \begin{frame}{Methods Overview}{Methods and algorithms}
      \begin{description}
         \item $\checkmark$ Fiber cycle breaking
@@ -7,13 +9,13 @@
 \end{frame}
 
 \note[itemize]{
-\item Next, we are going to discuss SCC chunk scheduling and how its working
+\item Next, we are going to discuss SCC chunk scheduling and how it's working
 }
 
 
 \begin{frame}{Group Scheduling}{Simpler way to static schedule}
 
-In each visit of visit sequence:
+In each visit of the visit sequence:
 \begin{itemize}
     \item whole group of parent inherited
     \item whole group of parent synthesized
@@ -25,7 +27,8 @@ In each visit of visit sequence:
 \note[itemize]{
 \item Let's talk about group scheduling, instead of greedy scheduling individual attributes, we can schedule them as a group
 \item In each visit of visit sequence there are 4 possible groups: parent inherited, parent synthesized, locals, and child visits (i.e. package of child inherited and synthesized attributes)
-\item So instead of checking if an attribute is ready to be scheduled when all its dependencies are ready, we say a group of attributes is ready to be scheduled when they are all ready 
+\item Attribute is ready to be scheduled when its dependencies are scheduled
+\item So instead of checking if an attribute is ready, we say a group of attributes is ready to be scheduled when they are all ready 
 \item This greatly simplifies the static schedule generation
 }
 
@@ -45,7 +48,7 @@ In each visit of visit sequence:
     \item Should preserve locals for scoping purposes
     \item And circular attributes that are involved in a cycle should be scheduled together
 \end{itemize}
-\item And that is the goal of SCC chunk scheduling algorithm
+\item And that is the goal of the SCC chunk scheduling algorithm that we designed
 }
 
 
@@ -94,13 +97,13 @@ every join/.style = {arr}
 \end{frame}
 
 \note[itemize]{
-\item The first step is to create chunks
+\item The first step in our static scheduling algorithm is to create chunks
 \item If LHS non-terminal has $n$ phases or inner-sets in its protocol, then we create $n$ half-left and $n$ half-right corresponding to each phase
 \item For each non-terminal appearing on the RHS, we construct visit chunks where each visit chunk has a corresponding child index and phase number
 \item Each local attribute belongs to its own chunk
 \item Then we reflect attribute dependencies into the chunk graph, basically, if two attributes have a dependency then their belonging chunks have to include that dependency
 \item Next we add guiding dependencies because remember some chunks may be empty because we may have added some empty phases in their corresponding protocol
-\item These guiding dependencies ensure that visits appear in a consecutive way eventhough some may be empty
+\item These guiding dependencies ensure that visits appear consecutively even though some may be empty
 \item Next we find strongly connected components of the chunk graph
 }
 
@@ -119,8 +122,8 @@ every join/.style = {arr}
 
 \note[itemize]{
  \item We have to distinguish between circular and non-circular parent phases
- \item If parent phase or protocol inner-set at a particular index is circular then we should have a single strongly connected component containing half-left and half-right for this phase and its child visits
- \item If parent phase is non-circular then we should greedy schedule attributes
+ \item If the parent phase or protocol inner-set at a particular index is circular, then we should have a single strongly connected component containing both half-left and half-right for this phase and (in-between) its child visits
+ \item If the parent phase is non-circular then we should greedy schedule attributes
  }
 
 \begin{frame}[fragile=singleslide]{SCC Chunk Scheduling high-level}{Algorithm that makes scheduling CRAG possible}
@@ -159,7 +162,8 @@ every join/.style = {arr}
 
 \note[itemize]{
  \item This is the high-level structure of the algorithm
- \item Notice that we first find a next ready-to-schedule chunk-component, then we find a next ready-to-schedule chunk, then we apply group scheduling and then start all over
+ \item Notice that we first find the next ready-to-schedule chunk-component, then we find the next ready-to-schedule chunk, then we apply group scheduling, and then start all over, so it's a 3-step process
+ \item The full algorithm is written in the methods chapter
  }
 
 

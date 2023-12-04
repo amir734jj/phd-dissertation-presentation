@@ -1,3 +1,4 @@
+\subsection*{Visit Sequences}{}
 
 \begin{frame}{Methods Overview}{Methods and algorithms}
      \begin{description}
@@ -143,12 +144,15 @@ A \emph{visit-sequence} $\mathscr{V}(p)$ for $p{:} X \rightarrow \alpha \in P$ o
 \end{equation}
 }
 
+\begin{itemize}
+    \item[] {\huge \bell}  $\mathit{visit}(A_1, 2)$: visit function for phase 2 of $A$ taking an instance of non-terminal $A$ with production index $1$
+\end{itemize}
 \end{frame}
 
 \note[itemize]{
 \item Visit sequence is a sequence of visits
 \item Each visit may contain rules or child visit call for a particular phase
-\item By rules we mean rule that define local attributes, or rules that define child inherited attributes or rules that use child synthesized attributes or rules that define parent synthesized attributes, so all of that
+% \item By rules we mean rule that define local attributes, or rules that define child inherited attributes or rules that use child synthesized attributes or rules that define parent synthesized attributes, so all of that
 \item In this example, we have a visit sequence with two visits, because the protocol for the LHS non-terminal of the production had two phases
 \item Each visit is corresponding to a phase or set in the protocol
 \item For example, visit one is corresponding to phase one of the protocol

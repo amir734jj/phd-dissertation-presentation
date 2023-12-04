@@ -1,3 +1,4 @@
+\subsection*{AG}{}
 
 \begin{frame}{Classical Attribute Grammar}{CFG + Rules}
 
@@ -23,7 +24,7 @@ A classical attribute grammar is a \alert{CFG grammar} with the following added 
 \begin{itemize}
     \item Context-free grammar
     \item Set of attributes for each non-terminal
-    \item Set of local attributes
+    \item Set of local attributes for each production
     \item Each production has a set of semantic rules that defines attributes for the LHS non-terminal of the production
 
 \end{itemize}
@@ -36,10 +37,10 @@ A classical attribute grammar is a \alert{CFG grammar} with the following added 
 \begin{frame}[fragile=singleslide]{Semantic Function}{Identity function syntactic sugar}
 
 \begin{verbatim}
-A -> B c       // CFG production
+A -> B c       // CFG production, parent=A, children={ B }
     A.s = B.s  // <-- semantic function: A.s = id(B.s)
-               // with one argument
-               // returns the argument
+               //   - one argument
+               //   - returns the argument
 \end{verbatim}
 
 This particular semantic function is called an \alert{identity function}
@@ -47,8 +48,9 @@ This particular semantic function is called an \alert{identity function}
 \end{frame}
 
 \note[itemize]{
-\item This is just a syntax sugar we will be using throughout this presentation
+\item Here we have a production and an associated semantic rule
 \item \textit{id} here means an identity function
+\item This form is just a syntax sugar for an identity function, and we will be using it throughout this presentation
 \item Also, in a production, we may say a \textit{parent node} and by that we mean LHS non-terminal, we may also say \textit{child nodes} or children and by that we mean RHS non-terminals
 }
 
@@ -194,7 +196,7 @@ Given a \alert{derivation} of CFG grammar, an attribute grammar becomes \alert{i
 \item And the evaluation is a process of finding the values of attribute instances
 \item There are two types of evaluations: static and demand
 \item Demand is a kind of evaluation where the evaluator demands each attribute instance value (usually root node's synthesized attributes), and then the evaluator will find the dependent attribute instances needed to evaluate those, and so on. 
-\item In demand evaluation we don't know if the evaluation is going to succeed or not until the evaluation finishes and it requires a runtime dependency analysis to find the dependencies
+\item In demand evaluation, we don't know if the evaluation is going to succeed or not until the evaluation finishes, and it requires a runtime dependency analysis to find the dependencies
 \item Static evaluation is the opposite. There is no need to keep track of runtime dependency.
 }
 
@@ -218,7 +220,7 @@ In demand evaluation, we do not know whether the evaluation will succeed or not 
 \note[itemize]{
 \item Demand evaluation replaces access to the value of an attribute instance with a function call that defines the attribute in the first place
 \item Basically, during the evaluation runtime, the evaluator tries to figure out which rule it should evaluate next
-\item This form of evaluation is simple to understand and implement but it has some downsides, more specifically not knowing whether the evaluation will terminate or not and a need to keep track of runtime dependencies during the evaluation runtime which can be costly both in terms of space and time complexity
+\item This form of evaluation is simple to understand and implement but it has some downsides, more specifically not knowing whether the evaluation will terminate or not, and a need to keep track of runtime dependencies during the evaluation runtime which can be costly both in terms of space and time complexity
 }
 
 %  move to where we talk about demand previously
@@ -238,7 +240,7 @@ Cons:
 \end{frame}
 
 \note[itemize]{
-\item In demand evaluation we have to use a cache to avoid exponential time complexity because everything will get evaluated over and over again and caching will impact the space complexity
+\item In demand evaluation we have to use a cache to avoid exponential time complexity because everything will otherwise get evaluated over and over again and caching will impact the space complexity
 \item Also, it does not detect cycles in the dependency graph before the evaluation begins so we do not know if evaluation is going to terminate or not. This is not ideal.
 }
 
@@ -381,7 +383,7 @@ Schedule can be formally defined using $\mathit{DO}$ and $\mathit{UO}$ notation.
 \item In a valid schedule, we have to arrange the instantiated rules such that no attribute instance is used before it is defined first.
 \item So definition of an attribute instance has to precede the use.
 \item Schedule can be defined formally using $\mathit{DO}$ and $\mathit{UO}$ sets which are called defining occurrences and used occurrences respectively.
-\item Basically if you are using an attribute instance, the rule that defines it must be scheduled earlier that the rule that uses it
+\item Basically, if you are using an attribute instance, the rule that defines it must be scheduled earlier than the rule that uses it
 }
 
 
@@ -420,6 +422,11 @@ Given this \emph{schedule}, evaluate the AG:
 \begin{alertblock}{Observation}
 Finding the schedule requires topological sort of attribute instances: $\mathcal{O}(| V +  E|)$ where $V = \hat{V}$ and $E = |\hat{V}  \times  \hat{R}|$
 \end{alertblock}
+
+\begin{itemize}
+    \item $\hat{V}$: set of all attribute instances
+    \item $\hat{R}$: set of all instantiated semantic rules
+\end{itemize}
 \end{frame}
 
 \note[itemize]{
@@ -449,7 +456,7 @@ Cons:
 \note[itemize]{
 \item Schedule evaluator runs in a linear time for classical attribute grammar
 \item It has a better space complexity as no runtime dependency information is needed
-\item But schedule only works for one derivation, and if we are given a different derivation then we need to find a different schedule. So this is not ideal.
+\item \textbf{But} (and it's a major but) schedule only works for one derivation, and if we are given a different derivation then we need to find a different schedule. So this is not ideal.
 }
 
 
@@ -471,7 +478,7 @@ Cons:
 \end{frame}
 
 \note[itemize]{
-\item What if there was a better way to evaluate attributes? some kind of static evaluator that would create the schedule in the runtime without runtime keeping track of dependencies and this static evaluator would work for all possible derivations of this context-free grammar? this would be ideal
+\item What if there was a better way to evaluate attributes? some kind of static evaluator that would create the schedule in the runtime without runtime keeping track of dependencies, and this static evaluator would work for all possible derivations of this context-free grammar? this would be ideal
 }
 
 
@@ -483,7 +490,7 @@ Kastens introduced \enquote{ordered attribute grammars}:
 
 \newlinevspace 
 
-Basically, for each symbol of the grammar, a total-order over the associated attributes can be defined, such that given any derivation of this CFG, the attributes can be evaluated in that order.
+Basically, for each symbol of the grammar, a total-order over the associated attributes can be defined, such that given \alert{any derivation} of this CFG, the attributes can be evaluated in that order.
 
 \end{frame}
 \note[itemize]{
@@ -499,9 +506,9 @@ How to check attribute grammar is $l$-ordered:
 
 \begin{itemize}
     \item for each non-terminal in the grammar
-    \item \enquote{guess} a summary graph or order of attributes for a non-terminal
+    \item \enquote{guess} a summary graph or order of attributes for each non-terminal
     \item construct an augmented dependency graph
-    \item ensure check the augmented dependency graph is non-circular
+    \item check the augmented dependency graph is non-circular
 \end{itemize}
 
 \newlinevspace
@@ -518,14 +525,19 @@ This is a NP problem, more specifically \alert{NP-complete} \cite{ENGELFRIET1982
 
 % determinining AG is l-ordered is NP complete, but OAG is a subset
 \begin{frame}{Ordered AG Test}{Test if visit sequence evaluator exists (efficiently)}
-$l$-ordered membership test is \alert{NP-complete} \cite{ENGELFRIET1982283} so it's common/practical to use an \alert{OAG subset test} test which is a greedy algorithm that runs in \alert{polynomial time}.
+
+$l$-ordered membership test is \alert{NP-complete} \cite{ENGELFRIET1982283}
+
+\begin{itemize}
+    \item It's common/practical to use an \alert{OAG subset test} which is a greedy algorithm that runs in \alert{polynomial time}.
+\end{itemize}
 
 \end{frame}
 
 
 \note[itemize]{
 \item Testing for $l$-ordered is NP-complete and not practical at all
-\item OAG test finds a subset of $l$-ordered and its membership test runs in a polynomial time
+\item OAG test on the other hand, finds a subset of $l$-ordered and its membership test runs in a polynomial time
 }
 
 
