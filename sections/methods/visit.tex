@@ -168,7 +168,7 @@ A \emph{visit-sequence} $\mathscr{V}(p)$ for $p{:} X \rightarrow \alpha \in P$ o
 Empty phase in protocol:
 \begin{itemize}
     \item start and end with non-circular phase
-    \item empty phase between two circular phase to make sure cycles do not get merged
+    \item empty phase between two circular phases to make sure cycles do not get merged
 \end{itemize}
 
 \end{frame}
@@ -177,8 +177,9 @@ Empty phase in protocol:
 \note[itemize]{
 \item Protocol for CRAG is different from protocol in classical AG because it has to accommodate cycles
 \item To that we mark each inner-set in the protocol as circular or non-circular
-\item And then we need to make sure protocol start and end with non-circular phase, if there is none then we can just stick an empty non-circular phase at the start or end
+\item And then we need to make sure the protocol start and end with non-circular phase, if there is none then we can just stick an empty non-circular phase at the start or end
 \item Similarly, to make sure separate cycles do not get merged, so we add an empty non-circular phase between two circular phases
+\item To allow one time semantic rule like local attribute otherwise there is no place to put it
 }
 
 

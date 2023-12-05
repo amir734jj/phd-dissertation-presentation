@@ -242,6 +242,7 @@ Cons:
 \note[itemize]{
 \item In demand evaluation we have to use a cache to avoid exponential time complexity because everything will otherwise get evaluated over and over again and caching will impact the space complexity
 \item Also, it does not detect cycles in the dependency graph before the evaluation begins so we do not know if evaluation is going to terminate or not. This is not ideal.
+% TODO say we have to be careful
 }
 
 
@@ -420,7 +421,7 @@ Given this \emph{schedule}, evaluate the AG:
 
 % obvious way but not required, fix this
 \begin{alertblock}{Observation}
-Finding the schedule requires topological sort of attribute instances: $\mathcal{O}(| V +  E|)$ where $V = \hat{V}$ and $E = |\hat{V}  \times  \hat{R}|$
+Finding the schedule can be done using topological sort of attribute instances: $\mathcal{O}(| V +  E|)$ where $V = \hat{V}$ and $E = |\hat{V}  \times  \hat{R}|$
 \end{alertblock}
 
 \begin{itemize}

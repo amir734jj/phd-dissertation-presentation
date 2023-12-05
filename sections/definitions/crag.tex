@@ -101,8 +101,8 @@ Schedule is valid when ($a < b$ is $a \lesssim b \wedge b \not \lesssim a$):
 
 % TODO: the same as 38
 \[\begin{cases}
-      \hat{r_i} < \hat{r_j},    & \text{whenever } \hat{v}_k \in \mathit{DO}(\hat{r_i}) \wedge \hat{v}_k \in \mathit{SUO}(\hat{r_j}) \\
-      \hat{r_i} \lesssim \hat{r_j}, & \text{whenever } \hat{v}_k \in \mathit{DO}(\hat{r_i}) \wedge \hat{v}_k \in \mathit{MUO}(\hat{r_j})  
+      \hat{r_i} < \hat{r_j},    & \text{whenever a simple dependency} \\
+      \hat{r_i} \lesssim \hat{r_j}, & \text{whenever a monotone dependency}
     \end{cases}\]
 
     And for any two rules $\hat{r}_i = (v \texttt{=} w.f)$, $\hat{r}_j = (w'.f \sqsupseteq v' ) \in R(t)$ if these rules are \alert{potentially} referring to the same object then $\hat{r}_j \lesssim \hat{r}_i$ 

@@ -47,21 +47,21 @@ $\Rightarrow$ Require that the domain of all attributes involved in cyclic chain
 }
 
 
-\begin{frame}{Simple and Monotone use}
-    \begin{equation}
-  \begin{gathered}
-\mathit{SUO}(r) = \{ v_j \mid M_{g j} = \texttt{false} \text{ for }  1 \leq j \leq k  \text{ in classical rule } \\ v_0 \texttt{=} g(v_1, \dots, v_k) \}  \\ 
-\mathit{\mathit{MUO}}(r) = \mathit{UO}(r) - \mathit{SUO}(r) \\
-\mathit{UO}(r) = \mathit{SUO}(r) \cup \mathit{\mathit{MUO}}(r) 
-  \end{gathered}
-\end{equation}
-\end{frame}
+% \begin{frame}{Simple and Monotone use}
+%     \begin{equation}
+%   \begin{gathered}
+% \mathit{SUO}(r) = \{ v_j \mid M_{g j} = \texttt{false} \text{ for }  1 \leq j \leq k  \text{ in classical rule } \\ v_0 \texttt{=} g(v_1, \dots, v_k) \}  \\ 
+% \mathit{\mathit{MUO}}(r) = \mathit{UO}(r) - \mathit{SUO}(r) \\
+% \mathit{UO}(r) = \mathit{SUO}(r) \cup \mathit{\mathit{MUO}}(r) 
+%   \end{gathered}
+% \end{equation}
+% \end{frame}
 
-\note[itemize]{
-\item Previously we defined schedule for classical attribute grammar using $\mathit{DO}$ and $\mathit{UO}$
-\item However in circular attribute grammar we have to ensure simple or non-monotone dependencies should not be involved in a cycle
-\item The key is distinguishing between simple (or non-monotone) and monotone uses by splitting $\mathit{UO}$ into $\mathit{SUO}$ and $\mathit{MUO}$ 
-}
+% \note[itemize]{
+% \item Previously we defined schedule for classical attribute grammar using $\mathit{DO}$ and $\mathit{UO}$
+% \item However in circular attribute grammar we have to ensure simple or non-monotone dependencies should not be involved in a cycle
+% \item The key is distinguishing between simple (or non-monotone) and monotone uses by splitting $\mathit{UO}$ into $\mathit{SUO}$ and $\mathit{MUO}$ 
+% }
 
 
 \begin{frame}{\Customorder{}}{Precursor to define schedule for circular attribute grammar}
@@ -125,8 +125,8 @@ Schedule is valid when ($a < b$ is $a \lesssim b \wedge b \not \lesssim a$):
 
 % TODO
 \[\begin{cases}
-      \hat{r_i} < \hat{r_j},    & \text{whenever } \hat{v}_k \in \mathit{DO}(\hat{r_i}) \wedge \hat{v}_k \in \mathit{SUO}(\hat{r_j}) \\
-      \hat{r_i} \lesssim \hat{r_j}, & \text{whenever } \hat{v}_k \in \mathit{DO}(\hat{r_i}) \wedge \hat{v}_k \in \mathit{MUO}(\hat{r_j})  
+      \hat{r_i} < \hat{r_j},    & \text{whenever we have a simple dependency}  \\
+      \hat{r_i} \lesssim \hat{r_j}, & \text{whenever we have a monotone dependency}  
     \end{cases}\]
     
 \end{frame}
@@ -218,6 +218,7 @@ A -> a
 \begin{frame}{CAG $l$-ordered}{ Summary graph for CAG example}
     Summary graph that is \customorder{} for non-terminal $A$
 
+    \[ \bigg\{  \big \{i_1, s_1\big\} < \big\{ i_2, s_2 \big\} \bigg \} \]
 
 
 	\begin{figure}[htbp]
@@ -230,10 +231,13 @@ A -> a
 			\node[main node,text width=1.5cm, anchor=south west] (3) at(2.north east) {$s_1$};
 			\node[main node,text width=1.5cm, anchor=north west] (4) at(3.north east) {$s_2$};
 		
-			\draw[black, dash dot] (1.south) to[out=-90, in=-120,looseness=1] (3.south);
-			\draw[black, dash dot] (2.south) to[out=-90, in=-120,looseness=1] (4.south);
+			\draw[blue, dash dot] (1.south) to[out=-90, in=-120,looseness=1] (3.south);
+			\draw[red, dash dot] (2.south) to[out=-60, in=-120,looseness=1] (4.south);
 
-   			\draw[black, dash dot] (3.north) to[out=90, in=60,looseness=1] (2.north);
+   			\draw[black, dash dot] (3.north) to[out=120, in=60,looseness=1.2] (2.north);
+
+      		\draw[blue, dash dot] (3.north) to[out=60, in=60,looseness=1.2] (1.north);
+                \draw[red, dash dot] (4.north) to[out=90, in=120,looseness=1.5] (2.north);
 		\end{tikzpicture} 
 		
 		\caption{$\mathit{SDG}_A$}
@@ -241,7 +245,8 @@ A -> a
 
 \end{frame}
 \note[itemize]{
-\item Let's propose a summary graph for non-terminal $A$ that captures all possible dependencies among its attribute 
+\item Let's propose a summary graph for non-terminal $A$ that captures all possible dependencies among its attribute
+\item We have two cycles, if we didn't have the connection it would not be \customorder{}
 }
 
 

@@ -185,6 +185,7 @@ A circular visit in a non-circular visit & Needs a fixed-point loop. \\ \hline
 \end{frame}
 
 \note[itemize]{
+\item Interesting slide, hang around here
 \item This table describes the case-by-case analysis of when the fixed-point loop is needed during the visit sequence evaluation
 \item Notice that if a visit is circular and it is called from another circular visit then the fixed-point loop in the outer visit includes the child visit as well. And therefore no additional fixed-point loop in the child visit is required
 \item Additionally, a non-circular visit is not allowed in a circular visit

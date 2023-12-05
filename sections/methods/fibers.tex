@@ -47,7 +47,7 @@
 
 \begin{itemize}
     \item % some cycles are benine because they only consist of fiber attruibyres
-In RAG, some cycles can be ignored because they entirely involve so-called fiber attributes
+Before in RAG, some cycles can be ignored because they entirely involve so-called fiber attributes
 
 \newlinevspace
 
@@ -101,7 +101,7 @@ Previously in RAG:
 
 
 \begin{frame}{Fiber Cycles Are Monotone}{CRAG static scheduler can handle fiber cycles}
-    \textbf{But} this turned out to be \alert{fruitless} because fiber dependencies are \alert{monotone} and can be handled by the new CRAG scheduler, so this change was not necessary. 
+    \textbf{But} this turned out to be \alert{unnecessary} because fiber dependencies are \alert{monotone} and can be handled by the new CRAG scheduler, so this change was not necessary. 
 
 \newlinevspace
 Welcome outcome.
@@ -109,6 +109,6 @@ Welcome outcome.
 \end{frame}
 
 \note[itemize]{
-\item But the whole fiber cycle breaking change turned out to be fruitless and not needed because fiber cycles are monotone and can be handled by the CRAG static scheduler
-\item This is a welcome news because the simpler the implementation, the better
+\item But the whole fiber cycle breaking change turned out to be unnecessary and not needed because fiber cycles are monotone and can be handled by the CRAG static scheduler
+\item This is welcome news because the simpler the implementation, the better
 }
