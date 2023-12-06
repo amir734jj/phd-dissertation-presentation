@@ -15,7 +15,7 @@
 \end{frame}
 
 \note[itemize]{
-\item Next, lets talk about benchmarking and our implementation
+\item Next, let's talk about benchmarking our implementation
 \item We used a Ubuntu workstation with \texttt{i5} CPU and 32 GB of RAM
 \item The highlighted bullet point is a \texttt{16GB} JVM heap size to prevent evaluation running out of memory and repeated garbage collector calls to free the memory
 \item We did not use any optional optimization flags
@@ -123,7 +123,7 @@ Input:
 
 \note[itemize]{
 \item We fed the same context-free grammar into both APS and JastAdd in-order to calculate their Follow set, and we wanted the randomly generated context-free grammar to be interesting
-\item So we made sure it included epsilon RHS and a lot of recursive productions
+\item So, we made sure it included epsilon in RHS and a lot of recursive productions
 }
 
 \begin{frame}{Follow Example Benchmark}{APS static CRAG schedule vs. JastAdd demand scheduler running Follow}
@@ -287,6 +287,6 @@ What we can see when comparing APS vs. JastAdd running Follow on the same CFG?
 \end{frame}
 
 \note[itemize]{
-\item Exponential nature of JastAdd's demand evaluation become clear as input gets larger because it has to keep track of runtime dependencies whereas in APS we see a somewhat linear graph
-\item This result was expected. Static scheduling by definition is faster and more efficient than demand evaluation and this benchmark is the proof that static scheduling of circular remote attribute grammars is not only possible but it can be done efficiently
+\item The exponential nature of JastAdd's demand evaluation becomes clear as the input gets larger because it has to keep track of runtime dependencies whereas in APS we see a somewhat linear (log-scaled) graph
+\item This result was expected. Static scheduling by definition is faster and more efficient than demand evaluation and this benchmark is proof that static scheduling of circular remote attribute grammars is not only possible but it can be done efficiently
 }

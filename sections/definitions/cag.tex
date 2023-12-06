@@ -47,22 +47,6 @@ $\Rightarrow$ Require that the domain of all attributes involved in cyclic chain
 }
 
 
-% \begin{frame}{Simple and Monotone use}
-%     \begin{equation}
-%   \begin{gathered}
-% \mathit{SUO}(r) = \{ v_j \mid M_{g j} = \texttt{false} \text{ for }  1 \leq j \leq k  \text{ in classical rule } \\ v_0 \texttt{=} g(v_1, \dots, v_k) \}  \\ 
-% \mathit{\mathit{MUO}}(r) = \mathit{UO}(r) - \mathit{SUO}(r) \\
-% \mathit{UO}(r) = \mathit{SUO}(r) \cup \mathit{\mathit{MUO}}(r) 
-%   \end{gathered}
-% \end{equation}
-% \end{frame}
-
-% \note[itemize]{
-% \item Previously we defined schedule for classical attribute grammar using $\mathit{DO}$ and $\mathit{UO}$
-% \item However in circular attribute grammar we have to ensure simple or non-monotone dependencies should not be involved in a cycle
-% \item The key is distinguishing between simple (or non-monotone) and monotone uses by splitting $\mathit{UO}$ into $\mathit{SUO}$ and $\mathit{MUO}$ 
-% }
-
 
 \begin{frame}{\Customorder{}}{Precursor to define schedule for circular attribute grammar}
     Formally, a \customorder{} relation $\lesssim$ satisfies the following properties:
@@ -133,6 +117,9 @@ Schedule is valid when ($a < b$ is $a \lesssim b \wedge b \not \lesssim a$):
 
 
 \note[itemize]{
+\item Previously we defined schedule for classical attribute grammar using $\mathit{DO}$ and $\mathit{UO}$
+\item However in circular attribute grammar we have to ensure simple or non-monotone dependencies should not be involved in a cycle
+\item The key is distinguishing between simple (or non-monotone) and monotone uses 
 \item Schedule for circular attribute grammar is a \customorder{} on the instantiated rules
 \item Schedule is valid when dependencies are respected, meaning that simple or non-monotone uses are not involved in a cycle
 \item Also, note that less than symbol $<$ here does not mean total order, instead it means something is less-sim $\lesssim$ another but not the other way around
@@ -246,7 +233,8 @@ A -> a
 \end{frame}
 \note[itemize]{
 \item Let's propose a summary graph for non-terminal $A$ that captures all possible dependencies among its attribute
-\item We have two cycles, if we didn't have the connection it would not be \customorder{}
+\item We can see we have two independent cycles, if we did not have the connection (colored in black) it would not be \customorder{} (or total)
+\item This is the \customorder{} of the summary graph as a total order on the partition
 }
 
 
@@ -288,8 +276,8 @@ A -> a
 			\draw[blue, dash dot] (6.south) to[out=-90, in=-120,looseness=1] (8.south);
 			\draw[red, dash dot] (7.south) to[out=-90, in=-120,looseness=1] (9.south);
    
-			\draw[black, dash dot] (4.north) to[out=90, in=60,looseness=1.5] (3.north);
-			\draw[black, dash dot] (8.north) to[out=90, in=60,looseness=1.5] (7.north);
+			\draw[black, dash dot] (4.north) to[out=90, in=60,looseness=1.7] (3.north);
+			\draw[black, dash dot] (8.north) to[out=90, in=60,looseness=1.7] (7.north);
    
 		\end{tikzpicture} 
 		

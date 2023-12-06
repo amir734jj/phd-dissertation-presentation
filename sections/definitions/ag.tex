@@ -241,8 +241,8 @@ Cons:
 
 \note[itemize]{
 \item In demand evaluation we have to use a cache to avoid exponential time complexity because everything will otherwise get evaluated over and over again and caching will impact the space complexity
-\item Also, it does not detect cycles in the dependency graph before the evaluation begins so we do not know if evaluation is going to terminate or not. This is not ideal.
-% TODO say we have to be careful
+\item Also, it does not detect cycles in the dependency graph before the evaluation begins so we do not know if evaluation is going to terminate or not.
+\item This means we have to be careful during the evaluation runtime to stop if there is a cycle (i.e. attributes are getting re-evaluated). This is not ideal.
 }
 
 

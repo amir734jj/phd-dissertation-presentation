@@ -176,10 +176,10 @@ Empty phase in protocol:
 
 \note[itemize]{
 \item Protocol for CRAG is different from protocol in classical AG because it has to accommodate cycles
-\item To that we mark each inner-set in the protocol as circular or non-circular
-\item And then we need to make sure the protocol start and end with non-circular phase, if there is none then we can just stick an empty non-circular phase at the start or end
-\item Similarly, to make sure separate cycles do not get merged, so we add an empty non-circular phase between two circular phases
-\item To allow one time semantic rule like local attribute otherwise there is no place to put it
+\item To do that, we mark each inner-set in the protocol as circular or non-circular
+\item And then we need to make sure the protocol starts and ends with non-circular phase, if there is none then we can just stick an empty non-circular phase at the start or end
+\item Similarly, to make sure separate cycles do not get merged, we add an empty non-circular phase between two circular phases
+\item This will allow one-time semantic rules like local attributes to exist, otherwise there is no place to put them in a circular visit
 }
 
 
@@ -324,5 +324,5 @@ visit_B_3(n: B -> b)
 \end{frame}
 
 \note[itemize]{
-\item This is the same visit sequence as a code, notice that we mark the sub-sequence as a cycle
+\item This is the same visit sequence as a code, notice that we mark the sub-sequence as a cycle to indicate that it needs to be wrapped in a fixed point loop
 }
