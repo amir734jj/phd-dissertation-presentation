@@ -102,29 +102,29 @@ every join/.style = {arr}
 \item For each non-terminal appearing on the RHS, we construct visit chunks, where each visit chunk has a corresponding child index and phase number
 \item Each local attribute belongs to its own chunk
 \item Then we reflect attribute dependencies into the chunk graph, basically, if two attributes have a dependency then their belonging chunks have to include that dependency
-\item Next we add guiding dependencies because remember some chunks may be empty because we may have added some empty phases in their corresponding protocol
+\item Next we add guiding dependencies, because remember some chunks may be empty as we may have added some empty phases in their corresponding protocol
 \item These guiding dependencies ensure that visits appear consecutively even though some may be empty
 \item Next we find strongly connected components of the chunk graph
 }
 
-\begin{frame}{Scheduling Circular vs. Non-Circular Phase}
-    \begin{itemize}
-        \item \alert{Circular phase}
-            \begin{itemize}
-                \item One large SCC component containing half-left, half-right, visits and locals and then group scheduling attributes in this SCC
-            \end{itemize}
-        \item \alert{Non-circular phase}
-        \begin{itemize}
-            \item Greedy group scheduling attributes 
-        \end{itemize}
-    \end{itemize}
-\end{frame}
+% \begin{frame}{Scheduling Circular vs. Non-Circular Phase}
+%     \begin{itemize}
+%         \item \alert{Circular phase}
+%             \begin{itemize}
+%                 \item One large SCC component containing half-left, half-right, visits and locals and then group scheduling attributes in this SCC
+%             \end{itemize}
+%         \item \alert{Non-circular phase}
+%         \begin{itemize}
+%             \item Greedy group scheduling attributes 
+%         \end{itemize}
+%     \end{itemize}
+% \end{frame}
 
-\note[itemize]{
- \item We have to distinguish between circular and non-circular parent phases
- \item If the parent phase or protocol inner-set at a particular index is circular, then we should have a single strongly connected component containing both half-left and half-right for this phase, and in the middle of them there should be child visits and locals
- \item If the parent phase is non-circular then we should just greedy schedule attributes
- }
+% \note[itemize]{
+%  \item We have to distinguish between circular and non-circular parent phases
+%  \item If the parent phase or protocol inner-set at a particular index is circular, then we should have a single strongly connected component containing both half-left and half-right for this phase, and in the middle of them there should be child visits and locals
+%  \item If the parent phase is non-circular then we should just greedy schedule attributes
+%  }
 
 \begin{frame}[fragile=singleslide]{SCC Chunk Scheduling high-level}{Algorithm that makes scheduling CRAG possible}
 
@@ -170,7 +170,7 @@ every join/.style = {arr}
      \item and then start all over, so it's a 3-step process
  \end{itemize}
  
- \item The full algorithm is written in the methods chapter
+ \item The full algorithm is in the methods chapter of the thesis
  }
 
 

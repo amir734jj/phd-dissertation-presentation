@@ -20,8 +20,8 @@ An attribute grammar is \alert{circular} if there exists a derivation tree of th
 \end{frame}
 
 \note[itemize]{
-\item Traditionally, even in the Knuth paper circularities in attribute grammar have been treated as an error and have been avoided
-\item But in mathematics or even programming its natural to define things circularly or recursively 
+\item Traditionally, even in the Knuth paper, circularities in attribute grammar have been treated as an error and have been avoided
+\item But in mathematics or even programming, its natural to define things circularly or recursively 
 \item Detecting if attribute grammar is circular is not straightforward. It's actually NP-complete.
 \item Basically, we need to test if there is a cycle in dependency graph in any of possible derivations, but a context-free grammar may have an infinite number of derivations
 }
@@ -42,8 +42,8 @@ $\Rightarrow$ Require that the domain of all attributes involved in cyclic chain
 
 \note[itemize]{
 \item How to ensure that evaluation of circular attribute grammar terminates?
-\item Farrow described a class of circular attribute grammars where it uses fixed-point semantics to ensure that attribute grammar can be evaluated in finite number of iterations
-\item $x_0$ is a bottom value of the lattice and the height of the lattice is finite so if we evaluate the cycle over and over again, we will eventually get a fixed-point value
+\item Farrow described a class of circular attribute grammars, where it uses fixed-point semantics to ensure that attribute grammar can be evaluated in finite number of iterations
+\item $x_0$ is a bottom value of the lattice, and the height of the lattice is finite, so if we evaluate the cycle over and over again, we will eventually get a fixed-point value
 }
 
 
@@ -118,12 +118,11 @@ Schedule is valid when ($a < b$ is $a \lesssim b \wedge b \not \lesssim a$):
 
 \note[itemize]{
 \item Previously we defined schedule for classical attribute grammar using $\mathit{DO}$ and $\mathit{UO}$
-\item However in circular attribute grammar we have to ensure simple or non-monotone dependencies should not be involved in a cycle
+\item However, in circular attribute grammars we have to ensure simple or non-monotone dependencies should not be involved in a cycle
 \item The key is distinguishing between simple (or non-monotone) and monotone uses 
 \item Schedule for circular attribute grammar is a \customorder{} on the instantiated rules
 \item Schedule is valid when dependencies are respected, meaning that simple or non-monotone uses are not involved in a cycle
 \item Also, note that less than symbol $<$ here does not mean total order, instead it means something is less-sim $\lesssim$ another but not the other way around
-\item I also did not use the word: \enquote{strict}
 }
 
 
@@ -162,7 +161,7 @@ $l$-ordered Circular Attribute Grammars requires:
 
 \note[itemize]{
 \item In $l$-ordered circular attribute grammar, we are required to have a summary graph that is a \customorder{}
-\item For every augmented dependency graph we can form a \customorder{} and all dependencies in the cycle have to be monotone 
+\item For every augmented dependency graph we can form a \customorder{}, and all dependencies in the cycle have to be monotone 
 \item Also, if we restrict the \customorder{} of the augmented dependency graph to just one of the non-terminals, it should be the same \customorder{} for the summary graph
 }
 
@@ -233,7 +232,7 @@ A -> a
 \end{frame}
 \note[itemize]{
 \item Let's propose a summary graph for non-terminal $A$ that captures all possible dependencies among its attribute
-\item We can see we have two independent cycles, if we did not have the connection (colored in black) it would not be \customorder{} (or total)
+\item We can see we have two independent cycles, if we did not have the connection edge (colored in black) it would not be \customorder{} (or total)
 \item This is the \customorder{} of the summary graph as a total order on the partition
 }
 

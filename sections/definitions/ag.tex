@@ -220,7 +220,11 @@ In demand evaluation, we do not know whether the evaluation will succeed or not 
 \note[itemize]{
 \item Demand evaluation replaces access to the value of an attribute instance with a function call that defines the attribute in the first place
 \item Basically, during the evaluation runtime, the evaluator tries to figure out which rule it should evaluate next
-\item This form of evaluation is simple to understand and implement but it has some downsides, more specifically not knowing whether the evaluation will terminate or not, and a need to keep track of runtime dependencies during the evaluation runtime which can be costly both in terms of space and time complexity
+\item This form of evaluation is simple to understand and implement but it has some downsides, more specifically
+\begin{itemize}
+    \item not knowing whether the evaluation will terminate or not
+    \item and a need to keep track of runtime dependencies during the evaluation runtime which can be costly both in terms of space and time complexity
+\end{itemize}
 }
 
 %  move to where we talk about demand previously
@@ -519,7 +523,12 @@ This is a NP problem, more specifically \alert{NP-complete} \cite{ENGELFRIET1982
 \end{frame}
 
 \note[itemize]{
-\item The problem of determining a non-circular AG is $l$-ordered is actually NP-complete because we have to guess an order of attributes for each non-terminal and then construct augmented dependency graph and check if its non-circular
+\item The problem of determining a non-circular AG is $l$-ordered is actually NP-complete
+\item Because
+\begin{itemize}
+    \item we have to guess an order of attributes for each non-terminal
+    \item and then construct augmented dependency graph and check if its non-circular
+\end{itemize}
 }
 
 

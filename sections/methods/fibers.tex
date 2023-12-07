@@ -31,7 +31,7 @@
 \note[itemize]{
     \item I am intentionally not going into details of fiber-construction because it would be a disservice to remote attribute grammar paper
     \item Basically, it expresses the semantics of remote attribute grammars in classical terms
-    \item It is called \enquote{fibers} because objects implicitly carry separate values for the fields and it is like a rope that can be separated into individual fibers
+    \item It is called \enquote{fibers} because objects implicitly carry separate values for the fields, and it is like a rope that can be separated into individual fibers
     \item But fiber-construction yields an improper attribute grammar with an infinite number of attributes
     \item Then fiber-approximation fixes that but it then may include \alert{fiber-cycles}
 }
@@ -77,7 +77,7 @@ Previously in RAG:
 
 \note[itemize]{
 \item Previously for remote attribute grammars, fiber cycles were broken and to do that two artificial attributes called UP and DOWN would be created. This introduced a lot of implementation complexity
-\item To fix that we wrote a new algorithm that treats all attributes as either UP or DOWN and it simplifies fiber cycle breaking
+\item To fix that we wrote a new algorithm that treats all attributes as either UP or DOWN and it simplified fiber cycle breaking
 }
 
 
@@ -110,5 +110,5 @@ Welcome outcome.
 
 \note[itemize]{
 \item But the whole fiber cycle breaking change turned out to be unnecessary and not needed because fiber cycles are monotone and can be handled by the CRAG static scheduler
-\item This is welcome news because the simpler the implementation, the better
+\item This is a welcome news because the simpler the implementation, the better
 }

@@ -84,8 +84,7 @@ visit_A_part2(n: A -> 'a')
 
 \note[itemize]{
 \item This is a visit sequence evaluator for the classical attribute grammar we described previously
-\item Notice that we have 4 recursive functions, each function takes an attribute instance associated with a production and then evaluates some of its attributes inside the visit function
-\item We have 5 recursive functions in this example
+\item Notice that we have 5 recursive functions, each function takes an attribute instance associated with a production and then evaluates some of its attributes inside the visit function
 \item We also see that visit $A$ has part $1$ and part $2$ and that corresponds to phase $1$ and phase $2$ of the summary graph schedule
 }
 
@@ -154,7 +153,7 @@ A \emph{visit-sequence} $\mathscr{V}(p)$ for $p{:} X \rightarrow \alpha \in P$ o
 \item Each visit may contain rules or child visit call for a particular phase
 % \item By rules we mean rule that define local attributes, or rules that define child inherited attributes or rules that use child synthesized attributes or rules that define parent synthesized attributes, so all of that
 \item In this example, we have a visit sequence with two visits, because the protocol for the LHS non-terminal of the production had two phases
-\item Each visit is corresponding to a phase or set in the protocol
+\item Each visit corresponds to a phase or set in the protocol
 \item For example, visit one is corresponding to phase one of the protocol
 }
 

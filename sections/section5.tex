@@ -19,7 +19,7 @@ Now:
 
 \note[itemize]{
 \item Lets talk about the implementation of SCC chunk static scheduling in APS
-\item The static scheduler or the module that constructs the visit sequences was tightly coupled with the code generation module and it was not working well
+\item Originally, the static scheduler or the module that constructs the visit sequences was tightly coupled with the code generation module and it was not working well
 \item So we designed a replacement that is still greedy but simpler as it schedules instances as groups and uses visit markers to indicate where child visit happens and when parent visit ends
 }
 
@@ -93,8 +93,6 @@ trait StaticCircularEvaluation[V_P, V_T] extends CircularEvaluation[V_P, V_T] {
 \item (Skip this)
 \item This is an example of an attribute instance setter, notice that we have a monotonicity checker that compares the old value with the new value to make sure the monotonicity requirement is being followed
 \item Here we allow multiple attribute value assignments as this is an attribute that was declared circular 
-\item We also have a global changed variable that we set if there was a \enquote{change} in attribute value after the assignment
-\item In the next slide we will see how this \enquote{changed} global variable is being used
 }
 
 % kill scala codes, especially this
@@ -115,8 +113,7 @@ changed = prevChanged_2_0;
 
 \note[itemize]{
 \item (Skip this)
-\item Notice that \enquote{changed} global variable is being backed up before we get to the fixed-point loop, and restored after the fixed-point loop
-\item And then we see a do-while loop while there is a change somewhere in the attribute instances that are being re-evaluated during the visit subroutine call
+\item Here we see a do-while loop while there is a change somewhere in the attribute instances that are being re-evaluated during the visit subroutine call
 }
 
 \begin{frame}{Concession}{Concession in the implementation}

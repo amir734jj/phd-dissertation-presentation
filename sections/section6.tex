@@ -53,7 +53,7 @@
 
 \note[itemize]{
 \item We chose Follow for benchmarking because it is a recursively defined tree problem, and given a context-free grammar with recursively defined productions then calculation of Follow set is going to be interesting 
-\item Additionally the JastAdd team implemented Follow already in their git repository so if we implement Follow in APS and our implementation for the same context-free grammar runs comparatively close to their implementation, this means we did a good job
+\item Additionally, the JastAdd team implemented Follow already in their git repository, so if we implement Follow in APS and our implementation for the same context-free grammar runs comparatively close to their implementation, this means we did a good job
 }
 
 \begin{frame}[fragile=singleslide]{Example}{Example of First and Follow}
@@ -223,6 +223,7 @@ nts  Nodes    ApsTime       ApsMemory        JastAddTime        JastAddMemory
 
 \note[itemize]{
 \item This is a log-scaled graph of evaluation runtime
+\item The shorter evaluation time, the better
 \item We see that JastAdd crashes
 }
 
@@ -271,6 +272,7 @@ nts  Nodes    ApsTime       ApsMemory        JastAddTime        JastAddMemory
 
 \note[itemize]{
 \item This is a log scaled graph of evaluation memory usage
+\item The smaller evaluation memory usage, the better
 \item We see that JastAdd crashes
 }
 

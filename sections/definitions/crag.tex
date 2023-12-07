@@ -64,7 +64,7 @@ But, what about \alert{schedule}? how to formalize the validity of the schedule 
 \end{frame}
 
 \note[itemize]{
-\item In CRAG, similar to circular attribute grammars we need a fixed point loop for evaluation
+\item In CRAG, similar to circular attribute grammars, we need a fixed point loop for evaluation
 \item This is the basic setup of a fixed-point loop introduced by Hedin
 \item Basically, we hold on to the previous value and then run the evaluation and then check whether the new value is a superset, NOT superset-equal to the previous value. And if that is the case then we re-run the loop.
 }
@@ -149,7 +149,7 @@ $\Rightarrow$ Notice the \alert{cycle} involving reading and writing of the same
 
 \note[itemize]{
 \item This is an example of circular remote attribute grammar
-\item Notice $o.f$ gets $A.i$ using partial write and $A.i$ itself gets $B.s$ using classical rule
+\item Notice $o.f$ gets $A.i$ using partial field write and $A.i$ itself gets $B.s$ using classical rule
 \item Then $B.s$ gets $l.f$ where $l$ is a local attribute assigned
 \item Basically, we write to $o.f$ using the value of $o.f$. Hence a cycle.
 }
